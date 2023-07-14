@@ -11,7 +11,7 @@
 clear
 
 %% 10-way (left)
-d = 10; %number of modes
+d = 5; %number of modes
 r = 10;
 n = 8; %dimension of tensor
 maxiter = 40;
@@ -25,18 +25,18 @@ T = sinsums(d,n); % rank d representation
 % CP-ALS
 [M_als,U_als,out_als1] = cp_als_time(T,r,'maxiters',maxiter,'tol',tol,'printitn',10,'errmethod','lowmem');
 
-% CP-ALS-PINV 
-[M_pinv,U_pinv,out_pinv1] = cp_als_pinv(T,r,'init',U_als,'maxiters',maxiter,'tol',tol,'printitn',10,'errmethod','lowmem');
-
 % CP-ALS-QR
 [M_qr,U_qr,out_qr1] = cp_als_qr(T,r,'init',U_als,'maxiters',maxiter,'tol',tol,'printitn',10,'errmethod','lowmem');
+
+% CP-ALS-PINV 
+[M_pinv,U_pinv,out_pinv1] = cp_als_pinv(T,r,'init',U_als,'maxiters',maxiter,'tol',tol,'printitn',10,'errmethod','lowmem');
 
 % CP-ALS-QR-SVD
 [M_svd,U_svd,out_svd1] = cp_als_qr_svd(T,r,'init',U_als,'maxiters',maxiter,'tol',tol,'printitn',10,'errmethod','lowmem');
 
 
 %% 10-way (right)
-d = 10; %number of modes
+d = 5; %number of modes
 r = 10;
 n = 8; %dimension of tensor
 maxiter = 40;
