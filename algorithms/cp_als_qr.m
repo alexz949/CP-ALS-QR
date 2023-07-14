@@ -128,15 +128,12 @@ for i = 1:N
         
     end
 end
-Qs
-
 
 
 %%% Compute Pairwise QR %%%
 
 [Qp,Qp_hat,Rp] = kr_qr(U);
-Qp
-Qp_hat
+
 
 
    
@@ -194,19 +191,18 @@ for iter = 1:maxiters
                    test{k} = K{k};
                 end
             end
-            Qs
+            
             
             
            
-           
+          
             
-            
-%             tic; Z = apply_kr_qr(Qp,Qp_hat,test,Y.U{n}); t = toc; t_q0 = t_q0 + t;
-%             tic; U{n} = Rp' \ double(Z); t = toc; t_back = t_back+t;
-            
+            Zp = apply_kr_qr(Qp,Qp_hat,test,Y.U{n});
+            U{n} = Rp' \ double(Zp);
+            Zp = Zp';
 
             tic; Z = Y.U{n} * (khatrirao(K{[1:n-1,n+1:N]},'r')' * Q0); t = toc; t_q0 = t_q0 + t;
-
+            Z = Zp;
             %%% Calculate updated factor matrix by backsolving with R0' and Z. %%%
             tic; U{n} = double(Z) / R0'; t = toc; t_back = t_back + t;
            
@@ -233,6 +229,9 @@ for iter = 1:maxiters
         
         %%% Recompute QR factorization for updated factor matrix. %%%
         tic; [Qs{n}, Rs{n}] = qr(U{n},0); t_qrf = toc;
+        [Qp,Qp_hat,Rp] = kr_qr(U);
+        
+        
         
         
 
