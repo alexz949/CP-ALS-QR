@@ -28,6 +28,7 @@ T = sinsums(d,n); % rank d representation
 % CP-ALS-QR
 [M_qr,U_qr,out_qr1] = cp_als_qr(T,r,'init',U_als,'maxiters',maxiter,'tol',tol,'printitn',10,'errmethod','lowmem');
 
+%%
 % CP-ALS-PINV 
 [M_pinv,U_pinv,out_pinv1] = cp_als_pinv(T,r,'init',U_als,'maxiters',maxiter,'tol',tol,'printitn',10,'errmethod','lowmem');
 
