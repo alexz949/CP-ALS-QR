@@ -133,13 +133,12 @@ end
 
 %%% Compute Pairwise QR %%%
 [Qp,Qp_hat,Rp] = kr_qr(U);
-Qp
-Qp_hat
+
 
 
 
    
-for iter = 1:1
+for iter = 1:maxiters
     t_ttm = 0; % TTM
     t_qrf = 0; % QR of factor matrices
     t_kr = 0; % Computing Q0
@@ -209,6 +208,7 @@ for iter = 1:1
             normz = norm(Zp - Z) / norm(Z)
             %%% Calculate updated factor matrix by backsolving with R0' and Z. %%%
             tic; U{n} = double(Z) / R0'; t = toc; t_back = t_back + t;
+            U{n} = Zp';
            
         else
             %%% For any other tensor: %%%
@@ -233,10 +233,11 @@ for iter = 1:1
         
         %%% Recompute QR factorization for updated factor matrix. %%%
         tic; [Qs{n}, Rs{n}] = qr(U{n},0); t_qrf = toc;
-        [Qp,Qp_hat,Rp] = kr_qr(U);
+        Qp{n} = Qs{n};
         
         
-        %normQsp = norm(Qs{n} - Qp{n}) / norm(Qs{n})
+        
+        
         
     end
 
