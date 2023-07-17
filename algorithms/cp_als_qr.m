@@ -132,9 +132,10 @@ end
 
 
 %%% Compute Pairwise QR %%%
+
+
 [Qp,Qp_hat,Rp] = kr_qr(U);
-
-
+Qp_hat
 
 
    
@@ -176,39 +177,42 @@ for iter = 1:maxiters
             for k = 1:N
                 %if k ~= n
                     K{k} = Y.U{k};
-               
-               
                 %end
 
             end
             
             %%% Apply Q0
             %%% Do apply_kr
-          
-            test = cell(N,1);
             
-            for k = 1:N
-                if k ~= n
-                   test{k} = K{k};
+          
+            test = cell(N-1,1);
+            j = 1;
+            for w = 1:N
+                if w ~= n
+                    test{j} = K{w};
+                    j = j+1;
+
                 end
             end
             
             
             
+            
            
-            Zp = apply_kr_qr(Qp,Qp_hat,test,Y.U{n});
-            U{n} = Rp \ double(Zp);
+            Zp = apply_kr_qr(Qp,Qp_hat,test,Y.U{n},n);
+            Zp  = Zp';
+            Up = double(Zp) / Rp';
             
 
-            Zp  = Zp';
+            
             tic; Z = Y.U{n} * (khatrirao(K{[1:n-1,n+1:N]},'r')' * Q0); t = toc; t_q0 = t_q0 + t;
             
-%             sizeZp = size(Zp)
-%             sizeZ = size(Z)
-            normz = norm(Zp - Z) / norm(Z)
+
+            
+            
             %%% Calculate updated factor matrix by backsolving with R0' and Z. %%%
             tic; U{n} = double(Z) / R0'; t = toc; t_back = t_back + t;
-            U{n} = Zp';
+            normU = norm(U{n} - Up)/ norm(U{n})
            
         else
             %%% For any other tensor: %%%
