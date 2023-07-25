@@ -125,19 +125,8 @@ Rs = cell(N,1); %%% The Khatri-Rao product of these tells us the rest of Q and t
 for i = 1:N
     if ~isempty(U{i})
         [Qs{i}, Rs{i}] = qr(U{i},0); 
-        
     end
 end
-
-
-
-%%% Compute Pairwise QR %%%
-
-
-[Qp,Qp_hat,Rp] = kr_qr(U);
-Qp_hat
-
-
    
 for iter = 1:maxiters
     t_ttm = 0; % TTM
@@ -155,16 +144,13 @@ for iter = 1:maxiters
        
         %%% Compute the QR of the Khatri-Rao product of Rs. %%%
         %%% First compute the Khatri-Rao product on all modes but n. %%%
-       
         tic;  M = khatrirao(Rs{[1:n-1,n+1:N]},'r'); t = toc; t_kr = t_kr + t;
         
         %%% Compute the explicit QR factorization.
         tic;  [Q0,R0] = qr(M,0); t = toc; t_kr = t_kr + t;
 
-       
         %%% TTM on all modes but mode n. %%%
         tic; Y = ttm(X,Qs,-n,'t'); t = toc; t_ttm = t_ttm + t;
-        
         
         %%% Now multiply by Q0 on the right. %%%
         
@@ -178,42 +164,14 @@ for iter = 1:maxiters
                 %if k ~= n
                     K{k} = Y.U{k};
                 %end
-
             end
             
             %%% Apply Q0
-            %%% Do apply_kr
-            
-          
-            test = cell(N-1,1);
-            j = 1;
-            for w = 1:N
-                if w ~= n
-                    test{j} = K{w};
-                    j = j+1;
-
-                end
-            end
-            
-            
-            
-            
-           
-            Zp = apply_kr_qr(Qp,Qp_hat,test,Y.U{n},n);
-            Zp  = Zp';
-            Up = double(Zp) / Rp';
-            
-
-            
             tic; Z = Y.U{n} * (khatrirao(K{[1:n-1,n+1:N]},'r')' * Q0); t = toc; t_q0 = t_q0 + t;
-            
 
-            
-            
             %%% Calculate updated factor matrix by backsolving with R0' and Z. %%%
             tic; U{n} = double(Z) / R0'; t = toc; t_back = t_back + t;
-            normU = norm(U{n} - Up)/ norm(U{n})
-           
+            
         else
             %%% For any other tensor: %%%
             %%% Apply Q0 %%%
@@ -237,12 +195,6 @@ for iter = 1:maxiters
         
         %%% Recompute QR factorization for updated factor matrix. %%%
         tic; [Qs{n}, Rs{n}] = qr(U{n},0); t_qrf = toc;
-        Qp{n} = Qs{n};
-        
-        
-        
-        
-        
     end
 
     %%% Changes for cp_als_qr end here. %%%

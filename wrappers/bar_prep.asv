@@ -71,7 +71,7 @@ nsvd4(:,5) = sum(tsvd.r4(:,5:7),2);
 %% 5way prep
 nals5 = zeros(3,5);
 npinv5 = zeros(3,5);
-nqr5 = zeros(3,5);
+%nqr5 = zeros(3,5);
 nsvd5 = zeros(3,5);
 
 % put zeros in place to correspond with CP-ALS-QR/SVD 
@@ -87,8 +87,8 @@ npinv5(:,4) = tpinv.r5(:,7);
 npinv5(:,5) = sum(tpinv.r5(:,3:5),2);
 
 % sum last columns into other category
-nqr5(:,1:4) = tqr.r5(:,1:4);
-nqr5(:,5) = sum(tqr.r5(:,5:7),2);
+%nqr5(:,1:4) = tqr.r5(:,1:4);
+%nqr5(:,5) = sum(tqr.r5(:,5:7),2);
 
 nsvd5(:,1:4) = tsvd.r5(:,1:4);
 nsvd5(:,5) = sum(tsvd.r5(:,5:7),2);

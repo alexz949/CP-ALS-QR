@@ -1,4 +1,4 @@
-function [P,Uinit,output] = cp_als_qr(X,R,varargin)
+function [P,Uinit,output] = cp_als_qr_new(X,R,varargin)
 %CP_ALS_QR Compute a CP decomposition of any type of tensor.
 %
 %   M = CP_ALS(X,R) computes an estimate of the best rank-R
@@ -109,7 +109,7 @@ U = Uinit;
 fit = 0;
 
 if printitn>0
-  fprintf('\nCP_ALS_QR:\n');
+  fprintf('\nCP_ALS_QR_new:\n');
 end
 
 
@@ -128,18 +128,10 @@ for i = 1:N
         
     end
 end
+%%% TTM on all modes but the first one
+Y = ttm(X,Qs,-1,'t');
 
-
-
-%%% Compute Pairwise QR %%%
-
-
-[Qp,Qp_hat,Rp] = kr_qr(U);
-Qp_hat
-
-
-   
-for iter = 1:1
+for iter = 1:maxiters
     t_ttm = 0; % TTM
     t_qrf = 0; % QR of factor matrices
     t_kr = 0; % Computing Q0
@@ -153,65 +145,39 @@ for iter = 1:1
     % Iterate over all N modes of the tensor
     for n = dimorder(1:end)
        
-        %%% Compute the QR of the Khatri-Rao product of Rs. %%%
-        %%% First compute the Khatri-Rao product on all modes but n. %%%
-       
-        tic;  M = khatrirao(Rs{[1:n-1,n+1:N]},'r'); t = toc; t_kr = t_kr + t;
-        
-        %%% Compute the explicit QR factorization.
-        tic;  [Q0,R0] = qr(M,0); t = toc; t_kr = t_kr + t;
-
-       
-        %%% TTM on all modes but mode n. %%%
-        tic; Y = ttm(X,Qs,-n,'t'); t = toc; t_ttm = t_ttm + t;
-        
-        
-        %%% Now multiply by Q0 on the right. %%%
-        
         if isa(Y,'ktensor')
-            %%% For a ktensor: %%%
-            %%% Save all the factor matrices of Y in a cell array. %%%
-            %%% Then, we can compute the Khatri Rao product in one line.%%%
-            K = cell(N,1);
             
-            for k = 1:N
-                %if k ~= n
-                    K{k} = Y.U{k};
-                %end
-
+            %%% For a ktensor: %%% 
+            if n ~= N
+                R0 = Rs{N};
+                Z = Y{N}; 
+            else
+                R0 = ones(1,R);
+                Z = ones(1,size(Y{N},2)); 
             end
-            
-            %%% Apply Q0
-            %%% Do apply_kr
-            
-          
-            test = cell(N,1);
-            
-            for k = 1:N
+            %%% Compute pairwise QR decomposition
+            %%% Update RHS in same way
+            for k = N-1:-1:1
                 if k ~= n
-                   test{k} = K{k};
+                    tic; [Qp,R0] = qr(khatrirao(R0, Rs{k}),0); t = toc; t_kr = t_kr + t;
+                    tic; Z = Qp' * khatrirao(Z,Y{k});  t = toc; t_q0 = t_q0 + t;
                 end
             end
-            
-            
-           
-            Zp = apply_kr_qr(Qp,Qp_hat,test,Y.U{n});
-            Zp  = Zp';
-            Up = double(Zp) / Rp';
-            
 
-            
-            tic; Z = Y.U{n} * (khatrirao(K{[1:n-1,n+1:N]},'r')' * Q0); t = toc; t_q0 = t_q0 + t;
-            
-
-            
+            Z = Z * X.U{n}';
             
             %%% Calculate updated factor matrix by backsolving with R0' and Z. %%%
-            tic; U{n} = double(Z) / R0'; t = toc; t_back = t_back + t;
-            normU = norm(U{n} - Up)/ norm(U{n})
-           
+            tic; U{n} = Z' / R0'; t = toc; t_back = t_back + t;  
         else
             %%% For any other tensor: %%%
+            %%% TTM on all modes but n
+            tic; Y = ttm(X,Qs,-n,'t'); t = toc; t_ttm = t_ttm + t;
+
+            tic;  M = khatrirao(Rs{[1:n-1,n+1:N]},'r'); t = toc; t_kr = t_kr + t;
+        
+            %%% Compute the explicit QR factorization.
+            tic;  [Q0,R0] = qr(M,0); t = toc; t_kr = t_kr + t;
+            
             %%% Apply Q0 %%%
             tic; Z = tenmat(Y,n) * Q0; t = toc; t_q0 = t_q0 + t;
 
@@ -233,11 +199,10 @@ for iter = 1:1
         
         %%% Recompute QR factorization for updated factor matrix. %%%
         tic; [Qs{n}, Rs{n}] = qr(U{n},0); t_qrf = toc;
-        Qp{n} = Qs{n};
-        
-        
-        
-        
+        %%% Update TTM on mode n
+        if isa(X,'ktensor')             
+            tic; Y.U{n} = Qs{n}' * X.U{n}; t = toc; t_ttm = t_ttm + t;
+        end
         
     end
 
@@ -289,7 +254,7 @@ for iter = 1:1
     end
     
     if (mod(iter,printitn)==0) || ((printitn>0) && (flag==0))
-        fprintf(' Iter %2d: f = %e f-delta = %7.1e\n', iter, fit, fitchange);
+        fprintf('Iter %2d: f = %e f-delta = %7.1e\n', iter, fit, fitchange);
     end
 
     % Check for convergence
