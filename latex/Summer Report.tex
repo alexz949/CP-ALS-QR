@@ -204,15 +204,68 @@ $$\mat{Z}^\top_n = (\mat{A}_N \odot \mat{A}_{N-1} \odot \dots \odot \mat{A}_{n+1
 
 \subsection*{CP-Rounding}
 
+
 \subsection*{CP-ALS-QR}
+\subsubsection*{Dense}
+\subsubsection*{Kruskal}
+\subsubsection*{Complexity}
 
 
 
 
 \section*{Result}
+For showing the result, we setup an ill-conditioned problem which is sine of sums approximation problem.
+In this test, we need to represent this N-dimensional function in a low rank linear representation instead of 
+a exponential one. This problem can lead to ill-conditioned least sqaures problem in CP-ALS.
+
+We first ran one linear least square test problem which takes this 6-way sin of sums Kruskal tensor as an input,
+,tries to solve a least square problem on the last factor matrix, and compute the error between original full ktensor 
+and the full ktensor that has been approximated. We did visualization for both runtime and accuracy showed in figure $1$.
+
+\begin{figure}[ht!]
+  \begin{center}
+    \includegraphics*[scale = 0.4]{6way.jpg}
+    \includegraphics*[scale = 0.4]{6way_acc.jpg}
+    \caption[Figure]{runtime for pairwise Elim, normal equation, and explicit QR}
+  \end{center}
+here should have one error figure.
+\end{figure}
+Based on these two figures, we can know that new QR-based method will have roughly the same runtime
+with normal equation but has better accuracy when solving least square problem.
+
+In the next step, I put new QR-based method into CP-ALS technique which further compare the runtime and accuracy to 
+CP-ALS using normal equation. There are also some visualization showed in Figure $3$.
+
+\begin{figure}[ht!]
+  \begin{center}
+    \includegraphics*[scale = 0.3]{accuracy.jpeg}
+    \includegraphics*[scale = 0.3]{runtime.jpeg}
+    \caption[Figure]{runtime and accuracy figure for CP-ALS}
+  \end{center}
+add description
+\end{figure}
+
+As showed in Figure $3$,
+the accuracy plot shows that CP-ALS can't achieve relative error much below the square root 
+of machine precision, but CP-ALS-QR gets to around 1e-13. The yellow line indicates the difference
+between input and the actual solution given by the formula. It is just a reference which we don't
+expect both algorithms will get close to it.
+
+The runtime plot indicates that both algorithms have time that depends linearly on n.  
+They have different slopes, and in particular the slope of CP-ALS-QR is better, 
+because CP-ALS does redundant computation for each subiteration while our implementation 
+of CP-ALS-QR avoids this.  So the speedup increases with n (and will also increase with d).
+Throughout the test, we used built-in CP-ALS function in tensor toolbox, which there are some redundant computation 
+which can be improved.
+
+
 
 
 \section*{Conclusion}
+
+
+
+
 
 
 
