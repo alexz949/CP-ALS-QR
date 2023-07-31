@@ -167,12 +167,14 @@ In mathmatical form, a sample least square problem is like
 $$\min_{\mat{X}}||\mat{B} - \mat{X}\mat{A}^\top||_{F}$$
 Solving this least sqaure problem has several different techniques, Two most related methods for this report
 is using Normal Equation and QR decomposition.
-For normal equation, we take the gram of $\mat{A}$ and compute $\mat{A}^\top\mat{B}^\top$. In sample equation we perform
+For normal equation, we take the gram of $\mat{A}$ and then compute $\mat{A}^\top\mat{B}^\top$. In sample equation we perform
 \begin{align}
 \mat{X}\mat{A}^\top\mat{A} &= \mat{B}\mat{A} \nonumber \\
 \mat{A}^\top\mat{A}\mat{X}^\top &= \mat{A}^\top\mat{B}^\top \nonumber \\
 \mat{X}^\top &= (\M{A}^\top\mat{A})^{-1}\mat{A}^\top\mat{B}^\top \nonumber
 \end{align}
+Which the time complexity for using normal equation will be $O(n^3)$, given $\mat{A} \in \mathbb{R}^{n \times n}$.
+
 For QR factorization, we will first compute QR decomposition for matrix $\mat{A} = \mat{Q}\mat{R}$ and then apply inverse of $\mat{R}$. In term
 of sample problem, we will do
 \begin{align}
@@ -181,6 +183,13 @@ of sample problem, we will do
   \mat{X}\mat{R}^\top\mat{Q}^\top\mat{Q} &= \mat{B}\mat{Q} \nonumber \\
   \mat{X}^\top &= \mat{R}^{-\top}\mat{B}\mat{Q} \nonumber
 \end{align} 
+The time complexity for solving least square problem with QR factorization will be $O(n^3)$.
+
+If speed is the only consideration, using normal equation will be better because of smaller coeffieicnt
+for leading polynomial. However, this method will not always be stable with the presence of rounding error.
+Because the condition number will increase when taking the gram of $\mat{A}$. Numberically speaking, solving least square through QR decomposition
+is more preferred.
+
 
 
 
