@@ -11,8 +11,21 @@
 \headsep=0.5cm
 \textheight=610pt
 \usepackage{graphicx}
-\usepackage{multicol}
+\usepackage{lineno,hyperref}
+\usepackage{amsmath,amssymb,enumerate,graphicx,pifont,color,tikz,yfonts,scalerel,changepage,algorithm,algpseudocode}
+\usepackage{bookmark}
+\usepackage{diagbox}
+\usepackage{caption,subcaption}
+
+\usetikzlibrary{positioning}
+\usetikzlibrary{cd}
+
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{array}
 \usepackage{tikz}
+
 
 
 \graphicspath{ {./images/} }
@@ -185,56 +198,162 @@ of sample problem, we will do
 \end{align} 
 The time complexity for solving least square problem with QR factorization will be $O(n^3)$.
 
-If speed is the only consideration, using normal equation will be better because of smaller coeffieicnt
-for leading polynomial. However, this method will not always be stable with the presence of rounding error.
-Because the condition number will increase when taking the gram of $\mat{A}$. Numberically speaking, solving least square through QR decomposition
-is more preferred.
+
+If $\mat{B}$ has few columns, using normal equation will be better because of smaller coeffieicnt
+for leading polynomial. However, when $\mat{B}$ is really wide, the majority cost 
+is computing $\mat{A}^\top\mat{B}^\top$ for normal equation and $\mat{B}\mat{Q}$ for QR factorization, 
+which makes the execution time equivalent.
+When $\mat{B}$ is large, numerically speaking, using QR decomposition method is more preferred because this method is stable
+and not sensitive to rounding errors.
+
+
 
 
 
 
 
 \subsection*{CP-ALS}
-In terms of the work in CP-ALS, we need to solve least square problem in the form 
+In terms of the work in CP-ALS, we need to solve bunch of least square problems in the form 
 $$\min_{\mat{\hat{A}}_n}||\mat{X_{(n)}} - {\mat{\hat{A}_n}}\mat{Z}^\top_n ||$$
 where $\mat{X_{(n)}}$ is the matricized tensors, $\mat{\hat{A}_n}$ is the factor matrix we are about to solve and 
 $\mat{Z}^\top_n$ is transpose of the Khatri-Rao product of all factor matrices except $n$-mode which
 $$\mat{Z}^\top_n = (\mat{A}_N \odot \mat{A}_{N-1} \odot \dots \odot \mat{A}_{n+1} \odot \mat{A}_{n-1} \odot \dots \odot \mat{A}_1)^\top $$ 
+In Tensor Toolbox, this least sqaure problem is solved through normal equation approach,
+$$\mat{\hat{A}_n}\mat{Z}_n^\top\mat{Z}_n = \mat{X}_{(n)}\mat{Z}_n$$
+where $\mat{Z}_n^\top\mat{Z}_n$ can be computed as hadamard product of gram $\mat{A}_{1}$, $\mat{A}_{2}$, $\dots$, $\mat{A}_{n}$
+and then use backslash to solve $\mat{\hat{A}}_n$. Sample pseudocodoe for CP-ALS is showed below,
+
+\begin{algorithm}[!ht]
+  \caption{CP-ALS}
+  \label{alg:cp-als}
+  \begin{algorithmic}[1]\footnotesize
+    
+    \Function{$[\bm{\lambda},\M{A}_{n}]=$ CP-ALS}{$\T{X},R$}
+      \State Setup factor matirces  $\mat{A}_1$, $\mat{A}_2$, $\dots$, $\mat{A}_n$
+      \State Compute gram of factor matrices $\mat{G}_1 = \mat{A}_1^\top \mat{A}_1$, $\dots$, $\mat{G}_n = \mat{A}_n^\top \mat{A}_n$  
+      \While{not converge}
+      \For{$n = 1, \dots, N$}
+      \State $\mat{Z}_n^\top\mat{Z}_n = \mat{G}_1 \ast \mat{G}_2 \ast \dots \ast \mat{G}_n$
+      \State $\mat{Z}_n =  (\mat{A}_N \odot \mat{A}_{N-1} \odot \dots \odot \mat{A}_{n+1} \odot \mat{A}_{n-1} \odot \dots \odot \mat{A}_1)$
+      \State Solve $\mat{\hat{A}}_n = \mat{X}_{(n)}\mat{Z}_n / \mat{Z}_n^\top\mat{Z}_n$
+      \State Update $\mat{A}_n$ and $\bm{\lambda}$
+      \State Update gram $\mat{G}_n$ by recomputing $\mat{A}_n^\top\mat{A}_n$
+      
+      \EndFor
+      \EndWhile
+    \EndFunction
+    
+  \end{algorithmic}
+\end{algorithm}
+
+
+
 
 
 \subsection*{CP-Rounding}
 
 
 \subsection*{CP-ALS-QR}
+For CP-ALS-QR approach, it is similar to CP-ALS, but this time more stable QR decomposition is used for solving least sqaure
+problem instead of normal eqaution.
 \subsubsection*{Dense}
+For normal N-mode tensor $\T{X}^{I_1 \times \dots \times I_N}$, we still need to solve a bunch of least sqaure problems in the form
+$$\min_{\mat{\hat{A}}_n}||\mat{X_{(n)}} - {\mat{\hat{A}_n}}\mat{Z}^\top_n ||$$
+for every mode.\\
+This time we will first perform QR on each factor matrix in $\mat{Z}_n$, which 
+\begin{align}
+  \mat{Z}_n &= \mat{A}_N \odot \dots \odot \mat{A}_{n+1} \odot \mat{A}_{n-1} \odot \dots \odot \mat{A}_1 \nonumber \\
+  &= (\mat{Q}_N\mat{R}_N) \odot \dots \odot (\mat{Q}_{n+1}\mat{R}_{n+1}) \odot (\mat{Q}_{n-1}\mat{R}_{n-1}) \odot \dots \odot (\mat{Q}_1\mat{R}_1) \nonumber \\
+  &= (\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1)(\mat{R}_N \odot \dots \odot \mat{R}_{n+1} \odot \mat{R}_{n-1} \odot \dots \odot \mat{R}_1)\nonumber  
+\end{align}
+After that we will perform QR again on Khatri-Rao prodcut of $\mat{R}_{N,\dots,1}$, so $\mat{Z}_n$ will be
+$$\mat{Z}_n = (\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1)\mat{Q}_0\mat{R}_0$$
+For solving least sqaure problem, we will first apply kronecker product of Qs 
+$\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1$ into $\mat{X}_{(n)}$ through TTM 
+$\mat{Y}_{(n)} =  \T{X} \times_1 \mat{Q}_1^\top \dots \times_{n-1} \mat{Q}_{n-1}^\top \times_{n+1} \mat{Q}_{n+1}^\top \dots \times_N \mat{Q}_N^\top$.
+and this problem becomes
+\begin{align}
+  \mat{\hat{A}_n}\mat{Q}_0^\top \mat{R}_0^\top &= \mat{Y}_{(n)} \nonumber \\
+  \mat{\hat{A}_n}\mat{R}_0^\top &= \mat{Y}_{(n)} \mat{Q}_0 \nonumber \\
+  \mat{\hat{A}_n} &= \mat{R}_0^\top \text{\textbackslash} \mat{Y}_{(n)} \mat{Q}_0 \nonumber
+\end{align}
+Sample pseudocode for CP-ALS-QR is below
+\begin{algorithm}
+  \caption{CP-ALS-QR}
+  \label{alg:cp-als-qr}
+  \begin{algorithmic}[1]
+    \Function{$[\bm{\lambda},\M{A}_{n}]=$ CP-ALS}{$\T{X},R$}
+      \State Setup factor matirces  $\mat{A}_1$, $\mat{A}_2$, $\dots$, $\mat{A}_n$
+      \State Compute QR decomposition for factor matrices $\mat{Q}_N\mat{R}_N, \dots \mat{Q}_1\mat{R}_1$
+      \While{not converge}
+      \For{$n = 1, \dots, N$}
+      \State Compute QR factorization $\mat{Q}_0\mat{R}_0$ for Khatri-Rao product of $\mat{R}_N, \dots, \mat{R}_1$
+      \State TTM for $\mat{Y}_{(n)} =  \T{X} \times_1 \mat{Q}_1^\top \dots \times_{n-1} \mat{Q}_{n-1}^\top \times_{n+1} \mat{Q}_{n+1}^\top \dots \times_N \mat{Q}_N^\top$
+      \State Solve $\mat{\hat{A}_n} = \mat{R}_0^\top \text{\textbackslash} \mat{Y}_{(n)} \mat{Q}_0$
+      \State Update $\mat{A}_n$ and $\bm{\lambda}$
+      \State Update QR for $\mat{A}_n = \mat{Q}_n\mat{R}_n$      
+      \EndFor
+      \EndWhile
+    \EndFunction
+  \end{algorithmic}
+\end{algorithm}
+
+
+
 \subsubsection*{Kruskal}
+For Kruskal tensor input, we introduced a new QR-based method utilizing this Kruskal format avoiding
+forming Multi-TTM tensor $\mat{Y}$ in dense tensor case.
+
+Take the same least square problem in dense case, we still need to do QR factorization for each factor matrix in $\mat{Z}_n$, which
+$$\mat{Z}_n = (\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1)(\mat{R}_N \odot \dots \odot \mat{R}_{n+1} \odot \mat{R}_{n-1} \odot \dots \odot \mat{R}_1)$$
+But this time instead of forming QR for Khatri-Rao product of $\mat{R}_N \odot \dots \odot \mat{R}_{n+1} \odot \mat{R}_{n-1} \odot \dots \odot \mat{R}_1$, we will first do QR for $\mat{R}_N \odot \mat{R}_{N-1} = \mat{Q}_{A}\mat{R}_A$ and Khatri-Rao product of $\mat{R}$ will be 
+$$\mat{Q}_A\mat{R}_A \odot \mat{R}_{N-2} \odot \dots \odot \mat{R}_{n+1} \odot \mat{R}_{n-1} \odot \dots \odot \mat{R}_1$$
+We will use the same technique in representing $\mat{Z}_n$, which this will transform into 
+$$(\mat{Q}_A \otimes \dots \otimes \mat{I}_N \otimes \mat{I}_N \otimes \dots  \otimes  \mat{I}_N)(\mat{R}_A \odot \dots \odot \mat{R}_{n+1} \odot \mat{R}_{n-1} \odot \dots \odot \mat{R}_1)$$
+By continuing doing this pariwise QR decomposition on $\mat{R}$, we eventually will have a bunch of new QR representation like
+$$(\mat{Q}_A \otimes \dots \otimes \mat{I}_N \otimes \mat{I}_N \otimes \dots  \otimes  \mat{I}_N)(\mat{Q}_B)$$
 \subsubsection*{Complexity}
 
 
 
 
 \section*{Result}
-For showing the result, we setup an ill-conditioned problem which is sine of sums approximation problem.
-In this test, we need to represent this N-dimensional function in a low rank linear representation instead of 
-a exponential one. This problem can lead to ill-conditioned least sqaures problem in CP-ALS.
+To test our new QR-based method, we setup an problem which is sine of sums sin$(x_1+\dots+ x_d)$ approximation problem.
+Usually this sine wave can be represented in $2^{d-1}$ term, for example
+$$\text{sin}(x_1+x_2+x_3) = \text{sin}(x_1)\text{cos}(x_2)\text{cos}(x_3)+\text{cos}(x_1)\text{cos}(x_2)\text{sin}(x_3)$$
+$$+\text{cos}(x_1)\text{sin}(x_2)\text{cos}(x_3) - \text{sin}(x_1)\text{sin}(x_2)\text{sin}(x_3)$$
+In this test, we need to approximate this N-dimensional function in a low rank linear representation instead of 
+a exponential one, which by Beylkin and Mohlenkamp,
+$$\text{sin}\bigl(\sum^d_{j=1}x_j\bigr) = \sum^d_{j=1}\text{sin}(x_j)\prod^d_{k=1,k\neq j}\frac{\text{sin}(x_k - \alpha_k -\alpha_j)}{\text{sin}(\alpha_k - \alpha_j)}$$
+for all choices of  ${\alpha_j}$ such that $\text{sin}(\alpha_k - \alpha_j) \neq 0$ for all $j \neq k$.
+\\
+We can somehow treat this sine of sum be a N-mode tensor $\T{X} \in \mathbb{R}^{n \times \dots \times n}$, and each term of exponential representation
+corresponde to a rank $2^{d-1}$ CP decomposition. It is also possible to have a rank $n$ CP decomposition by the linear
+representation mentioned aboved. This representation can be ill-conditioned if $\alpha_k \rightarrow \alpha_j$.
+But we also found out that this ill-conditioned porperty still holds when we choose $\alpha$ to be evenly spaced.\\
 
-We first ran one linear least square test problem which takes this 6-way sin of sums Kruskal tensor as an input,
-,tries to solve a least square problem on the last factor matrix, and compute the error between original full ktensor 
-and the full ktensor that has been approximated. We did visualization for both runtime and accuracy showed in figure $1$.
+We first used this ill-conditioned problem to solve a least sqaure problem which takes this 6-way exponential sin of sums Kruskal tensor as an input,
+tries to solve a least square problem on the last factor matrix, and compute the error between original full ktensor 
+and the full ktensor that has been approximated. We did visualization for both runtime and accuracy showed in figure $2$.
 
 \begin{figure}[ht!]
   \begin{center}
     \includegraphics*[scale = 0.4]{6way.jpg}
-    \includegraphics*[scale = 0.4]{6way_acc.jpg}
+    \includegraphics*[scale = 0.5]{6way_acc.jpg}
     \caption[Figure]{runtime for pairwise Elim, normal equation, and explicit QR}
   \end{center}
-here should have one error figure.
 \end{figure}
-Based on these two figures, we can know that new QR-based method will have roughly the same runtime
-with normal equation but has better accuracy when solving least square problem.
 
-In the next step, I put new QR-based method into CP-ALS technique which further compare the runtime and accuracy to 
-CP-ALS using normal equation. There are also some visualization showed in Figure $3$.
+
+Based on these two figures, we can know that new QR-based method runs faster than the old QR method, and just slightly slower than 
+normal equation because it still has steps for computing and apply QR. For the accuracy figure, we can observe
+that the relative error for new QR method is really close to the true error when condition number is $4e11$.
+Another thing to point out is that when dimension goes up more than 7, our old QR-based method's error has a sudden increase which I believe 
+it is because of too large Khatri-Rao prouduct formation.
+
+
+In the next step, I put new QR-based method into CP-ALS which further compare the runtime and accuracy to 
+CP-ALS method using normal equation. There are also some visualization showed in Figure $3$.
 
 \begin{figure}[ht!]
   \begin{center}
@@ -242,7 +361,6 @@ CP-ALS using normal equation. There are also some visualization showed in Figure
     \includegraphics*[scale = 0.3]{runtime.jpeg}
     \caption[Figure]{runtime and accuracy figure for CP-ALS}
   \end{center}
-add description
 \end{figure}
 
 As showed in Figure $3$,
@@ -256,7 +374,7 @@ They have different slopes, and in particular the slope of CP-ALS-QR is better,
 because CP-ALS does redundant computation for each subiteration while our implementation 
 of CP-ALS-QR avoids this.  So the speedup increases with n (and will also increase with d).
 Throughout the test, we used built-in CP-ALS function in tensor toolbox, which there are some redundant computation 
-which can be improved.
+can be improved.
 
 
 
@@ -267,6 +385,7 @@ which can be improved.
 
 
 
+\section*{Appendix}
 
 
 

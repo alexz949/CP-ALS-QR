@@ -111,7 +111,7 @@ Uinit = cell(d,1);
 
 tals.r5 = zeros(length(n),5);
 tpinv.r5 = zeros(length(n),5);
-%tqr.r5 = zeros(length(n),7);
+tqr.r5 = zeros(length(n),7);
 tsvd.r5 = zeros(length(n),7);
 
 for i = 1:length(n)
@@ -123,13 +123,13 @@ for i = 1:length(n)
     end
     
     % compute CP
-    %[Mqr5,~,outqr5] = cp_als_qr(T,r,'init',Uinit,'maxiters',maxiter,'tol',tol,'printitn',1,'errmethod','fast');
+    [Mqr5,~,outqr5] = cp_als_qr(T,r,'init',Uinit,'maxiters',maxiter,'tol',tol,'printitn',1,'errmethod','fast');
     [Msvd5,~,outsvd5] = cp_als_qr_new(T,r,'init',Uinit,'maxiters',maxiter,'tol',tol,'printitn',1,'errmethod','fast');
     [Mals5,~,outals5] = cp_als_time(T,r,'init',Uinit,'maxiters',maxiter,'tol',tol,'printitn',1,'errmethod','fast');
     [Mpinv5,~,outpinv5] = cp_als_pinv(T,r,'init',Uinit,'maxiters',maxiter,'tol',tol,'printitn',1,'errmethod','fast');
 
      % compute average iteration time
-    %tqr.r5(i,:) = mean(outqr5.times(2:end,:),1);
+    tqr.r5(i,:) = mean(outqr5.times(2:end,:),1);
     tsvd.r5(i,:) = mean(outsvd5.times(2:end,:),1);
     tals.r5(i,:) = mean(outals5.times(2:end,:),1);
     tpinv.r5(i,:) = mean(outpinv5.times(2:end,:),1);
