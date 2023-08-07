@@ -82,25 +82,29 @@
 %The normal equations approach is linear in $N$ for Kruskal tensor. During the summer I tried
 %to revise and implement former QR method which archieved better stability than normal equations
 %but computation time increases linearly with respect to $N$.
-I will copy this secntence till I think everything is in right position.\\
-I will copy this secntence till I think everything is in right position.\\
-I will copy this secntence till I think everything is in right position.\\
-I will copy this secntence till I think everything is in right position.\\
-I will copy this secntence till I think everything is in right position.\\
-I will copy this secntence till I think everything is in right position.\\
-I will copy this secntence till I think everything is in right position.\\
-I will copy this secntence till I think everything is in right position.\\
-I will copy this secntence till I think everything is in right position.\\
-I will copy this secntence till I think everything is in right position.\\
-I will copy this secntence till I think everything is in right position.\\
-I will copy this secntence till I think everything is in right position.\\
-I will copy this secntence till I think everything is in right position.\\
-I will copy this secntence till I think everything is in right position.\\
-I will copy this secntence till I think everything is in right position.\\
-I will copy this secntence till I think everything is in right position.\\
-I will copy this secntence till I think everything is in right position.\\
-I will copy this secntence till I think everything is in right position.\\
-I will copy this secntence till I think everything is in right position.\\
+copy this senctence till everything is in right position\\
+copy this senctence till everything is in right position\\
+copy this senctence till everything is in right position\\
+copy this senctence till everything is in right position\\
+copy this senctence till everything is in right position\\
+copy this senctence till everything is in right position\\
+copy this senctence till everything is in right position\\
+copy this senctence till everything is in right position\\
+copy this senctence till everything is in right position\\
+copy this senctence till everything is in right position\\
+copy this senctence till everything is in right position\\
+copy this senctence till everything is in right position\\
+copy this senctence till everything is in right position\\
+copy this senctence till everything is in right position\\
+copy this senctence till everything is in right position\\
+copy this senctence till everything is in right position\\
+copy this senctence till everything is in right position\\
+copy this senctence till everything is in right position\\
+copy this senctence till everything is in right position\\
+copy this senctence till everything is in right position\\
+
+
+
 
 
 
@@ -386,6 +390,25 @@ The sample pseudocode is below.
 
 
 \subsubsection*{Complexity}
+The time complexity distribution for doing CP-ALS-QR on dense tensor $\T{X} \in \mathbb{R}^{I \times \dots \times I}$ with rank $R$ by Rachel is 
+\begin{table}[!ht]
+  \centering
+  \begin{tabular}{|c|c|}
+    \hline
+    {\textbf{CP-ALS-QR}} & \\
+    \hline
+    Component & Cost \\
+    \hline
+    Multi-TTM & $2I^N R + \mathcal{O}(I^{N-1} R^2)$\\
+    QR of factor matrices & $4IR^2$\\
+     Computing $\M{Q}_0$ & $4R^{N+1}$\\
+     Applying $\M{Q}_0$& $2IR^N$\\
+     \hline
+  \end{tabular}
+  \end{table}
+  For Kruskal input, QR for factor matrices has the same cost. For pairwise QR, it should be $IR^3$. The application step
+  for $\mat{Q}^\top$ to right hand side one should cost $IR^3$.
+  
 
 
 
@@ -411,16 +434,17 @@ and the full ktensor that has been approximated. We did visualization for both r
 
 \begin{figure}[ht!]
   \begin{center}
-    \includegraphics*[scale = 0.08]{6waynew.jpg}
+    \includegraphics*[scale = 0.12]{6stacked.jpg}
     \includegraphics*[scale = 0.22]{6wayacc.jpg}
     \caption[Figure]{runtime for pairwise Elim, normal equation, and explicit QR}
   \end{center}
 \end{figure}
 
 
-Based on these two figures, we can know that new QR-based method runs faster than the old QR method, and just slightly slower than 
-normal equation because it still has steps for computing and apply QR. For the accuracy figure, we can observe
-that the relative error for new QR method is really close to the true error when condition number is $4e11$.
+Based on these two figures, we can know that new QR-based method has better accuracy than old QR method, and just slightly slower than 
+normal equation because it still has steps for computing and apply QR. To be more specific about the relative error, we can observe
+that in accuracy figure, new QR method is really close to the true error when condition number is $4e11$. The relative error through normal eqaution
+blows up in this large condition number.
 Another thing to point out is that when dimension goes up more than 7, our old QR-based method's error has a sudden increase which I believe 
 it is because of too large Khatri-Rao prouduct formation.
 
