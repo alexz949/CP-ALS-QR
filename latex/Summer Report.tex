@@ -307,11 +307,32 @@ forming Multi-TTM tensor $\mat{Y}$ in dense tensor case.
 Take the same least square problem in dense case, we still need to do QR factorization for each factor matrix in $\mat{Z}_n$, which
 $$\mat{Z}_n = (\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1)(\mat{R}_N \odot \dots \odot \mat{R}_{n+1} \odot \mat{R}_{n-1} \odot \dots \odot \mat{R}_1)$$
 But this time instead of forming QR for Khatri-Rao product of $\mat{R}_N \odot \dots \odot \mat{R}_{n+1} \odot \mat{R}_{n-1} \odot \dots \odot \mat{R}_1$, we will first do QR for $\mat{R}_N \odot \mat{R}_{N-1} = \mat{Q}_{A}\mat{R}_A$ and Khatri-Rao product of $\mat{R}$ will be 
-$$\mat{Q}_A\mat{R}_A \odot \mat{R}_{N-2} \odot \dots \odot \mat{R}_{n+1} \odot \mat{R}_{n-1} \odot \dots \odot \mat{R}_1$$
+$$\mat{Q}_{A_{N-1}}\mat{R}_{A_{N-1}} \odot \mat{R}_{N-2} \odot \dots \odot \mat{R}_{n+1} \odot \mat{R}_{n-1} \odot \dots \odot \mat{R}_1$$
 We will use the same technique in representing $\mat{Z}_n$, which this will transform into 
-$$(\mat{Q}_A \otimes \dots \otimes \mat{I}_N \otimes \mat{I}_N \otimes \dots  \otimes  \mat{I}_N)(\mat{R}_A \odot \dots \odot \mat{R}_{n+1} \odot \mat{R}_{n-1} \odot \dots \odot \mat{R}_1)$$
-By continuing doing this pariwise QR decomposition on $\mat{R}$, we eventually will have a bunch of new QR representation like
-$$(\mat{Q}_A \otimes \dots \otimes \mat{I}_N \otimes \mat{I}_N \otimes \dots  \otimes  \mat{I}_N)(\mat{Q}_B)$$
+$$(\mat{Q}_{A_{N-1}} \otimes \dots \otimes \mat{I}_N \otimes \mat{I}_N \otimes \dots  \otimes  \mat{I}_N)(\mat{R}_{A_{N-1}} \odot \dots \odot \mat{R}_{n+1} \odot \mat{R}_{n-1} \odot \dots \odot \mat{R}_1)$$
+By continuing doing this pariwise QR decomposition on $\mat{R}$, we eventually will have a bunch of new QR representations like
+$$\mat{V}_N = \underbrace{(\mat{Q}_{A_{N-1}} \otimes \dots  \otimes  \mat{I}_N)}_{N-2}\underbrace{(\mat{Q}_{A_{N-2}} \otimes \dots \otimes \mat{I}_N)}_{N-3} \cdots (\mat{Q}_{A_{2}} \otimes \mat{I}_N) \mat{Q}_{A_{1}}\mat{R}_{A_{1}}$$
+where $\mat{Z}_n$ will be 
+$$\mat{Z}_n = (\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1) (\mat{Q}_{A_{N-1}} \otimes \dots  \otimes  \mat{I}_N)(\mat{Q}_{A_{N-2}} \otimes \dots \otimes \mat{I}_N) \cdots (\mat{Q}_{A_{2}} \otimes \mat{I}_N) \mat{Q}_{A_{1}}\mat{R}_{A_{1}}$$
+We also need to first apply kronecker product of $\mat{Q}$ in $\mat{Z}_n$ to $\mat{X}_n$. But this time since we 
+can use the Kruskal structure which $\mat{X}_{(n)} = \mat{B}_{n}(\mat{B}_{N} \odot \dots \odot \mat{B}_{n+1} \odot \mat{B}_{n-1}  \odot \dots \odot \mat{B}_{1})^\top$. Applying $\mat{Q}$ into 
+$\mat{X}_n$. This gives us
+\begin{align}
+  \mat{Y}_n &= (\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1)(\mat{B}_{n}(\mat{B}_{N} \odot \dots \odot \mat{B}_{n+1} \odot \mat{B}_{n-1}  \odot \dots \odot \mat{B}_{1})^\top) \nonumber \\
+  &= (\mat{Q}_N\mat{B}_N \odot \dots \odot \mat{Q}_{n+1} \mat{B}_{n+1} \odot \mat{Q}_{n-1}\mat{B}_{n-1} \odot \dots \odot \mat{Q}_{1}\mat{B}_{1})^\top\mat{B}_n \nonumber   
+\end{align}
+On following step, we will apply that set of kronecker $\mat{Q}$ into $\mat{Y}_n$ in similar pairwise way.
+\begin{align}
+  \mat{Y}_n   &= (\mat{Q}_N\mat{B}_N \odot \dots \odot \mat{Q}_{n+1} \mat{B}_{n+1} \odot \mat{Q}_{n-1}\mat{B}_{n-1} \odot \dots \odot \mat{Q}_{1}\mat{B}_{1}) \nonumber   \\
+      &= ((\mat{Q}_N\mat{B}_N \odot \mat{Q}_{N-1}\mat{B}_{N-1}) \odot \dots \odot \mat{Q}_{n+1} \mat{B}_{n+1} \odot \mat{Q}_{n-1}\mat{B}_{n-1} \odot \dots \odot \mat{Q}_{1}\mat{B}_{1})^\top\mat{B}_n \nonumber      \\
+      \mat{Y}_n\mat{Q}_{A_{N-1}}^\top  &= (\mat{Q}_{A_{N-1}}^\top(\mat{Q}_N\mat{B}_N \odot \mat{Q}_{N-1}\mat{B}_{N-1}) \odot \dots \odot \mat{Q}_{n+1} \mat{B}_{n+1} \odot \mat{Q}_{n-1}\mat{B}_{n-1} \odot \dots \odot \mat{Q}_{1}\mat{B}_{1})^\top\mat{B}_n \nonumber      
+\end{align}
+Notice that we only have to do one matrix multiplication once a time because when use the same porperty, one matrix times an identity matrix will still be itself.
+
+
+
+
+
 \subsubsection*{Complexity}
 
 
