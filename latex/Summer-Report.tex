@@ -57,8 +57,9 @@
 \newcommand{\Te}[3][]{#1{\mathbf{\cal{#2}}}({#3})}		
 
 \let\ds\displaystyle
-
 \begin{document}
+
+
 
 \maketitle
 \section{Introduction}
@@ -81,6 +82,29 @@
 %The normal equations approach is linear in $N$ for Kruskal tensor. During the summer I tried
 %to revise and implement former QR method which archieved better stability than normal equations
 %but computation time increases linearly with respect to $N$.
+I will copy this secntence till I think everything is in right position.\\
+I will copy this secntence till I think everything is in right position.\\
+I will copy this secntence till I think everything is in right position.\\
+I will copy this secntence till I think everything is in right position.\\
+I will copy this secntence till I think everything is in right position.\\
+I will copy this secntence till I think everything is in right position.\\
+I will copy this secntence till I think everything is in right position.\\
+I will copy this secntence till I think everything is in right position.\\
+I will copy this secntence till I think everything is in right position.\\
+I will copy this secntence till I think everything is in right position.\\
+I will copy this secntence till I think everything is in right position.\\
+I will copy this secntence till I think everything is in right position.\\
+I will copy this secntence till I think everything is in right position.\\
+I will copy this secntence till I think everything is in right position.\\
+I will copy this secntence till I think everything is in right position.\\
+I will copy this secntence till I think everything is in right position.\\
+I will copy this secntence till I think everything is in right position.\\
+I will copy this secntence till I think everything is in right position.\\
+I will copy this secntence till I think everything is in right position.\\
+
+
+
+
 
 
 \section{Background}
@@ -325,10 +349,38 @@ On following step, we will apply that set of kronecker $\mat{Q}$ into $\mat{Y}_n
 \begin{align}
   \mat{Y}_n   &= (\mat{Q}_N\mat{B}_N \odot \dots \odot \mat{Q}_{n+1} \mat{B}_{n+1} \odot \mat{Q}_{n-1}\mat{B}_{n-1} \odot \dots \odot \mat{Q}_{1}\mat{B}_{1}) \nonumber   \\
       &= ((\mat{Q}_N\mat{B}_N \odot \mat{Q}_{N-1}\mat{B}_{N-1}) \odot \dots \odot \mat{Q}_{n+1} \mat{B}_{n+1} \odot \mat{Q}_{n-1}\mat{B}_{n-1} \odot \dots \odot \mat{Q}_{1}\mat{B}_{1})^\top\mat{B}_n \nonumber      \\
-      \mat{Y}_n\mat{Q}_{A_{N-1}}^\top  &= (\mat{Q}_{A_{N-1}}^\top(\mat{Q}_N\mat{B}_N \odot \mat{Q}_{N-1}\mat{B}_{N-1}) \odot \dots \odot \mat{Q}_{n+1} \mat{B}_{n+1} \odot \mat{Q}_{n-1}\mat{B}_{n-1} \odot \dots \odot \mat{Q}_{1}\mat{B}_{1})^\top\mat{B}_n \nonumber      
+      \mat{Y}_n\mat{Q}_{A_{N-1}}^\top  &= (\mat{Q}_{A_{N-1}}^\top(\mat{Q}_N\mat{B}_N \odot \mat{Q}_{N-1}\mat{B}_{N-1}) \odot \dots \odot \mat{Q}_{n+1} \mat{B}_{n+1} \odot \mat{Q}_{n-1}\mat{B}_{n-1} \odot \dots \odot \mat{Q}_{1}\mat{B}_{1})^\top\mat{B}_n \nonumber \\
+      & \vdots \nonumber \\
+    \mat{U}_n  &= (\mat{Q}_{M}^\top\mat{B}_M)^\top\mat{B}_n \nonumber  
 \end{align}
 Notice that we only have to do one matrix multiplication once a time because when use the same porperty, one matrix times an identity matrix will still be itself.
-
+We can then follow the same way to solve the least sqaure problem with calculated $\mat{Q}^\top\mat{B}$.
+\begin{align}
+  \mat{\hat{A}}_n \mat{R}^\top_{A_1} &= \mat{B}^\top_M\mat{Q}_M\mat{B}_n \nonumber \\ 
+  \mat{\hat{A}}_n &= \mat{R}^\top_{A_1} \text{\textbackslash} \mat{B}^\top_M\mat{Q}_M\mat{B}_n \nonumber 
+\end{align}
+The sample pseudocode is below.
+\begin{algorithm}
+  \caption{CP-ALS-Pairwise-QR}
+  \label{alg:cp-als-pairwise-qr}
+  \begin{algorithmic}[1]
+    \Function{$[\bm{\lambda},\M{A}_{n}]=$ CP-ALS}{$\T{X},R$}
+      \State Setup factor matirces  $\mat{A}_1$, $\mat{A}_2$, $\dots$, $\mat{A}_n$
+      \State Compute QR decomposition for factor matrices $\mat{Q}_N\mat{R}_N, \dots \mat{Q}_1\mat{R}_1$
+      \While{not converge}
+      \For{$n = 1, \dots, N$}
+      \State Compute pairwise QR factorization $(\mat{Q}_{A_{N-1}} \otimes \dots  \otimes  \mat{I}_N) \dots \mat{Q}_{A_{1}}\mat{R}_{A_{1}}$ for each $\mat{R}_N, \dots, \mat{R}_1$
+      \State TTM with Kruskal format $\mat{Y}_{(n)} = \mat{B}_1\mat{Q}^\top_1 \odot \dots \odot \mat{B}_{n-1}\mat{Q}^\top_{n-1}\odot \mat{B}_{n+1}\mat{Q}^\top_{n+1} \odot \dots \odot \mat{B}_N\mat{Q}^\top_N$
+      \State Apply pairwise QR on $\mat{Y}_n\mat{Q}_{A_{N-1}}^\top  = (\mat{Q}_{A_{N-1}}^\top(\mat{Q}_N\mat{B}_N \odot \mat{Q}_{N-1}\mat{B}_{N-1}) \odot \dots \odot  \odot \mat{Q}_{1}\mat{B}_{1})^\top\mat{B}_n $
+      
+      \State Solve $  \mat{\hat{A}}_n = \mat{R}^\top_{A_1} \text{\textbackslash} \mat{B}^\top_M\mat{Q}_M\mat{B}_n $
+      \State Update $\mat{A}_n$ and $\bm{\lambda}$
+      \State Update QR for $\mat{A}_n = \mat{Q}_n\mat{R}_n$      
+      \EndFor
+      \EndWhile
+    \EndFunction
+  \end{algorithmic}
+\end{algorithm}
 
 
 
@@ -359,8 +411,8 @@ and the full ktensor that has been approximated. We did visualization for both r
 
 \begin{figure}[ht!]
   \begin{center}
-    \includegraphics*[scale = 0.4]{6way.jpg}
-    \includegraphics*[scale = 0.5]{6way_acc.jpg}
+    \includegraphics*[scale = 0.08]{6waynew.jpg}
+    \includegraphics*[scale = 0.22]{6wayacc.jpg}
     \caption[Figure]{runtime for pairwise Elim, normal equation, and explicit QR}
   \end{center}
 \end{figure}
@@ -407,7 +459,6 @@ can be improved.
 
 
 \section*{Appendix}
-
 
 
 
