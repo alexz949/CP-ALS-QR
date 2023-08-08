@@ -129,11 +129,15 @@ There is a visualization of a CP Decomposition for a 3-way tensor in \cref{fig:3
 \input{tikz/cp.tex}
 \caption{CP decomposition of rank $R$ for a three-dimensional tensor $\T{X}$ \label{fig:3d-cp-decomp}}
 \end{figure}
+
 \subsection*{Linear Least Square Problem}
-In mathmatical form, a sample least square problem is like 
-$$\min_{\mat{X}}||\mat{B} - \mat{X}\mat{A}^\top||_{F}$$
-Solving this least sqaure problem has several different techniques, Two most related methods for this report
-is using Normal Equation and QR decomposition.
+In mathematical form, a generic least squares problem is given by 
+$$\min_{\mat{X}}||\mat{B} - \mat{X}\mat{A}^\top||_{F}.$$
+Note that the coefficient matrix $\mat{A}$ appears on the right of the variable matrix, which is the opposite of the standard form.
+We use this form to relate to the corresponding least squares problem that arises in the context of the CP decomposition.
+
+Several different techniques can be used to solve this problem.
+The two we consider here are via the Normal Equations and by QR decomposition.
 For normal equation, we take the gram of $\mat{A}$ and then compute $\mat{A}^\top\mat{B}^\top$. In sample equation we perform
 \begin{align}
 \mat{X}\mat{A}^\top\mat{A} &= \mat{B}\mat{A} \nonumber \\
