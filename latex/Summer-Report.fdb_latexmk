@@ -1,5 +1,5 @@
 # Fdb version 3
-["pdflatex"] 1691548908 "c:/Users/AlexZ/Desktop/CS/CP-ALS-QR/latex/Summer-Report.tex" "Summer-Report.pdf" "Summer-Report" 1691548910
+["pdflatex"] 1691558563 "c:/Users/AlexZ/Desktop/CS/CP-ALS-QR/latex/Summer-Report.tex" "Summer-Report.pdf" "Summer-Report" 1691558565
   "C:/Program Files/MiKTeX/fonts/tfm/adobe/symbol/psyr.tfm" 1136793854 1408 5937f58aa508ea2cea4901c07d10f5fe ""
   "C:/Program Files/MiKTeX/fonts/tfm/adobe/zapfding/pzdr.tfm" 1136793854 1528 7e12f4c0fcf5a072cebdcfbfc610f54c ""
   "C:/Program Files/MiKTeX/fonts/tfm/public/amsfonts/cmextra/cmbsy5.tfm" 1233955448 1120 1e8878807317373affa7f7bba4cf2f6a ""
@@ -233,9 +233,9 @@
   "C:/Users/AlexZ/AppData/Roaming/MiKTeX/tex/latex/scalerel/scalerel.sty" 1482999016 7825 43f8c26a0a3916d218f4f48c29aa92e4 ""
   "C:/Users/AlexZ/AppData/Roaming/MiKTeX/tex/latex/tikz-cd/tikzlibrarycd.code.tex" 1620478817 23059 b4b98da760150611227e2533f15fe352 ""
   "C:/Users/AlexZ/AppData/Roaming/MiKTeX/tex/latex/yfonts/yfonts.sty" 1554482334 4491 ce392d5b8dc51027fcbcd62c6c980bc3 ""
-  "Summer-Report.aux" 1691548910 2816 3ab84e3021469a3f25339196689be92b "pdflatex"
-  "Summer-Report.tex" 1691548906 24199 8725742e5f71e1363bb3133ac77abaa9 ""
-  "c:/Users/AlexZ/Desktop/CS/CP-ALS-QR/latex/Summer-Report.tex" 1691548906 24199 8725742e5f71e1363bb3133ac77abaa9 ""
+  "Summer-Report.aux" 1691558565 6219 bc33191a54d91bc23edd612b3f1bda91 "pdflatex"
+  "Summer-Report.tex" 1691558561 24188 9e295707037c41991931d88df61abcb1 ""
+  "c:/Users/AlexZ/Desktop/CS/CP-ALS-QR/latex/Summer-Report.tex" 1691558561 24188 9e295707037c41991931d88df61abcb1 ""
   "fig//6stacked.jpg" 1691544216 145521 a682585dfb70861472512fec8cd68ace ""
   "fig//6wayacc.jpg" 1691544216 39131 16da01702efb9307b3919dfc795cf70f ""
   "fig//accuracy.jpeg" 1691544216 44748 612dae01106d00123fcb617fc29bdd01 ""

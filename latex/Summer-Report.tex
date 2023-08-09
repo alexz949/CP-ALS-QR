@@ -116,7 +116,7 @@ copy this senctence till everything is in right position\\
 
 
 \section{Background}
-\subsection*{CP Decomposition}
+\subsection{CP Decomposition}
 Given a $d$-way tensor $\T{X} \in \mathbb{R}^{n_1\times n_2\times \dots \times n_d}$, its
 CP decomposition of rank $r \in \mathbb{N}$ can be represented as 
 $$\T{X}(i_1,i_2,\dots, i_d) \approx \sum^{r}_{j=1}\mat{A_1}(i_1,j)\mat{A_2}(i_2,j) \dots \mat{A_r}(i_r,j)$$
@@ -130,7 +130,7 @@ There is a visualization of a CP Decomposition for a 3-way tensor in \cref{fig:3
 \caption{CP decomposition of rank $R$ for a three-dimensional tensor $\T{X}$ \label{fig:3d-cp-decomp}}
 \end{figure}
 
-\subsection*{Linear Least Square Problem}
+\subsection{Linear Least Square Problem}
 In mathematical form, a generic least squares problem is given by 
 $$\min_{\mat{X}}||\mat{B} - \mat{X}\mat{A}^\top||_{F}.$$
 Note that the coefficient matrix $\mat{A}$ appears on the right of the variable matrix, which is the opposite of the standard form.
@@ -170,7 +170,7 @@ and not sensitive to rounding errors.
 
 
 
-\subsection*{CP-ALS}
+\subsection{CP-ALS}
 In terms of the work in CP-ALS, we need to solve bunch of least square problems in the form 
 $$\min_{\mat{\hat{A}}_n}||\mat{X_{(n)}} - {\mat{\hat{A}_n}}\mat{Z}^\top_n ||$$
 where $\mat{X_{(n)}}$ is the matricized tensors, $\mat{\hat{A}_n}$ is the factor matrix we are about to solve and 
@@ -204,7 +204,7 @@ and then use backslash to solve $\mat{\hat{A}}_n$. Sample pseudocodoe for CP-ALS
   \end{algorithmic}
 \end{algorithm}
 
-\subsection*{CP-Rounding}
+\subsection{CP-Rounding}
 For Kruskal tensor input, it usually refers to a tensor that has special representation as sum of rank-one 
 tensors. For a $d$-way Kruskal tensor $\T{X} \in \mathbb{R}^{n_1 \times \dots \times n_d}$, each rank-one 
 tensor can be treates as the outer product of $d$ different vectors. Mathematical saying, for a 3-way rank-$R$ Kruskal tensor,
@@ -217,10 +217,10 @@ where $\mat{A},\mat{B},\mat{C}$ are called factor matrices.
 Another important usage for Kruskal tensor input is that it has speical mode-$k$ unfolding representation. Given a d-way Kruskal tensor $\T{K}$ for example. It's mode-k unfolding 
 in terms of Khatri-Rao product of factor matrices is
 $$\mat{K}_{(k)} = \mat{A}_k(\mat{A}_d \odot \dots \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \dots \odot \mat{A}_1)^\top$$
-\subsection*{CP-ALS-QR}
+\subsection{CP-ALS-QR}
 For CP-ALS-QR approach, it is similar to CP-ALS, but this time more stable QR decomposition is used for solving least sqaure
 problem instead of normal eqaution.
-\subsubsection*{Dense}
+\subsubsection{Dense}
 For normal N-mode tensor $\T{X}^{I_1 \times \dots \times I_N}$, we still need to solve a bunch of least sqaure problems in the form
 $$\min_{\mat{\hat{A}}_n}||\mat{X_{(n)}} - {\mat{\hat{A}_n}}\mat{Z}^\top_n ||$$
 for every mode.\\
@@ -264,7 +264,7 @@ Sample pseudocode for CP-ALS-QR is below
 
 
 
-\subsubsection*{Kruskal}
+\subsubsection{Kruskal}
 For Kruskal tensor input, we introduced a new QR-based method utilizing this Kruskal format avoiding
 forming Multi-TTM tensor $\mat{Y}$ in dense tensor case.
 
@@ -325,7 +325,7 @@ The sample pseudocode is below.
 
 
 
-\subsubsection*{Complexity}
+\subsubsection{Complexity}
 The time complexity distribution for doing CP-ALS-QR on dense tensor $\T{X} \in \mathbb{R}^{I \times \dots \times I}$ with rank $R$ by Rachel is 
 \begin{table}[!ht]
   \centering
@@ -349,7 +349,7 @@ The time complexity distribution for doing CP-ALS-QR on dense tensor $\T{X} \in 
 
 
 
-\section*{Result}
+\section{Result}
 To test our new QR-based method, we setup an problem which is sine of sums sin$(x_1+\dots+ x_d)$ approximation problem.
 Usually this sine wave can be represented in $2^{d-1}$ term, for example
 $$\text{sin}(x_1+x_2+x_3) = \text{sin}(x_1)\text{cos}(x_2)\text{cos}(x_3)+\text{cos}(x_1)\text{cos}(x_2)\text{sin}(x_3)$$
@@ -412,13 +412,13 @@ can be improved.
 
 
 
-\section*{Conclusion}
+\section{Conclusion}
 
 
 
 
 
-\section*{Appendix}
+\section{Appendix}
 
 
 
