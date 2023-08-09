@@ -102,7 +102,7 @@ d = 7;
 
 
 r = 7;
-n = [4,5,5000];
+n = [500,1000,2000];
 maxiter = 10;
 tol = 1e-10;
 
@@ -184,26 +184,76 @@ end
 % text(7,v,'50','fontsize',18)
 % text(12,v,'100','fontsize',18)
 % text(17,v,'200','fontsize',18)
-
+%%
 % 5-way
-figure,
+nMat = zeros(12,5);
+j = 1;
+for i = 1:15
+    if(i ~= 2)
+        if(i ~= 7) 
+            if( i ~= 12)
+                nMat(j,:) = sdata.N5(i,:);
+                j = j+1;
+            end
+        end
+    end 
+end
+eMat = zeros(9,5);
+j = 1;
+for i = 1:15
+    if(i ~= 2)
+        if(i ~= 3)
+            if(i~=8)
+                if(i~=13)
+        if(i ~= 7) 
+            if( i ~= 12)
+                eMat(j,:) = sdata.N5(i,:);
+                j = j+1;
+            end
+        end
+                end
+            end
 
-bar(sdata.N5,'stacked')
+        end
+    end 
+end
+figure,
+sgtitle('Average runtime for 7-way tensor with different QR-ALS methods')
+subplot(1,2,1)
+
+bar(nMat,'stacked')
 ax = gca;
 ax.FontSize = 16;
 xlabel('dimensions','FontSize',18)
 ylabel('runtime (secs)','FontSize',18)
 %ylim([0 430])
-title('Speedup Factot for Pariwise QR over Normal Equation')
-xticks([0:15])
-xticklabels({'','ALS','PINV','QR','QR-NEW','','ALS','PINV','QR','QR-NEW','','ALS','PINV','QR','QR-NEW'})
+xticks([0:12])
+xticklabels({'','ALS','Exp QR','Pairwise QR','','ALS','EXP QR','Pairwise QR','','ALS','EXP QR','Pairwise QR'})
 % text(2.5,55,num2str(round(ratios.N5(1),1)),'fontsize',14)
 % text(7.5,80,num2str(round(ratios.N5(2),1)),'fontsize',14)
 % text(12.5,305,num2str(round(ratios.N5(3),1)),'fontsize',14)
 v = -0.0005;
-text(2,v,'10','fontsize',18)
-text(7,v,'15','fontsize',18)
-text(12,v,'20','fontsize',18)
-legend('MTTKRP/TTM','Gram/QR','Compute Q_0 (QR only)','Apply Q_0 (QR only)','Other','fontsize',16)
+text(1,v,'500','fontsize',18)
+text(5,v,'1000','fontsize',18)
+text(10,v,'2000','fontsize',18)
 
 
+subplot(1,2,2)
+bar(eMat,'stacked')
+ax = gca;
+ax.FontSize = 16;
+xlabel('dimensions','FontSize',18)
+ylabel('runtime (secs)','FontSize',18)
+%ylim([0 430])
+
+xticks([0:9])
+xticklabels({'','ALS','Pairwise QR','','ALS','Pairwise QR','','ALS','Pairwise QR'})
+% text(2.5,55,num2str(round(ratios.N5(1),1)),'fontsize',14)
+% text(7.5,80,num2str(round(ratios.N5(2),1)),'fontsize',14)
+% text(12.5,305,num2str(round(ratios.N5(3),1)),'fontsize',14)
+v = -0.0005;
+text(1,v,'500','fontsize',18)
+text(4,v,'1000','fontsize',18)
+text(7,v,'2000','fontsize',18)
+lgd = legend('MTTKRP/TTM','Gram/QR','Compute Q_0 (QR only)','Apply Q_0 (QR only)','Other','fontsize',16)
+fontsize(lgd,10,'points');

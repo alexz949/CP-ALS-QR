@@ -1,0 +1,18 @@
+\begin{algorithmic}[1]\footnotesize
+    
+    \Function{$[\bm{\lambda},\M{A}_{n}]=$ CP-ALS}{$\T{X},R$}
+      \State Setup factor matirces  $\mat{A}_1$, $\mat{A}_2$, $\dots$, $\mat{A}_n$
+      \State Compute gram of factor matrices $\mat{G}_1 = \mat{A}_1^\top \mat{A}_1$, $\dots$, $\mat{G}_n = \mat{A}_n^\top \mat{A}_n$  
+      \While{not converge}
+      \For{$n = 1, \dots, N$}
+      \State $\mat{Z}_n^\top\mat{Z}_n = \mat{G}_1 \ast \mat{G}_2 \ast \dots \ast \mat{G}_n$
+      \State $\mat{Z}_n =  (\mat{A}_N \odot \mat{A}_{N-1} \odot \dots \odot \mat{A}_{n+1} \odot \mat{A}_{n-1} \odot \dots \odot \mat{A}_1)$
+      \State Solve $\mat{\hat{A}}_n = \mat{X}_{(n)}\mat{Z}_n / \mat{Z}_n^\top\mat{Z}_n$
+      \State Update $\mat{A}_n$ and $\bm{\lambda}$
+      \State Update gram $\mat{G}_n$ by recomputing $\mat{A}_n^\top\mat{A}_n$
+      
+      \EndFor
+      \EndWhile
+    \EndFunction
+    
+  \end{algorithmic}
