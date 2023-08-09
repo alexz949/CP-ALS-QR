@@ -205,8 +205,18 @@ and then use backslash to solve $\mat{\hat{A}}_n$. Sample pseudocodoe for CP-ALS
 \end{algorithm}
 
 \subsection*{CP-Rounding}
-Check some updates
-
+For Kruskal tensor input, it usually refers to a tensor that has special representation as sum of rank-one 
+tensors. For a $d$-way Kruskal tensor $\T{X} \in \mathbb{R}^{n_1 \times \dots \times n_d}$, each rank-one 
+tensor can be treates as the outer product of $d$ different vectors. Mathematical saying, for a 3-way rank-$R$ Kruskal tensor,
+we have the following representation
+$$\T{K} = \sum^{R}_{l=1}\V{a}_l \circ\V{b}_l \circ\V{c}_l \in \mathbb{R}^{n_1 \times n_2 \times n_3}$$
+where $\V{a}_l$,$\V{b}_l$, and $ \V{c}_l$ are vectors. We can also write this tensor as
+$$\T{K} = [\![\bm{\lambda} ; \mat{A},\mat{B},\mat{C}]\!]$$
+where $\mat{A},\mat{B},\mat{C}$ are called factor matrices.
+\\
+Another important usage for Kruskal tensor input is that it has speical mode-$k$ unfolding representation. Given a d-way Kruskal tensor $\T{K}$ for example. It's mode-k unfolding 
+in terms of Khatri-Rao product of factor matrices is
+$$\mat{K}_{(k)} = \mat{A}_k(\mat{A}_d \odot \dots \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \dots \odot \mat{A}_1)^\top$$
 \subsection*{CP-ALS-QR}
 For CP-ALS-QR approach, it is similar to CP-ALS, but this time more stable QR decomposition is used for solving least sqaure
 problem instead of normal eqaution.
