@@ -1,5 +1,5 @@
 # Fdb version 3
-["pdflatex"] 1691613185 "d:/CS/CP-ALS-QR/latex/Summer-Report.tex" "Summer-Report.pdf" "Summer-Report" 1691613187
+["pdflatex"] 1691691268 "d:/CS/CP-ALS-QR/latex/Summer-Report.tex" "Summer-Report.pdf" "Summer-Report" 1691691270
   "C:/Program Files/MiKTeX/fonts/tfm/adobe/symbol/psyr.tfm" 1136747054 1408 5937f58aa508ea2cea4901c07d10f5fe ""
   "C:/Program Files/MiKTeX/fonts/tfm/adobe/zapfding/pzdr.tfm" 1136747054 1528 7e12f4c0fcf5a072cebdcfbfc610f54c ""
   "C:/Program Files/MiKTeX/fonts/tfm/public/amsfonts/cmextra/cmbsy5.tfm" 1233955448 1120 1e8878807317373affa7f7bba4cf2f6a ""
@@ -233,12 +233,12 @@
   "C:/Program Files/MiKTeX/tex/latex/yfonts/yfonts.sty" 1554482334 4491 ce392d5b8dc51027fcbcd62c6c980bc3 ""
   "C:/Users/Administrator/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1661915695 80909 eab91d9745dd2edfd62a31d53cd5fe15 ""
   "C:/Users/Administrator/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1661915778 10320170 d4120be7022bd7e7f898122a2ad9516b ""
-  "Summer-Report.aux" 1691613187 6961 941f4edeef1423330407f21cadf97c43 "pdflatex"
-  "Summer-Report.tex" 1691613182 21742 6b002435bb4230436281f78817a804dc ""
+  "Summer-Report.aux" 1691691270 7009 129575674111e314e9168f59e806b17d "pdflatex"
+  "Summer-Report.tex" 1691691267 21913 5282f10c021c81edd5f805695e9d87b5 ""
   "algo/cp_als.tex" 1691607183 921 7f168d303b08109da56060c66f81837a ""
   "algo/cp_als_pairwise.tex" 1691607378 1250 47acff1087edb0715983e1354631705e ""
   "algo/cp_als_qr.tex" 1691607336 911 02e1720add5a63e1f4d802fb9ea9547a ""
-  "d:/CS/CP-ALS-QR/latex/Summer-Report.tex" 1691613182 21742 6b002435bb4230436281f78817a804dc ""
+  "d:/CS/CP-ALS-QR/latex/Summer-Report.tex" 1691691267 21913 5282f10c021c81edd5f805695e9d87b5 ""
   "fig//6stacked.jpg" 1691521024 145521 a682585dfb70861472512fec8cd68ace ""
   "fig//6wayacc.jpg" 1691521024 39131 16da01702efb9307b3919dfc795cf70f ""
   "fig//7runtime.jpg" 1691611169 203018 f07417c01b9c9c592257417f62e26650 ""
