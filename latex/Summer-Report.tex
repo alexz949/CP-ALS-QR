@@ -3,7 +3,7 @@
 \author{Alex Zhang}
 \date{July 2023}
 \textwidth=16.00cm 
-\textheight=22.00cm 
+\textheight=26.00cm 
 \topmargin=0.00cm
 \oddsidemargin=0.00cm 
 \evensidemargin=0.00cm 
@@ -95,21 +95,6 @@ copy this senctence till everything is in right position\\
 copy this senctence till everything is in right position\\
 copy this senctence till everything is in right position\\
 copy this senctence till everything is in right position\\
-copy this senctence till everything is in right position\\
-copy this senctence till everything is in right position\\
-copy this senctence till everything is in right position\\
-copy this senctence till everything is in right position\\
-copy this senctence till everything is in right position\\
-copy this senctence till everything is in right position\\
-copy this senctence till everything is in right position\\
-copy this senctence till everything is in right position\\
-copy this senctence till everything is in right position\\
-copy this senctence till everything is in right position\\
-copy this senctence till everything is in right position\\
-
-
-
-
 
 
 
@@ -179,29 +164,12 @@ $$\mat{Z}^\top_n = (\mat{A}_N \odot \mat{A}_{N-1} \odot \dots \odot \mat{A}_{n+1
 In Tensor Toolbox, this least sqaure problem is solved through normal equation approach,
 $$\mat{\hat{A}_n}\mat{Z}_n^\top\mat{Z}_n = \mat{X}_{(n)}\mat{Z}_n$$
 where $\mat{Z}_n^\top\mat{Z}_n$ can be computed as hadamard product of gram $\mat{A}_{1}$, $\mat{A}_{2}$, $\dots$, $\mat{A}_{n}$
-and then use backslash to solve $\mat{\hat{A}}_n$. Sample pseudocodoe for CP-ALS is showed below,
+and then use backslash to solve $\mat{\hat{A}}_n$. Sample pseudocodoe for CP-ALS is showed in \cref{alg:cp-als}
 
 \begin{algorithm}[!ht]
   \caption{CP-ALS}
   \label{alg:cp-als}
-  \begin{algorithmic}[1]\footnotesize
-    
-    \Function{$[\bm{\lambda},\M{A}_{n}]=$ CP-ALS}{$\T{X},R$}
-      \State Setup factor matirces  $\mat{A}_1$, $\mat{A}_2$, $\dots$, $\mat{A}_n$
-      \State Compute gram of factor matrices $\mat{G}_1 = \mat{A}_1^\top \mat{A}_1$, $\dots$, $\mat{G}_n = \mat{A}_n^\top \mat{A}_n$  
-      \While{not converge}
-      \For{$n = 1, \dots, N$}
-      \State $\mat{Z}_n^\top\mat{Z}_n = \mat{G}_1 \ast \mat{G}_2 \ast \dots \ast \mat{G}_n$
-      \State $\mat{Z}_n =  (\mat{A}_N \odot \mat{A}_{N-1} \odot \dots \odot \mat{A}_{n+1} \odot \mat{A}_{n-1} \odot \dots \odot \mat{A}_1)$
-      \State Solve $\mat{\hat{A}}_n = \mat{X}_{(n)}\mat{Z}_n / \mat{Z}_n^\top\mat{Z}_n$
-      \State Update $\mat{A}_n$ and $\bm{\lambda}$
-      \State Update gram $\mat{G}_n$ by recomputing $\mat{A}_n^\top\mat{A}_n$
-      
-      \EndFor
-      \EndWhile
-    \EndFunction
-    
-  \end{algorithmic}
+  \input{algo/cp_als.tex}
 \end{algorithm}
 
 \subsection{CP-Rounding}
@@ -241,32 +209,19 @@ and this problem becomes
   \mat{\hat{A}_n}\mat{R}_0^\top &= \mat{Y}_{(n)} \mat{Q}_0 \nonumber \\
   \mat{\hat{A}_n} &= \mat{R}_0^\top \text{\textbackslash} \mat{Y}_{(n)} \mat{Q}_0 \nonumber
 \end{align}
-Sample pseudocode for CP-ALS-QR is below
+Sample pseudocode for CP-ALS-QR is showed in \cref{alg:cp-als-qr}
 \begin{algorithm}
   \caption{CP-ALS-QR}
   \label{alg:cp-als-qr}
-  \begin{algorithmic}[1]
-    \Function{$[\bm{\lambda},\M{A}_{n}]=$ CP-ALS}{$\T{X},R$}
-      \State Setup factor matirces  $\mat{A}_1$, $\mat{A}_2$, $\dots$, $\mat{A}_n$
-      \State Compute QR decomposition for factor matrices $\mat{Q}_N\mat{R}_N, \dots \mat{Q}_1\mat{R}_1$
-      \While{not converge}
-      \For{$n = 1, \dots, N$}
-      \State Compute QR factorization $\mat{Q}_0\mat{R}_0$ for Khatri-Rao product of $\mat{R}_N, \dots, \mat{R}_1$
-      \State TTM for $\mat{Y}_{(n)} =  \T{X} \times_1 \mat{Q}_1^\top \dots \times_{n-1} \mat{Q}_{n-1}^\top \times_{n+1} \mat{Q}_{n+1}^\top \dots \times_N \mat{Q}_N^\top$
-      \State Solve $\mat{\hat{A}_n} = \mat{R}_0^\top \text{\textbackslash} \mat{Y}_{(n)} \mat{Q}_0$
-      \State Update $\mat{A}_n$ and $\bm{\lambda}$
-      \State Update QR for $\mat{A}_n = \mat{Q}_n\mat{R}_n$      
-      \EndFor
-      \EndWhile
-    \EndFunction
-  \end{algorithmic}
+  \input{algo/cp_als_qr.tex}
 \end{algorithm}
 
 
 
 \subsubsection{Kruskal}
 For Kruskal tensor input, we introduced a new QR-based method utilizing this Kruskal format avoiding
-forming Multi-TTM tensor $\mat{Y}$ in dense tensor case.
+forming Multi-TTM tensor $\mat{Y}$ in dense tensor case. We can represent Kruskal unfolding into
+Khatri-Rao product of factor matrices. This will help us to just do simple matrix multiplication.
 
 Take the same least square problem in dense case, we still need to do QR factorization for each factor matrix in $\mat{Z}_n$, which
 $$\mat{Z}_n = (\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1)(\mat{R}_N \odot \dots \odot \mat{R}_{n+1} \odot \mat{R}_{n-1} \odot \dots \odot \mat{R}_1)$$
@@ -299,51 +254,41 @@ We can then follow the same way to solve the least sqaure problem with calculate
   \mat{\hat{A}}_n \mat{R}^\top_{A_1} &= \mat{B}^\top_M\mat{Q}_M\mat{B}_n \nonumber \\ 
   \mat{\hat{A}}_n &= \mat{R}^\top_{A_1} \text{\textbackslash} \mat{B}^\top_M\mat{Q}_M\mat{B}_n \nonumber 
 \end{align}
-The sample pseudocode is below.
+The sample pseudocode is showed in \cref{alg:cp-als-pairwise-qr}
 \begin{algorithm}
   \caption{CP-ALS-Pairwise-QR}
   \label{alg:cp-als-pairwise-qr}
-  \begin{algorithmic}[1]
-    \Function{$[\bm{\lambda},\M{A}_{n}]=$ CP-ALS}{$\T{X},R$}
-      \State Setup factor matirces  $\mat{A}_1$, $\mat{A}_2$, $\dots$, $\mat{A}_n$
-      \State Compute QR decomposition for factor matrices $\mat{Q}_N\mat{R}_N, \dots \mat{Q}_1\mat{R}_1$
-      \While{not converge}
-      \For{$n = 1, \dots, N$}
-      \State Compute pairwise QR factorization $(\mat{Q}_{A_{N-1}} \otimes \dots  \otimes  \mat{I}_N) \dots \mat{Q}_{A_{1}}\mat{R}_{A_{1}}$ for each $\mat{R}_N, \dots, \mat{R}_1$
-      \State TTM with Kruskal format $\mat{Y}_{(n)} = \mat{B}_1\mat{Q}^\top_1 \odot \dots \odot \mat{B}_{n-1}\mat{Q}^\top_{n-1}\odot \mat{B}_{n+1}\mat{Q}^\top_{n+1} \odot \dots \odot \mat{B}_N\mat{Q}^\top_N$
-      \State Apply pairwise QR on $\mat{Y}_n\mat{Q}_{A_{N-1}}^\top  = (\mat{Q}_{A_{N-1}}^\top(\mat{Q}_N\mat{B}_N \odot \mat{Q}_{N-1}\mat{B}_{N-1}) \odot \dots \odot  \odot \mat{Q}_{1}\mat{B}_{1})^\top\mat{B}_n $
-      
-      \State Solve $  \mat{\hat{A}}_n = \mat{R}^\top_{A_1} \text{\textbackslash} \mat{B}^\top_M\mat{Q}_M\mat{B}_n $
-      \State Update $\mat{A}_n$ and $\bm{\lambda}$
-      \State Update QR for $\mat{A}_n = \mat{Q}_n\mat{R}_n$      
-      \EndFor
-      \EndWhile
-    \EndFunction
-  \end{algorithmic}
+  \input{algo/cp_als_pairwise.tex}
 \end{algorithm}
 
 
 
 
 \subsubsection{Complexity}
-The time complexity distribution for doing CP-ALS-QR on dense tensor $\T{X} \in \mathbb{R}^{I \times \dots \times I}$ with rank $R$ by Rachel is 
+
+For a d-way Kruskal tensor $\T{K} \in \mathbb{R}^{n_1 \times \dots \times n_d}$ and assume $n_1, \dots , n_d$ are the same. If we want to do the rank-$r$ CP Decomposition
+for two different QR-based method, the distribution of time is presented in \cref{tab:its_parts}
+
+
 \begin{table}[!ht]
+  
   \centering
-  \begin{tabular}{|c|c|}
+  \begin{tabular}{|c|c|c|c|}
     \hline
-    {\textbf{CP-ALS-QR}} & \\
+    \multicolumn{2}{|c|}{\textbf{Explicit QR}} & \multicolumn{2}{|c|}{\textbf{Pairwise QR}} \\
     \hline
-    Component & Cost \\
+    Component & Cost & Component & Cost \\
     \hline
-    Multi-TTM & $2I^N R + \mathcal{O}(I^{N-1} R^2)$\\
-    QR of factor matrices & $4IR^2$\\
-     Computing $\M{Q}_0$ & $4R^{N+1}$\\
-     Applying $\M{Q}_0$& $2IR^N$\\
+    QR for factor matrices & $(d-1)r^2n$ & QR for factor matrices & $(d-1)r^2n$\\
+    Computing $\mat{Q}_0$ & $2r^{d+1}$& Computing pairwise QR& $(d-2)r^4$\\
+    Apply Qs to right hand side & $(d-1)r^2n$ & Apply Qs to right hand side & $(d-1)r^2n$ \\
+    Applying $\mat{Q}_0$& $2r^dn$& Applying pairwise QR& $r^dn$\\
      \hline
   \end{tabular}
+  \caption{Breakdown of main components in each subiteration of normal QR and pairwise QR}
+  \label{tab:its_parts}
   \end{table}
-  For Kruskal input, QR for factor matrices has the same cost. For pairwise QR, it should be $IR^3$. The application step
-  for $\mat{Q}^\top$ to right hand side one should cost $IR^3$.
+
   
 
 
@@ -362,18 +307,21 @@ for all choices of  ${\alpha_j}$ such that $\text{sin}(\alpha_k - \alpha_j) \neq
 We can somehow treat this sine of sum be a N-mode tensor $\T{X} \in \mathbb{R}^{n \times \dots \times n}$, and each term of exponential representation
 corresponde to a rank $2^{d-1}$ CP decomposition. It is also possible to have a rank $n$ CP decomposition by the linear
 representation mentioned aboved. This representation can be ill-conditioned if $\alpha_k \rightarrow \alpha_j$.
-But we also found out that this ill-conditioned porperty still holds when we choose $\alpha$ to be evenly spaced.\\
+But we also found out that this ill-conditioned porperty still holds when we choose $\alpha$ to be evenly spaced.
 
 We first used this ill-conditioned problem to solve a least sqaure problem which takes this 6-way exponential sin of sums Kruskal tensor as an input,
 tries to solve a least square problem on the last factor matrix, and compute the error between original full ktensor 
-and the full ktensor that has been approximated. We did visualization for both runtime and accuracy showed in figure $2$.
+and the full ktensor that has been approximated. We did visualization for both runtime and accuracy showed in \cref{fig:LS_problem}
 
 \begin{figure}[ht!]
+  
   \begin{center}
     \includegraphics*[scale = 0.12]{6stacked.jpg}
     \includegraphics*[scale = 0.22]{6wayacc.jpg}
-    \caption[Figure]{runtime for pairwise Elim, normal equation, and explicit QR}
+    \caption[Figure]{runtime and accuracy for pairwise Elim, normal equation, and explicit QR \label{fig:LS_problem}}
   \end{center}
+  
+  
 \end{figure}
 
 
@@ -386,17 +334,32 @@ it is because of too large Khatri-Rao prouduct formation.
 
 
 In the next step, I put new QR-based method into CP-ALS which further compare the runtime and accuracy to 
-CP-ALS method using normal equation. There are also some visualization showed in Figure $3$.
-
+CP-ALS method using normal equation and Explicit. There are also some visualizations showed in \cref{fig:runtime} and \cref{fig:error}
 \begin{figure}[ht!]
   \begin{center}
+    
+    \includegraphics[scale = 0.25]{7runtime.jpg}
+    
+    \caption[Figure]{runtime for ALS and QR in different dimensions \label{fig:runtime}}
+  \end{center}
+  
+\end{figure}
+\begin{figure}[ht!]
+  \begin{center}
+    
     \includegraphics*[scale = 0.3]{accuracy.jpeg}
     \includegraphics*[scale = 0.3]{runtime.jpeg}
-    \caption[Figure]{runtime and accuracy figure for CP-ALS}
+    
+    \caption[Figure]{runtime and accuracy figure for CP-ALS \label{fig:error}}
   \end{center}
+  
 \end{figure}
 
-As showed in Figure $3$,
+As showed in \cref*{fig:runtime}, for a 7-way sine of sum rank-7 ktensor, the execution time for explicit QR decomposition
+grows increasing large respect to the rank, but both ALS and pairwise QR technique are more efficient.
+For pairwise QR, it is even faster than ALS using normal eqaution when dimension is 2000. This can be more clearly seen in speedup figure.
+
+In \cref*{fig:error},
 the accuracy plot shows that CP-ALS can't achieve relative error much below the square root 
 of machine precision, but CP-ALS-QR gets to around 1e-13. The yellow line indicates the difference
 between input and the actual solution given by the formula. It is just a reference which we don't
@@ -414,13 +377,7 @@ can be improved.
 
 \section{Conclusion}
 
-
-
-
-
 \section{Appendix}
-
-
 
 
 \end{document}
