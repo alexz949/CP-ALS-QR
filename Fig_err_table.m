@@ -1,6 +1,6 @@
 
 clear
-n = [700,100,50,25,15,10];
+n = [1000,100,50,25,15,10];
 edata = struct;
 edata.ek = zeros(6,1);
 edata.et = zeros(6,1);
