@@ -267,25 +267,25 @@ The sample pseudocode is showed in \cref{alg:cp-als-pairwise-qr}
 \subsubsection{Complexity}
 
 For a d-way Kruskal tensor $\T{K} \in \mathbb{R}^{n_1 \times \dots \times n_d}$ and assume $n_1, \dots , n_d$ are the same. If we want to do the rank-$r$ CP Decomposition
-for two different QR-based method, the distribution of time is presented in \cref{tab:its_parts}
+for two different ALS methods, the distribution of time is presented in \cref{tab:its_parts}
 
 
 \begin{table}[!ht]
   
   \centering
-  \begin{tabular}{|c|c|c|c|}
+  \begin{tabular}{|c|c|c|c|c|c|}
     \hline
-    \multicolumn{2}{|c|}{\textbf{Explicit QR}} & \multicolumn{2}{|c|}{\textbf{Pairwise QR}} \\
+    \multicolumn{2}{|c|}{\textbf{Normal Equations}} & \multicolumn{2}{|c|}{\textbf{Explicit QR}} & \multicolumn{2}{|c|}{\textbf{Pairwise QR}} \\
     \hline
-    Component & Cost & Component & Cost \\
+    Component & Cost & Component & Cost & Component & Cost \\
     \hline
-    QR for factor matrices & $(d-1)r^2n$ & QR for factor matrices & $(d-1)r^2n$\\
-    Computing $\mat{Q}_0$ & $2r^{d+1}$& Computing pairwise QR& $(d-2)r^4$\\
-    Apply Qs to right hand side & $(d-1)r^2n$ & Apply Qs to right hand side & $(d-1)r^2n$ \\
-    Applying $\mat{Q}_0$& $2r^dn$& Applying pairwise QR& $r^dn$\\
+    Computing Gram & $r^2n$&QR on factor matrices & $(d-1)r^2n$ & QR on factor matrices & $(d-1)r^2n$\\
+    N/A& &Computing $\mat{Q}_0$ & $r^{d+1}$& Computing $\tilde{\mat{Q}}\tilde{\mat{R}}$& $(d-2)r^4$\\
+    Apply RHS&  $r^2n$&Apply Qs to RHS & $(d-1)r^2n$ & Apply Qs to RHS& $(d-1)r^2n$ \\
+    N/A & &Applying $\mat{Q}_0$& $r^dn$& Applying $\tilde{\mat{Q}}\tilde{\mat{R}}$& $r^dn$\\
      \hline
   \end{tabular}
-  \caption{Breakdown of main components in each subiteration of normal QR and pairwise QR}
+  \caption{Breakdown of main component when solving LS problem using normal equation, pairwise QR and explicit QR}
   \label{tab:its_parts}
   \end{table}
 
@@ -342,7 +342,7 @@ CP-ALS method using normal equation and Explicit. There are also some visualizat
     
     \caption[Figure]{runtime for ALS and QR in different dimensions \label{fig:runtime}}
   \end{center}
-  
+difference 
 \end{figure}
 \begin{figure}[ht!]
   \begin{center}
