@@ -106,8 +106,8 @@ Given a $d$-way tensor $\T{X} \in \mathbb{R}^{n_1\times n_2\times \dots \times n
 CP decomposition of rank $r \in \mathbb{N}$ can be represented as 
 $$\T{X}(i_1,i_2,\dots, i_d) \approx \sum^{r}_{j=1}\mat{A_1}(i_1,j)\mat{A_2}(i_2,j) \dots \mat{A_r}(i_r,j)$$
 $$\text{for all } (i_1,i_2,\dots, i_d) \in [n_1] \otimes [n_2] \otimes [n_3] \otimes \dots \otimes [n_d]$$
-where $\mat{A_k} \in \mathbb{R}^{n_k \times r}$ is a factor matrix for all $k \in [d]$. 
-There is a visualization of a CP Decomposition for a 3-way tensor in \cref{fig:3d-cp-decomp}.
+where $\mat{A_k} \in \mathbb{R}^{n_k \times r}$ is a factor matrix for each $k \in [d]$. 
+\Cref{fig:3d-cp-decomp} gives a visualization of a CP Decomposition for a 3-way tensor.
 
 \begin{figure}[ht!]
 \centering
@@ -116,22 +116,30 @@ There is a visualization of a CP Decomposition for a 3-way tensor in \cref{fig:3
 \end{figure}
 
 \subsection{Linear Least Square Problem}
+\label{sec:LS}
+
 In mathematical form, a generic least squares problem is given by 
-$$\min_{\mat{X}}||\mat{B} - \mat{X}\mat{A}^\top||_{F}.$$
+\begin{equation}
+\label{eq:LS}
+\min_{\mat{X}}||\mat{B} - \mat{X}\mat{A}^\top||_{F}.
+\end{equation}
 Note that the coefficient matrix $\mat{A}$ appears on the right of the variable matrix, which is the opposite of the standard form.
-We use this form to relate to the corresponding least squares problem that arises in the context of the CP decomposition.
+We use this form to relate to the corresponding least squares problem that arises in the context of computing a CP decomposition.
 
 Several different techniques can be used to solve this problem.
-The two we consider here are via the Normal Equations and by QR decomposition.
-For normal equation, we take the gram of $\mat{A}$ and then compute $\mat{A}^\top\mat{B}^\top$. In sample equation we perform
-\begin{align}
-\mat{X}\mat{A}^\top\mat{A} &= \mat{B}\mat{A} \nonumber \\
-\mat{A}^\top\mat{A}\mat{X}^\top &= \mat{A}^\top\mat{B}^\top \nonumber \\
-\mat{X}^\top &= (\M{A}^\top\mat{A})^{-1}\mat{A}^\top\mat{B}^\top \nonumber
-\end{align}
+The two we consider here are via the Normal Equations (NE) and by QR decomposition.
+The NE specify a (square) linear system of equations and are derived from setting the gradient of the objective function from \cref{eq:LS} to zero, and they involve the Gram of $\mat{A}$ as well as the product $\mat{B}\mat{A}$:
+\begin{equation}
+\label{eq:NE}
+\mat{X}\mat{A}^\top\mat{A} = \mat{B}\mat{A}
+\end{equation}
+\GB{I would like you to give the derivation of the NE, but perhaps that's lower priority...}
+The NE can be solved via Cholesky factorization of $\mat{A}^\top\mat{A}$ and triangular solves.
+\GB{Rewrite the following sentence for the time complexity, it depends on the dimensions of $\mat{B}$, $\mat{A}$, which you didn't specify.}
 Which the time complexity for using normal equation will be $O(n^3)$, given $\mat{A} \in \mathbb{R}^{n \times n}$.
 
-For QR factorization, we will first compute QR decomposition for matrix $\mat{A} = \mat{Q}\mat{R}$ and then apply inverse of $\mat{R}$. In term
+\GB{There's lot's wrong here, you can't equate $\mat{X}\mat{A}^\top$ and $\mat{B}$, we are seeking only an approximation.  At the very least, you should claim that solving the linear system $\mat{X}\mat{R}^\top=\mat{B}\mat{Q}$ using triangular solve gives the solution $\mat{X}$. I would prefer you derive it correctly, but again maybe that's lower priority.}
+For QR factorization, we will first compute the QR decomposition $\mat{A} = \mat{Q}\mat{R}$ and then apply inverse of $\mat{R}$. In term
 of sample problem, we will do
 \begin{align}
   \mat{X}\mat{A}^\top &= \mat{B} \nonumber \\
@@ -139,42 +147,54 @@ of sample problem, we will do
   \mat{X}\mat{R}^\top\mat{Q}^\top\mat{Q} &= \mat{B}\mat{Q} \nonumber \\
   \mat{X}^\top &= \mat{R}^{-\top}\mat{B}\mat{Q} \nonumber
 \end{align} 
+\GB{This time complexity needs to be fixed similar to NE, and you should provide constant factors for the leading terms.}
 The time complexity for solving least square problem with QR factorization will be $O(n^3)$.
 
 
-If $\mat{B}$ has few columns, using normal equation will be better because of smaller coeffieicnt
-for leading polynomial. However, when $\mat{B}$ is really wide, the majority cost 
-is computing $\mat{A}^\top\mat{B}^\top$ for normal equation and $\mat{B}\mat{Q}$ for QR factorization, 
-which makes the execution time equivalent.
-When $\mat{B}$ is large, numerically speaking, using QR decomposition method is more preferred because this method is stable
-and not sensitive to rounding errors.
+If $\mat{B}$ has few columns, NE is cheaper because of the smaller coefficient in the leading order cost. 
+However, when $\mat{B}$ has many columns, the largest cost is computing $\mat{B}\mat{A}$ for NE and $\mat{B}\mat{Q}$ for QR factorization, which are the same.
 
-
-
-
-
+Using QR is more numerically stable than NE.
+\GB{State the bounds on the accuracy of QR and NE explicitly (use your NLA textbook and cite it).  Then you can say in what case it's really important to use QR (i.e., when the condition number is large).}
 
 
 \subsection{CP-ALS}
-In terms of the work in CP-ALS, we need to solve bunch of least square problems in the form 
+
+\GB{State the approximation problem that we solve in computing a CP (minimizing the residual norm of the tensor approximation).  You can say that this is a nonlinear, nonconvex optimization problem and no closed form solution exists, so we must resort to iterative methods.  Give a citation to the Kolda-Bader survey paper.}
+
+One of the most effective algorithms for computing a CP decomposition of a tensor is called Alternating Least Squares (CP-ALS).
+The algorithm works as a block coordinate descent method, where each block of variables is a factor matrix.
+That is, it alternates over the factor matrices, holding all but one fixed and computing the optimal solution for the variable matrix.
+The key to the CP-ALS algorithm is that the problem in each factor matrix is a \emph{linear} least squares problem, which we can solve using linear algebra as described in \cref{sec:LS}.
+
+In terms of the work in CP-ALS, we need to solve a sequence of least square problems of the form 
 $$\min_{\mat{\hat{A}}_n}||\mat{X_{(n)}} - {\mat{\hat{A}_n}}\mat{Z}^\top_n ||$$
-where $\mat{X_{(n)}}$ is the matricized tensors, $\mat{\hat{A}_n}$ is the factor matrix we are about to solve and 
-$\mat{Z}^\top_n$ is transpose of the Khatri-Rao product of all factor matrices except $n$-mode which
-$$\mat{Z}^\top_n = (\mat{A}_N \odot \mat{A}_{N-1} \odot \dots \odot \mat{A}_{n+1} \odot \mat{A}_{n-1} \odot \dots \odot \mat{A}_1)^\top $$ 
-In Tensor Toolbox, this least sqaure problem is solved through normal equation approach,
+where $\mat{X_{(n)}}$ is a matricized tensor, $\mat{\hat{A}_n}$ is the variable factor matrix, and 
+$\mat{Z}^\top_n$ is the transpose of the Khatri-Rao product of all the fixed factor matrices:
+$$\mat{Z}^\top_n = (\mat{A}_N \odot \mat{A}_{N-1} \odot \dots \odot \mat{A}_{n+1} \odot \mat{A}_{n-1} \odot \dots \odot \mat{A}_1)^\top. $$ 
+\GB{We shouldn't use CP-ALS to refer to the normal equations approach, as our QR approach is also based on CP-ALS.  Let's use CP-ALS-NE to refer to the standard approach.  Update this in the text and in \cref{alg:cp-als-ne}.}
+In the standard implementations of CP-ALS, this least squares problem is solved using the normal equations approach,
 $$\mat{\hat{A}_n}\mat{Z}_n^\top\mat{Z}_n = \mat{X}_{(n)}\mat{Z}_n$$
-where $\mat{Z}_n^\top\mat{Z}_n$ can be computed as hadamard product of gram $\mat{A}_{1}$, $\mat{A}_{2}$, $\dots$, $\mat{A}_{n}$
-and then use backslash to solve $\mat{\hat{A}}_n$. Sample pseudocodoe for CP-ALS is showed in \cref{alg:cp-als}
+where $\mat{Z}_n^\top\mat{Z}_n$ can be computed as a Hadamard product of Gram matrices of $\mat{A}_{1}, \dots, \mat{A}_{n-1}, \mat{A}_{n+1}, \dots, \mat{A}_{n}$. 
+We refer to this standard approach as CP-ALS-NE.
+Pseudocode for CP-ALS-NE is given in \cref{alg:cp-als-ne}.
 
 \begin{algorithm}[!ht]
   \caption{CP-ALS}
-  \label{alg:cp-als}
+  \label{alg:cp-als-ne}
   \input{algo/cp_als.tex}
 \end{algorithm}
 
 \subsection{CP-Rounding}
-For Kruskal tensor input, it usually refers to a tensor that has special representation as sum of rank-one 
-tensors. For a $d$-way Kruskal tensor $\T{X} \in \mathbb{R}^{n_1 \times \dots \times n_d}$, each rank-one 
+
+\GB{I started to edit this section, but it's in rough shape.  You don't want to introduce the CP notation here, that should be done earlier in the CP Decomposition section.  You should introduce what notation you'll use to distinguish between input and output.  You should use B's to represent the input to match what you do later in the QR section.  But you need to show how NE works with Kruskal input.  You can leave some details out, but you need the expressions so we can do the complexity analysis for comparison.  You can cite the Kolda-Bader paper on sparse and structured tensors here.  Also, don't switch to 3-way tensors here, you're doing $d$-way everywhere else so stick to that.}
+
+For some applications, we wish to compute a CP decomposition of a matrix that is already in CP or \emph{Kruskal} format.
+That is, we wish to compute a lower-rank representation of the input tensor, sometimes referred to a CP-Rounding.
+In the case of Kruskal tensor input, the input is represented by a set of factor matrices, which we can write as 
+$$\T{K} = [\![\bm{\lambda} ; \mat{A},\mat{B},\mat{C}]\!].$$ 
+
+For a $d$-way Kruskal tensor $\T{X} \in \mathbb{R}^{n_1 \times \dots \times n_d}$, each rank-one 
 tensor can be treates as the outer product of $d$ different vectors. Mathematical saying, for a 3-way rank-$R$ Kruskal tensor,
 we have the following representation
 $$\T{K} = \sum^{R}_{l=1}\V{a}_l \circ\V{b}_l \circ\V{c}_l \in \mathbb{R}^{n_1 \times n_2 \times n_3}$$
