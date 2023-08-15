@@ -136,38 +136,85 @@ The NE specify a (square) linear system of equations and are derived from settin
 \GB{I would like you to give the derivation of the NE, but perhaps that's lower priority...}
 The NE can be solved via Cholesky factorization of $\mat{A}^\top\mat{A}$ and triangular solves.
 \GB{Rewrite the following sentence for the time complexity, it depends on the dimensions of $\mat{B}$, $\mat{A}$, which you didn't specify.}
-Which the time complexity for using normal equation will be $O(n^3)$, given $\mat{A} \in \mathbb{R}^{n \times n}$.
+The cost of NE depends on the size of $\mat{A}$ and $\mat{B}$. For $\mat{A} \in \mathbb{R}^{m \times n}$, and $\mat{B} \in \mathbb{R}^{p \times m}$. The ditribution of time for doing NE in least sqaure problem is
+\begin{table}[!ht]
+  \centering
+  \begin{tabular}{|c|c|}
+    
+    \hline
+    Components & Number of flops\\
+    \hline
+    Compute Gram & $mn^2$ \\
+    Compute $\mat{B}\mat{A}$ & $2mnp$\\
+    Cholesky factorization & $1/3n^3$ \\
+    Back solves & $2pn^2$ \\
+    \hline
+  \end{tabular}
+  \caption{Breakdown of time for doing NE to solve least sqaure problem}
+  \label{tab:NE-time}
+\end{table}
+
+
 
 \GB{There's lot's wrong here, you can't equate $\mat{X}\mat{A}^\top$ and $\mat{B}$, we are seeking only an approximation.  At the very least, you should claim that solving the linear system $\mat{X}\mat{R}^\top=\mat{B}\mat{Q}$ using triangular solve gives the solution $\mat{X}$. I would prefer you derive it correctly, but again maybe that's lower priority.}
-For QR factorization, we will first compute the QR decomposition $\mat{A} = \mat{Q}\mat{R}$ and then apply inverse of $\mat{R}$. In term
-of sample problem, we will do
+For QR factorization, we will first compute the QR decomposition $\mat{A} = \mat{Q}\mat{R}$ and then apply this into \cref{eq:NE}.
 \begin{align}
-  \mat{X}\mat{A}^\top &= \mat{B} \nonumber \\
-  \mat{X}(\mat{Q}\mat{R})^\top &= \mat{B} \nonumber \\
-  \mat{X}\mat{R}^\top\mat{Q}^\top\mat{Q} &= \mat{B}\mat{Q} \nonumber \\
-  \mat{X}^\top &= \mat{R}^{-\top}\mat{B}\mat{Q} \nonumber
-\end{align} 
-\GB{This time complexity needs to be fixed similar to NE, and you should provide constant factors for the leading terms.}
-The time complexity for solving least square problem with QR factorization will be $O(n^3)$.
+  \mat{X}\mat{A}^\top\mat{A} &= \mat{B}\mat{A} \nonumber \\
+  \mat{X}(\mat{Q}\mat{R})^\top(\mat{Q}\mat{R}) &= \mat{B}\mat{A} \nonumber \\
+  \mat{X}\mat{R}^\top\mat{Q}^\top\mat{Q}\mat{R} &= \mat{B}\mat{A} \nonumber \\
+  \mat{X}\mat{R}^\top &= \mat{B}\mat{A}\mat{R}^{-1} = \mat{B}\mat{Q}  \label{eq:QR}  
+\end{align}
 
+%\begin{align}
+%  &arg\min_{\mat{X}}||\mat{B} - \mat{X}\mat{A}^\top||_{F}^2 \\
+%  &= arg \min_{\mat{X}}||\mat{B} - \mat{X}(\mat{Q}\mat{R})^\top||_{F}^2 \\
+%  &= arg \min_{\mat{X}}||\big[\mat{B} - \mat{X}\mat{R}^\top\mat{Q}^\top\big]\big[\mat{Q} \mat{Q}^\bot\big]||_{F}^2 \\
+%  &= arg \min_{\mat{X}}||\big[\mat{B}\mat{Q} - \mat{X}\mat{R}^\top \text{    } \mat{B} \mat{Q}^\bot\big]||_{F}^2 \\
+%  &= arg \min_{\mat{X}}||\mat{B}\mat{Q} - \mat{X}\mat{R}^\top||_{F}^2 + ||\mat{B}\mat{Q}^\bot||_{F}^2
+%\end{align}
+
+
+\GB{This time complexity needs to be fixed similar to NE, and you should provide constant factors for the leading terms.}
+The most commonly used method for QR decomposition is through Householder triangularization. The following time distribution table is based on this method.
+\begin{table}[!ht]
+  
+  \centering
+  \begin{tabular}{|c|c|}
+    
+    \hline
+    Components & Number of flops\\
+    \hline
+    Compute $\mat{Q}\mat{R} = \mat{A}$ & $2mn^2 - 2/3n^3$ \\
+    Compute $\mat{B}\mat{Q}$ & $2mnp$\\
+    N/A & \\
+    Back solves & $pn^2$ \\
+    \hline
+  \end{tabular}
+  \caption{Breakdown of time for QR factorization to solve least sqaure problem}
+  \label{tab:QR-time}
+\end{table}
 
 If $\mat{B}$ has few columns, NE is cheaper because of the smaller coefficient in the leading order cost. 
 However, when $\mat{B}$ has many columns, the largest cost is computing $\mat{B}\mat{A}$ for NE and $\mat{B}\mat{Q}$ for QR factorization, which are the same.
 
-Using QR is more numerically stable than NE.
+Using QR is more numerically stable than NE. Because given the condition number for $\mat{A} = \kappa(\mat{A})$, the condition number of least sqaure problem
+lies between $\kappa(\mat{A})$ and $\kappa(\mat{A})^2$. However, in NE, we first compute $\mat{A}^\top\mat{A}$ and then perform Cholesky solve. We have increased the 
+condition number by computing $\mat{A}^\top\mat{A}$ to $\kappa(\mat{A})^2$. In this case condition number for least sqaure problem can best be $\kappa(\mat{A})^2$. Using QR is more prefered when condition number is really large (i.e.$1e8$).
 \GB{State the bounds on the accuracy of QR and NE explicitly (use your NLA textbook and cite it).  Then you can say in what case it's really important to use QR (i.e., when the condition number is large).}
 
 
 \subsection{CP-ALS}
 
 \GB{State the approximation problem that we solve in computing a CP (minimizing the residual norm of the tensor approximation).  You can say that this is a nonlinear, nonconvex optimization problem and no closed form solution exists, so we must resort to iterative methods.  Give a citation to the Kolda-Bader survey paper.}
-
+When doing CP rank-$k$ approximation, we are basically minimizing $\| \T{X} - \tilde{\T{X}} \|$ which 
+$$\tilde{\T{X}} = \sum^k_{i-1}\V{a_i} \circ \V{b_i} \circ \V{c_i} $$
+However, this is a nonlinear, nonconvex optimization problem and no closed form solution exists. We can only use iterative methods to approximate.
 One of the most effective algorithms for computing a CP decomposition of a tensor is called Alternating Least Squares (CP-ALS).
 The algorithm works as a block coordinate descent method, where each block of variables is a factor matrix.
 That is, it alternates over the factor matrices, holding all but one fixed and computing the optimal solution for the variable matrix.
-The key to the CP-ALS algorithm is that the problem in each factor matrix is a \emph{linear} least squares problem, which we can solve using linear algebra as described in \cref{sec:LS}.
+The key to the CP-ALS-NE algorithm is that the problem in each factor matrix is a \emph{linear} least squares problem, which we can solve using linear algebra as described in \cref{sec:LS}.
 
-In terms of the work in CP-ALS, we need to solve a sequence of least square problems of the form 
+In terms of the work in CP-ALS-NE, we need to solve a sequence of least square problems of the form 
 $$\min_{\mat{\hat{A}}_n}||\mat{X_{(n)}} - {\mat{\hat{A}_n}}\mat{Z}^\top_n ||$$
 where $\mat{X_{(n)}}$ is a matricized tensor, $\mat{\hat{A}_n}$ is the variable factor matrix, and 
 $\mat{Z}^\top_n$ is the transpose of the Khatri-Rao product of all the fixed factor matrices:
@@ -180,7 +227,7 @@ We refer to this standard approach as CP-ALS-NE.
 Pseudocode for CP-ALS-NE is given in \cref{alg:cp-als-ne}.
 
 \begin{algorithm}[!ht]
-  \caption{CP-ALS}
+  \caption{CP-ALS-NE}
   \label{alg:cp-als-ne}
   \input{algo/cp_als.tex}
 \end{algorithm}
@@ -206,7 +253,7 @@ Another important usage for Kruskal tensor input is that it has speical mode-$k$
 in terms of Khatri-Rao product of factor matrices is
 $$\mat{K}_{(k)} = \mat{A}_k(\mat{A}_d \odot \dots \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \dots \odot \mat{A}_1)^\top$$
 \subsection{CP-ALS-QR}
-For CP-ALS-QR approach, it is similar to CP-ALS, but this time more stable QR decomposition is used for solving least sqaure
+For CP-ALS-QR approach, it is similar to CP-ALS-NE, but this time more stable QR decomposition is used for solving least sqaure
 problem instead of normal eqaution.
 \subsubsection{Dense}
 For normal N-mode tensor $\T{X}^{I_1 \times \dots \times I_N}$, we still need to solve a bunch of least sqaure problems in the form

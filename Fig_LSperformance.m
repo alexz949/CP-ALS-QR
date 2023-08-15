@@ -516,19 +516,22 @@ time54 = [part ;nort; expt];
  save('sixway.mat','sixway');
 %%
 figure,
+    
 
-load('sixway.mat', 'sixway');
 
-bar([sixway.t1; sixway.t2; sixway.t3; sixway.t4],'stacked');
-title('6-way sine of sums ktensor');
+bar([per_data.res(1:4,:); per_data.res(5:8,:); per_data.res(9:12,:); per_data.res(13:16,:); per_data.res(17:20,:);per_data.res(21:24,:)],'stacked');
+
 ylabel('runtime (secs)')
 
-xlabel('dimensions')
-xticks([0:12]);
-xticklabels({'','pairwise Elim','normal EQ','','pairwise Elim','normal EQ','','pairwise Elim','normal EQ','','pairwise Elim','normal EQ'})
-v = -0.0002;
-text(1,v,'50000','fontsize',10)
-text(4,v,'60000','fontsize',10)
-text(7,v,'70000','fontsize',10)
-text(10,v,'80000','fontsize',10)
-legend('KRP','Gram/QR','Qtb','Apply QR','Pairwise RHS','Atb','Back','fontsize',16)
+xlabel('size')
+xticks([0:24]);
+xticklabels({'','pairwise Elim','normal EQ','Exp QR','','pairwise Elim','normal EQ','Exp QR','','pairwise Elim','normal EQ','Exp QR','','pairwise Elim','normal EQ','Exp QR','','pairwise Elim','normal EQ','Exp QR','','pairwise Elim','normal EQ','Exp QR','','pairwise Elim','normal EQ','Exp QR'});
+v = -0.005;
+text(1,v,'d=3,n=3000','fontsize',10)
+text(5,v,'d=4,n=600','fontsize',10)
+text(9,v,'d=5,n=200','fontsize',10)
+text(13,v,'d=6,n=70','fontsize',10)
+text(17,v,'d=7,n=30','fontsize',10)
+text(21,v,'d=8,n=10','fontsize',10)
+
+legend('Gram/QR','QR on R','Qtb','apply QR on R','Atb','Back','fontsize',16)

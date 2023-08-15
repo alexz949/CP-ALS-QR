@@ -33,18 +33,33 @@ end
 %% test for exp QR
 tic
  K = khatrirao(Ty);
- Kx = khatrirao(Xy);
+ 
  
  t = toc; t_krp = t_krp + t;
 tic
- [Qk,Rk] = qr(K,0);
- t = toc; t_comp = t_comp + t;
- kappa = cond(K);
- tic
- Kx = Qk' * Kx;
- t = toc; t_apply = t_apply + t;
- tic
- XXX = Rk \ (Kx * X.U{d}');
+QF = cell(d-1,1);
+RF = cell(d-1,1);
+for i = 1 : d-1
+    [QF{i},RF{i}] = qr(Ty{i},0);
+end
+t = toc; t_comp = t_comp + t;
+tic
+Rk = khatrirao(RF);
+[Q0,R0] = qr(Rk,0);
+t = toc; t_par = t_par + t;
+kappa = cond(K);
+XXy = cell(d-1,1);
+tic
+for i =  1:d-1
+    XXy{i} = QF{i}' * Xy{i};
+end
+t = toc; t_comp_apply = t_comp_apply + t;
+Kx = khatrirao(Xy);
+tic
+Kx = Q0' * Kx;
+t = toc; t_par_apply = t_par_apply + t;
+tic
+ XXX = R0 \ (Kx * X.U{d}');
  T.U{d} = XXX';
  t = toc; t_back = t_back + t;
  
