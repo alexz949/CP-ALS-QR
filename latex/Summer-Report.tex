@@ -17,6 +17,7 @@
 \usepackage{diagbox}
 \usepackage{caption,subcaption}
 
+
 \usetikzlibrary{positioning}
 \usetikzlibrary{cd}
 
@@ -103,8 +104,8 @@ copy this senctence till everything is in right position\\
 \section{Background}
 \subsection{CP Decomposition}
 Given a $d$-way tensor $\T{X} \in \mathbb{R}^{n_1\times n_2\times \dots \times n_d}$, its
-CP decomposition of rank $r \in \mathbb{N}$ can be represented as 
-$$\T{X}(i_1,i_2,\dots, i_d) \approx \sum^{r}_{j=1}\mat{A_1}(i_1,j)\mat{A_2}(i_2,j) \dots \mat{A_r}(i_r,j)$$
+CP decomposition $\T{K}$ of rank $r \in \mathbb{N}$ can be represented as 
+$$\T{X}(i_1,i_2,\dots, i_d) \approx \T{K} = \sum^{r}_{j=1}\mat{A_1}(i_1,j)\mat{A_2}(i_2,j) \dots \mat{A_r}(i_r,j)$$
 $$\text{for all } (i_1,i_2,\dots, i_d) \in [n_1] \otimes [n_2] \otimes [n_3] \otimes \dots \otimes [n_d]$$
 where $\mat{A_k} \in \mathbb{R}^{n_k \times r}$ is a factor matrix for each $k \in [d]$. 
 \Cref{fig:3d-cp-decomp} gives a visualization of a CP Decomposition for a 3-way tensor.
@@ -114,6 +115,9 @@ where $\mat{A_k} \in \mathbb{R}^{n_k \times r}$ is a factor matrix for each $k \
 \input{tikz/cp.tex}
 \caption{CP decomposition of rank $R$ for a three-dimensional tensor $\T{X}$ \label{fig:3d-cp-decomp}}
 \end{figure}
+In which we can represent $\T[]{K}$ in shorthand CP notation,
+$$\T{K} = [\![\bm{\lambda};\mat{A}_1,\mat{A}_2, \dots,\mat{A}_r ]\!] $$
+where $\mat{A}_k = \big[\V[]{a}_1^{(k)} \dots \V[]{a}_r^{(k)}\big]$.
 
 \subsection{Linear Least Square Problem}
 \label{sec:LS}
@@ -206,8 +210,8 @@ condition number by computing $\mat{A}^\top\mat{A}$ to $\kappa(\mat{A})^2$. In t
 \subsection{CP-ALS}
 
 \GB{State the approximation problem that we solve in computing a CP (minimizing the residual norm of the tensor approximation).  You can say that this is a nonlinear, nonconvex optimization problem and no closed form solution exists, so we must resort to iterative methods.  Give a citation to the Kolda-Bader survey paper.}
-When doing CP rank-$k$ approximation, we are basically minimizing $\| \T{X} - \tilde{\T{X}} \|$ which 
-$$\tilde{\T{X}} = \sum^k_{i-1}\V{a_i} \circ \V{b_i} \circ \V{c_i} $$
+When doing CP rank-$k$ approximation for a N-way tensor $\T{X}$, we are basically minimizing $\| \T{X} - \tilde{\T{X}} \|$ which 
+$$\tilde{\T{X}} = \sum^k_{i-1}\mat{A}_1(i) \circ \mat{A}_2(i) \circ \dots \circ \mat{A}_N(i)$$
 However, this is a nonlinear, nonconvex optimization problem and no closed form solution exists. We can only use iterative methods to approximate.
 One of the most effective algorithms for computing a CP decomposition of a tensor is called Alternating Least Squares (CP-ALS).
 The algorithm works as a block coordinate descent method, where each block of variables is a factor matrix.
@@ -223,8 +227,16 @@ $$\mat{Z}^\top_n = (\mat{A}_N \odot \mat{A}_{N-1} \odot \dots \odot \mat{A}_{n+1
 In the standard implementations of CP-ALS, this least squares problem is solved using the normal equations approach,
 $$\mat{\hat{A}_n}\mat{Z}_n^\top\mat{Z}_n = \mat{X}_{(n)}\mat{Z}_n$$
 where $\mat{Z}_n^\top\mat{Z}_n$ can be computed as a Hadamard product of Gram matrices of $\mat{A}_{1}, \dots, \mat{A}_{n-1}, \mat{A}_{n+1}, \dots, \mat{A}_{n}$. 
-We refer to this standard approach as CP-ALS-NE.
-Pseudocode for CP-ALS-NE is given in \cref{alg:cp-als-ne}.
+We refer to this standard approach as CP-ALS-NE. Pseudocode for CP-ALS-NE is given in \cref{alg:cp-als-ne}.
+
+
+
+If the input tensor $\T[]{X}$ is already in Kruskal format, we can also use Hadamard prodcut to compute right-hand-side more efficient.
+\begin{align}
+  \mat{X}_{(n)}\mat{Z}_n &= \mat{X}_n(\mat{X}_N \odot \dots \odot \mat{X}_{n+1} \odot \mat{X}_{n-1} \odot \dots \odot \mat{X}_1)^\top(\mat{A}_N \odot \dots \odot \mat{A}_1) \nonumber \\
+ &= \mat{X}_n(\mat{X}_N^\top\mat{A}_N) \ast \dots \ast (\mat{X}_{n+1}^\top\mat{A}_{n+1}) \ast (\mat{X}_{n-1}^\top\mat{A}_{n-1}) \ast \dots \ast (\mat{X}_1^\top\mat{A}_1)  \nonumber 
+\end{align}
+
 
 \begin{algorithm}[!ht]
   \caption{CP-ALS-NE}
@@ -238,20 +250,18 @@ Pseudocode for CP-ALS-NE is given in \cref{alg:cp-als-ne}.
 
 For some applications, we wish to compute a CP decomposition of a matrix that is already in CP or \emph{Kruskal} format.
 That is, we wish to compute a lower-rank representation of the input tensor, sometimes referred to a CP-Rounding.
-In the case of Kruskal tensor input, the input is represented by a set of factor matrices, which we can write as 
-$$\T{K} = [\![\bm{\lambda} ; \mat{A},\mat{B},\mat{C}]\!].$$ 
+Given a d-way tensor $\T[]{X} \in \mathbb{R}^{I_1 \times \dots \times I_d}$, it can be written as a sum of $R$ rank-1 tensors.
+$$\T[]{X} = \sum^R_{i=1}\lambda_i\V{b}_i^{(1)} \circ \dots \circ \V{b}_i^{(d)}$$
+This is referred as \emph{Kruskal} tensor. It's shorthand notation will be 
 
-For a $d$-way Kruskal tensor $\T{X} \in \mathbb{R}^{n_1 \times \dots \times n_d}$, each rank-one 
-tensor can be treates as the outer product of $d$ different vectors. Mathematical saying, for a 3-way rank-$R$ Kruskal tensor,
-we have the following representation
-$$\T{K} = \sum^{R}_{l=1}\V{a}_l \circ\V{b}_l \circ\V{c}_l \in \mathbb{R}^{n_1 \times n_2 \times n_3}$$
-where $\V{a}_l$,$\V{b}_l$, and $ \V{c}_l$ are vectors. We can also write this tensor as
-$$\T{K} = [\![\bm{\lambda} ; \mat{A},\mat{B},\mat{C}]\!]$$
-where $\mat{A},\mat{B},\mat{C}$ are called factor matrices.
+$$\T{K} = [\![\bm{\lambda} ; \mat{B}^{(1)}, \dots ,\mat{B}^{(d)}]\!].$$ 
+
+
+where $\mat{B}^{(n)} = \big[\V[]{b}_1^{(n)} \dots \V[]{b}_R^{(n)}\big]$ and $\bm{\lambda} = \big[\lambda_1 \dots \lambda_R\big]^\top$ are called factor matrices and corresponding coefficients.
 \\
 Another important usage for Kruskal tensor input is that it has speical mode-$k$ unfolding representation. Given a d-way Kruskal tensor $\T{K}$ for example. It's mode-k unfolding 
 in terms of Khatri-Rao product of factor matrices is
-$$\mat{K}_{(k)} = \mat{A}_k(\mat{A}_d \odot \dots \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \dots \odot \mat{A}_1)^\top$$
+$$\mat{K}_{(k)} = \mat{B}_k(\mat{B}_d \odot \dots \mat{B}_{k+1} \odot \mat{B}_{k-1} \odot \dots \odot \mat{B}_1)^\top$$
 \subsection{CP-ALS-QR}
 For CP-ALS-QR approach, it is similar to CP-ALS-NE, but this time more stable QR decomposition is used for solving least sqaure
 problem instead of normal eqaution.
@@ -442,9 +452,35 @@ can be improved.
 
 
 
-\section{Conclusion}
+\section{Conclusion and Futrue Work}
 
 \section{Appendix}
+\subsection{Reflection}
+After doing this project in this summer, I really got a sense about how interesting
+doing research is. At the beginning of this research, I and professor Ballard
+first tried another coefficient matrices technique for a few weeks. It didn't work
+well which made me kind of frustrated. Luckily, Another profeesor from England 
+used to think of one different method that after carefuly expansion and examination, we found 
+it worked. We further tested this method and we were pretty decent about the result.
+Then I had to write the report which is less excite because I have to define variables, setup notation
+and explain how formula and algorithm work. My mind in this researching process is just bouncing up and down
+which is interesting.
 
+For educational development, the main feeling when I was doing research is that I do not have really solid mathematical
+background. Even though I have already took Numerical Linear Algebra and two linear algebra courses in math department,
+I sometimes still feel like I cannot understand lemmas and porperties. If I was better at 
+math, I maybe more efficiency and can locate the problem quicker. I'm thinking about presuting a math minor in the 
+future. Besides from this part, I also had a chance to look deep into what I have learnt through this research.
+There are lots of mathematical reasons that support these computation methods which I found out really interesting.
+
+For personal development, I think inthe future I may persuitinng higher degree because doing research
+is interesting for now. However this doesn't mean that I will always do research.
+Right now, I just feel kind of tired because sticking with one thing for 10 more weeks definitely will wipe some excitements from people.
+Right now I really want the new semester starts so that I can learn new stuff and take a break from research.
+Speaking of this, my future personal goal is try to find a balance between studying and relax, or researching and studying.
+\bibliographystyle{plain}
+\cite{1}
+
+\bibliography{reference}
 
 \end{document}
