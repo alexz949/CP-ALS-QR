@@ -87,15 +87,7 @@
 %The normal equations approach is linear in $N$ for Kruskal tensor. During the summer I tried
 %to revise and implement former QR method which archieved better stability than normal equations
 %but computation time increases linearly with respect to $N$.
-copy this senctence till everything is in right position\\
-copy this senctence till everything is in right position\\
-copy this senctence till everything is in right position\\
-copy this senctence till everything is in right position\\
-copy this senctence till everything is in right position\\
-copy this senctence till everything is in right position\\
-copy this senctence till everything is in right position\\
-copy this senctence till everything is in right position\\
-copy this senctence till everything is in right position\\
+
 
 
 
@@ -194,13 +186,18 @@ However, when $\mat{B}$ has many columns ($p\gg n$), the largest cost is computi
 
 Using QR is more numerically stable than NE. 
 Because given the condition number for $\mat{A} = \kappa(\mat{A})$, the condition number of least sqaure problem
-lies between $\kappa(\mat{A})$ and $\kappa(\mat{A})^2$. However, in NE, we first compute $\mat{A}^\top\mat{A}$ and then perform Cholesky solve. We have increased the 
+lies between $\kappa(\mat{A})$ and $\kappa(\mat{A})^2$. Given the formula from Trefethen,
+\begin{equation}
+  \frac{||\tilde{x} - x||}{||x||} = O \biggl(\biggl(\kappa + \frac{\kappa^2\tan\theta}{\eta}\biggr)\epsilon_{machine}\biggr)
+\end{equation}
+where $\kappa = \kappa(\mat{A})$,
+However, in NE, we first compute $\mat{A}^\top\mat{A}$ and then perform Cholesky solve. We have increased the 
 condition number by computing $\mat{A}^\top\mat{A}$ to $\kappa(\mat{A})^2$. In this case condition number for least sqaure problem can best be $\kappa(\mat{A})^2$. Using QR is more prefered when condition number is really large (i.e.$1e8$).
 \GB{Give equations (19.2) and (19.3) from Trefethen and Bau as numbered equations.  You'll need to define $\theta$ and $\eta$ for (19.2).  Then you can give a little intuition for why this exists.  Here's how you cite: \cite{trefethen1997numerical}.}
 
 
 \subsection{CP-ALS}
-
+\subsubsection{Least Sqaure Problem}
 \GB{State the approximation problem that we solve in computing a CP (minimizing the residual norm of the tensor approximation).  You can say that this is a nonlinear, nonconvex optimization problem and no closed form solution exists, so we must resort to iterative methods.  Give a citation to the Kolda-Bader survey paper.}
 When doing CP rank-$k$ approximation for a N-way tensor $\T{X}$, we are basically minimizing $\| \T{X} - \tilde{\T{X}} \|$ which 
 $$\tilde{\T{X}} = \sum^k_{i-1}\mat{A}_1(i) \circ \mat{A}_2(i) \circ \dots \circ \mat{A}_N(i)$$
@@ -208,35 +205,9 @@ However, this is a nonlinear, nonconvex optimization problem and no closed form 
 One of the most effective algorithms for computing a CP decomposition of a tensor is called Alternating Least Squares (CP-ALS).
 The algorithm works as a block coordinate descent method, where each block of variables is a factor matrix.
 That is, it alternates over the factor matrices, holding all but one fixed and computing the optimal solution for the variable matrix.
-The key to the CP-ALS-NE algorithm is that the problem in each factor matrix is a \emph{linear} least squares problem, which we can solve using linear algebra as described in \cref{sec:LS}.
-
-In terms of the work in CP-ALS-NE, we need to solve a sequence of least square problems of the form 
-$$\min_{\mat{\hat{A}}_n}||\mat{X_{(n)}} - {\mat{\hat{A}_n}}\mat{Z}^\top_n ||$$
-where $\mat{X_{(n)}}$ is a matricized tensor, $\mat{\hat{A}_n}$ is the variable factor matrix, and 
-$\mat{Z}^\top_n$ is the transpose of the Khatri-Rao product of all the fixed factor matrices:
-$$\mat{Z}^\top_n = (\mat{A}_N \odot \mat{A}_{N-1} \odot \dots \odot \mat{A}_{n+1} \odot \mat{A}_{n-1} \odot \dots \odot \mat{A}_1)^\top. $$ 
-\GB{We shouldn't use CP-ALS to refer to the normal equations approach, as our QR approach is also based on CP-ALS.  Let's use CP-ALS-NE to refer to the standard approach.  Update this in the text and in \cref{alg:cp-als-ne}.}
-In the standard implementations of CP-ALS, this least squares problem is solved using the normal equations approach,
-$$\mat{\hat{A}_n}\mat{Z}_n^\top\mat{Z}_n = \mat{X}_{(n)}\mat{Z}_n$$
-where $\mat{Z}_n^\top\mat{Z}_n$ can be computed as a Hadamard product of Gram matrices of $\mat{A}_{1}, \dots, \mat{A}_{n-1}, \mat{A}_{n+1}, \dots, \mat{A}_{n}$. 
-We refer to this standard approach as CP-ALS-NE. Pseudocode for CP-ALS-NE is given in \cref{alg:cp-als-ne}.
 
 
-
-If the input tensor $\T[]{X}$ is already in Kruskal format, we can also use Hadamard prodcut to compute right-hand-side more efficient.
-\begin{align}
-  \mat{X}_{(n)}\mat{Z}_n &= \mat{X}_n(\mat{X}_N \odot \dots \odot \mat{X}_{n+1} \odot \mat{X}_{n-1} \odot \dots \odot \mat{X}_1)^\top(\mat{A}_N \odot \dots \odot \mat{A}_1) \nonumber \\
- &= \mat{X}_n(\mat{X}_N^\top\mat{A}_N) \ast \dots \ast (\mat{X}_{n+1}^\top\mat{A}_{n+1}) \ast (\mat{X}_{n-1}^\top\mat{A}_{n-1}) \ast \dots \ast (\mat{X}_1^\top\mat{A}_1)  \nonumber 
-\end{align}
-
-
-\begin{algorithm}[!ht]
-  \caption{CP-ALS-NE}
-  \label{alg:cp-als-ne}
-  \input{algo/cp_als.tex}
-\end{algorithm}
-
-\subsection{CP-Rounding}
+\subsubsection{CP-Rounding}
 
 \GB{I started to edit this section, but it's in rough shape.  You don't want to introduce the CP notation here, that should be done earlier in the CP Decomposition section.  You should introduce what notation you'll use to distinguish between input and output.  You should use B's to represent the input to match what you do later in the QR section.  But you need to show how NE works with Kruskal input.  You can leave some details out, but you need the expressions so we can do the complexity analysis for comparison.  You can cite the Kolda-Bader paper on sparse and structured tensors here.  Also, don't switch to 3-way tensors here, you're doing $d$-way everywhere else so stick to that.}
 
@@ -254,10 +225,41 @@ where $\mat{B}^{(n)} = \big[\V[]{b}_1^{(n)} \dots \V[]{b}_R^{(n)}\big]$ and $\bm
 Another important usage for Kruskal tensor input is that it has speical mode-$k$ unfolding representation. Given a d-way Kruskal tensor $\T{K}$ for example. It's mode-k unfolding 
 in terms of Khatri-Rao product of factor matrices is
 $$\mat{K}_{(k)} = \mat{B}_k(\mat{B}_d \odot \dots \mat{B}_{k+1} \odot \mat{B}_{k-1} \odot \dots \odot \mat{B}_1)^\top$$
-\subsection{CP-ALS-QR}
+
+
+
+\section{Algorithm}
+\subsection{CP-ALS-NE}
+\subsubsection{Algo}
+
+
+The key to the CP-ALS-NE algorithm is that the problem in each factor matrix is a \emph{linear} least squares problem, which we can solve using linear algebra as described in \cref{sec:LS}.
+
+In terms of the work in CP-ALS-NE, we need to solve a sequence of least square problems of the form 
+$$\min_{\mat{\hat{A}}_n}||\mat{X_{(n)}} - {\mat{\hat{A}_n}}\mat{Z}^\top_n ||$$
+where $\mat{X_{(n)}}$ is a matricized tensor, $\mat{\hat{A}_n}$ is the variable factor matrix, and 
+$\mat{Z}^\top_n$ is the transpose of the Khatri-Rao product of all the fixed factor matrices:
+$$\mat{Z}^\top_n = (\mat{A}_N \odot \mat{A}_{N-1} \odot \dots \odot \mat{A}_{n+1} \odot \mat{A}_{n-1} \odot \dots \odot \mat{A}_1)^\top. $$ 
+\GB{We shouldn't use CP-ALS to refer to the normal equations approach, as our QR approach is also based on CP-ALS.  Let's use CP-ALS-NE to refer to the standard approach.  Update this in the text and in \cref{alg:cp-als-ne}.}
+In the standard implementations of CP-ALS, this least squares problem is solved using the normal equations approach,
+$$\mat{\hat{A}_n}\mat{Z}_n^\top\mat{Z}_n = \mat{X}_{(n)}\mat{Z}_n$$
+where $\mat{Z}_n^\top\mat{Z}_n$ can be computed as a Hadamard product of Gram matrices of $\mat{A}_{1}, \dots, \mat{A}_{n-1}, \mat{A}_{n+1}, \dots, \mat{A}_{n}$. 
+We refer to this standard approach as CP-ALS-NE. Pseudocode for CP-ALS-NE is given in \cref{alg:cp-als-ne}.
+\begin{algorithm}[!ht]
+  \caption{CP-ALS-NE}
+  \label{alg:cp-als-ne}
+  \input{algo/cp_als.tex}
+\end{algorithm}
+\subsubsection{Dense Input}
+\subsubsection{Kruskal Input}
+If the input tensor $\T[]{X}$ is already in Kruskal format, we can also use Hadamard prodcut to compute right-hand-side more efficient.
+\begin{align}
+  \mat{X}_{(n)}\mat{Z}_n &= \mat{X}_n(\mat{X}_N \odot \dots \odot \mat{X}_{n+1} \odot \mat{X}_{n-1} \odot \dots \odot \mat{X}_1)^\top(\mat{A}_N \odot \dots \odot \mat{A}_1) \nonumber \\
+ &= \mat{X}_n(\mat{X}_N^\top\mat{A}_N) \ast \dots \ast (\mat{X}_{n+1}^\top\mat{A}_{n+1}) \ast (\mat{X}_{n-1}^\top\mat{A}_{n-1}) \ast \dots \ast (\mat{X}_1^\top\mat{A}_1)  \nonumber 
+\end{align}
+\subsection{CP-ALS-Explicit-QR}
 For CP-ALS-QR approach, it is similar to CP-ALS-NE, but this time more stable QR decomposition is used for solving least sqaure
 problem instead of normal eqaution.
-\subsubsection{Dense}
 For normal N-mode tensor $\T{X}^{I_1 \times \dots \times I_N}$, we still need to solve a bunch of least sqaure problems in the form
 $$\min_{\mat{\hat{A}}_n}||\mat{X_{(n)}} - {\mat{\hat{A}_n}}\mat{Z}^\top_n ||$$
 for every mode.\\
@@ -284,10 +286,14 @@ Sample pseudocode for CP-ALS-QR is showed in \cref{alg:cp-als-qr}
   \label{alg:cp-als-qr}
   \input{algo/cp_als_qr.tex}
 \end{algorithm}
+\subsubsection{Dense Input}
+
+\subsubsection{Kruskal Input}
 
 
 
-\subsubsection{Kruskal}
+\subsection{CP-ALS-Pairwise-QR}
+\subsubsection{Algo}
 For Kruskal tensor input, we introduced a new QR-based method utilizing this Kruskal format avoiding
 forming Multi-TTM tensor $\mat{Y}$ in dense tensor case. We can represent Kruskal unfolding into
 Khatri-Rao product of factor matrices. This will help us to just do simple matrix multiplication.
@@ -302,6 +308,16 @@ By continuing doing this pariwise QR decomposition on $\mat{R}$, we eventually w
 $$\mat{V}_N = \underbrace{(\mat{Q}_{A_{N-1}} \otimes \dots  \otimes  \mat{I}_N)}_{N-2}\underbrace{(\mat{Q}_{A_{N-2}} \otimes \dots \otimes \mat{I}_N)}_{N-3} \cdots (\mat{Q}_{A_{2}} \otimes \mat{I}_N) \mat{Q}_{A_{1}}\mat{R}_{A_{1}}$$
 where $\mat{Z}_n$ will be 
 $$\mat{Z}_n = (\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1) (\mat{Q}_{A_{N-1}} \otimes \dots  \otimes  \mat{I}_N)(\mat{Q}_{A_{N-2}} \otimes \dots \otimes \mat{I}_N) \cdots (\mat{Q}_{A_{2}} \otimes \mat{I}_N) \mat{Q}_{A_{1}}\mat{R}_{A_{1}}$$
+
+The sample pseudocode is showed in \cref{alg:cp-als-pairwise-qr}
+\begin{algorithm}
+  \caption{CP-ALS-Pairwise-QR}
+  \label{alg:cp-als-pairwise-qr}
+  \input{algo/cp_als_pairwise.tex}
+\end{algorithm}
+\subsubsection{Dense Input}
+
+\subsubsection{Kruskal Input}
 We also need to first apply kronecker product of $\mat{Q}$ in $\mat{Z}_n$ to $\mat{X}_n$. But this time since we 
 can use the Kruskal structure which $\mat{X}_{(n)} = \mat{B}_{n}(\mat{B}_{N} \odot \dots \odot \mat{B}_{n+1} \odot \mat{B}_{n-1}  \odot \dots \odot \mat{B}_{1})^\top$. Applying $\mat{Q}$ into 
 $\mat{X}_n$. This gives us
@@ -323,17 +339,11 @@ We can then follow the same way to solve the least sqaure problem with calculate
   \mat{\hat{A}}_n \mat{R}^\top_{A_1} &= \mat{B}^\top_M\mat{Q}_M\mat{B}_n \nonumber \\ 
   \mat{\hat{A}}_n &= \mat{R}^\top_{A_1} \text{\textbackslash} \mat{B}^\top_M\mat{Q}_M\mat{B}_n \nonumber 
 \end{align}
-The sample pseudocode is showed in \cref{alg:cp-als-pairwise-qr}
-\begin{algorithm}
-  \caption{CP-ALS-Pairwise-QR}
-  \label{alg:cp-als-pairwise-qr}
-  \input{algo/cp_als_pairwise.tex}
-\end{algorithm}
 
 
 
 
-\subsubsection{Complexity}
+\subsection{Complexity}
 
 For a d-way Kruskal tensor $\T{K} \in \mathbb{R}^{n_1 \times \dots \times n_d}$ and assume $n_1, \dots , n_d$ are the same. If we want to do the rank-$r$ CP Decomposition
 for two different ALS methods, the distribution of time is presented in \cref{tab:its_parts}
