@@ -97,9 +97,11 @@
 \subsection{CP Decomposition}
 Given a $d$-way tensor $\T{X} \in \mathbb{R}^{n_1\times n_2\times \dots \times n_d}$, its
 CP decomposition $\T{K}$ of rank $r \in \mathbb{N}$ can be represented as 
-$$\T{X}(i_1,i_2,\dots, i_d) \approx \T{K} = \sum^{r}_{j=1}\mat{A_1}(i_1,j)\mat{A_2}(i_2,j) \dots \mat{A_r}(i_r,j)$$
-$$\text{for all } (i_1,i_2,\dots, i_d) \in [n_1] \otimes [n_2] \otimes [n_3] \otimes \dots \otimes [n_d]$$
-where $\mat{A_k} \in \mathbb{R}^{n_k \times r}$ is a factor matrix for each $k \in [d]$. 
+\begin{equation}
+\label{eq:CP}
+\T{X}(i_1,i_2,\dots, i_d) \approx \T{K} = \sum^{r}_{j=1} \V{\lambda}(j) \mat{A_1}(i_1,j)\mat{A_2}(i_2,j) \dots \mat{A_d}(i_d,j)
+\end{equation}
+for all $(i_1,i_2,\dots, i_d) \in [n_1] \otimes [n_2] \otimes [n_3] \otimes \dots \otimes [n_d]$ where $\mat{A_k} \in \mathbb{R}^{n_k \times r}$ is a factor matrix for each $k \in [d]$ and $\bm{\lambda}\in\mathbb{R}^r$ is a vector of weights. 
 \Cref{fig:3d-cp-decomp} gives a visualization of a CP Decomposition for a 3-way tensor.
 
 \begin{figure}[ht!]
@@ -107,14 +109,15 @@ where $\mat{A_k} \in \mathbb{R}^{n_k \times r}$ is a factor matrix for each $k \
 \input{tikz/cp.tex}
 \caption{CP decomposition of rank $R$ for a three-dimensional tensor $\T{X}$ \label{fig:3d-cp-decomp}}
 \end{figure}
-In which we can represent $\T[]{K}$ in shorthand CP notation,
-$$\T{K} = [\![\bm{\lambda};\mat{A}_1,\mat{A}_2, \dots,\mat{A}_r ]\!] $$
-where $\mat{A}_k = \big[\V[]{a}_1^{(k)} \dots \V[]{a}_r^{(k)}\big]$.
+We can represent $\T[]{K}$ in shorthand CP notation as $\T{K} = [\![\V{\lambda};\mat{A}_1,\mat{A}_2, \dots,\mat{A}_d ]\!]$. 
+There exists ambiguity in the weighting of the columns of the factor matrices and $\V{\lambda}$ vector.
+For simplicity of presentation, we drop the weight vector $\V{\lambda}$ throughout this report and use the representation
+$$\T{K} = [\![\mat{A}_1,\mat{A}_2, \dots,\mat{A}_d ]\!].$$
 
-\subsection{Linear Least Square Problem}
+\subsection{Linear Least Squares Problem}
 \label{sec:LS}
 
-In mathematical form, a generic least squares problem is given by 
+In mathematical form, a generic linear least squares problem is given by 
 \begin{equation}
 \label{eq:LS}
 \min_{\mat{X}}||\mat{B} - \mat{X}\mat{A}^\top||_{F}.
@@ -185,27 +188,37 @@ If $\mat{B}$ has few columns ($p\ll n$), NE is cheaper because of the smaller co
 However, when $\mat{B}$ has many columns ($p\gg n$), the largest cost is computing $\mat{B}\mat{A}$ for NE and $\mat{B}\mat{Q}$ for QR factorization, which have the same leading order cost and same constant ($2mnp$).
 
 Using QR is more numerically stable than NE. 
-Because given the condition number for $\mat{A} = \kappa(\mat{A})$, the condition number of least sqaure problem
-lies between $\kappa(\mat{A})$ and $\kappa(\mat{A})^2$. Given the formula from Trefethen,
+Let $\kappa = \sigma_1(\mat{A})/\sigma_n(\mat{A})$ be the standard condition number of $\mat{A}$.
+If we use QR to solve a least squares problem with a single right hand side; i.e. $\min\|\mat{A}\V{x} - \V{b} \|$, then from \cite[Eq. (19.2)]{trefethen1997numerical} the relative forward error satisfies
 \begin{equation}
-  \frac{||\tilde{x} - x||}{||x||} = O \biggl(\biggl(\kappa + \frac{\kappa^2\tan\theta}{\eta}\biggr)\epsilon_{machine}\biggr)
+  \frac{||\tilde{x} - x||}{||x||} = O \biggl(\biggl(\kappa + \frac{\kappa^2\tan\theta}{\eta}\biggr)\epsilon_{mach}\biggr),
 \end{equation}
-where $\kappa = \kappa(\mat{A})$,
-However, in NE, we first compute $\mat{A}^\top\mat{A}$ and then perform Cholesky solve. We have increased the 
-condition number by computing $\mat{A}^\top\mat{A}$ to $\kappa(\mat{A})^2$. In this case condition number for least sqaure problem can best be $\kappa(\mat{A})^2$. Using QR is more prefered when condition number is really large (i.e.$1e8$).
-\GB{Give equations (19.2) and (19.3) from Trefethen and Bau as numbered equations.  You'll need to define $\theta$ and $\eta$ for (19.2).  Then you can give a little intuition for why this exists.  Here's how you cite: \cite{trefethen1997numerical}.}
+where $\V[\tilde]{x}$ is the computed solution, $\V{x}$ is the exact solution, $\theta$ is the angle between $\mat{A}\V{x}$ and $\V{b}$, and $\eta = \|\mat{A}\|\|\V{x}\|/\|\mat{A}\V{x}\|$.
+However, if we use the NE approach, then by \cite[Eq. (19.3)]{trefethen1997numerical} the forward error guarantee can be much larger: 
+\begin{equation}
+  \frac{||\tilde{x} - x||}{||x||} = O \biggl(\kappa^2 \epsilon_{\text{mach}}\biggr).
+\end{equation}
+Because of the numerical sensitivity introduced by using the NE approach, the QR approach is much more accurate when $\kappa$ is large (e.g., on the order of $
+\epsilon_{\text{mach}}^{-1/2}$ or larger).
 
 
 \subsection{CP-ALS}
-\subsubsection{Least Sqaure Problem}
-\GB{State the approximation problem that we solve in computing a CP (minimizing the residual norm of the tensor approximation).  You can say that this is a nonlinear, nonconvex optimization problem and no closed form solution exists, so we must resort to iterative methods.  Give a citation to the Kolda-Bader survey paper.}
-When doing CP rank-$k$ approximation for a N-way tensor $\T{X}$, we are basically minimizing $\| \T{X} - \tilde{\T{X}} \|$ which 
-$$\tilde{\T{X}} = \sum^k_{i-1}\mat{A}_1(i) \circ \mat{A}_2(i) \circ \dots \circ \mat{A}_N(i)$$
-However, this is a nonlinear, nonconvex optimization problem and no closed form solution exists. We can only use iterative methods to approximate.
+
+\subsubsection{CP Optimization Problem}
+
+When computing a rank-$r$ CP approximation $\T{K}$ for a N-way tensor $\T{X}$, we seek to minimize $\| \T{X} - \T{K} \|$, where the tensor norm generalizes the vector 2-norm or the matrix Frobenius norm.
+Expressed using \cref{eq:CP}, we have  
+$$\min_{\mat{A}_1,\mat{A}_2, \dots,\mat{A}_d} \sum_{i_1=1}^{n_1} \cdots \sum_{i_d=1}^{n_d} \left(\T{X}(i_1,i_2,\dots, i_d) - \sum^{r}_{j=1} \mat{A_1}(i_1,j)\mat{A_2}(i_2,j) \dots \mat{A_d}(i_d,j) \right)^2 $$
+However, this is a nonlinear, nonconvex optimization problem and no closed form solution exists. 
+We must resort to using iterative methods to approximate a solution \cite{kolda2009tensor}.
+
+\subsubsection{CP-ALS}
+
 One of the most effective algorithms for computing a CP decomposition of a tensor is called Alternating Least Squares (CP-ALS).
 The algorithm works as a block coordinate descent method, where each block of variables is a factor matrix.
 That is, it alternates over the factor matrices, holding all but one fixed and computing the optimal solution for the variable matrix.
 
+\GB{Give CP-ALS algorithm here with least squares problem formulation (not using NE)}
 
 \subsubsection{CP-Rounding}
 
