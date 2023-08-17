@@ -135,16 +135,14 @@ The two we consider here are via the Normal Equations (NE) and by QR decompositi
 The NE specify a (square) linear system of equations and are derived from setting the gradient of the objective function from \cref{eq:LS} to zero, and they involve the Gram of $\mat{A}$ as well as the product $\mat{B}\mat{A}$:
 \begin{equation}
 \label{eq:NE}
-\mat{X}\mat{A}^\top\mat{A} = \mat{B}\mat{A}
+\mat{X}\mat{A}^\top\mat{A} = \mat{B}\mat{A}.
 \end{equation}
-\GB{I would like you to give the derivation of the NE, but perhaps that's lower priority...}
 The NE can be solved via Cholesky factorization of $\mat{A}^\top\mat{A}$ and triangular solves.
-\GB{Rewrite the following sentence for the time complexity, it depends on the dimensions of $\mat{B}$, $\mat{A}$, which you didn't specify.}
-The cost of NE depends on the size of $\mat{A}$ and $\mat{B}$. For $\mat{A} \in \mathbb{R}^{m \times n}$, and $\mat{B} \in \mathbb{R}^{p \times m}$. The ditribution of time for doing NE in least sqaure problem is
+The cost of NE depends on the size of $\mat{A}$ and $\mat{B}$. 
+For $\mat{A} \in \mathbb{R}^{m \times n}$ and $\mat{B} \in \mathbb{R}^{p \times m}$, the arithmetic complexity of each step of the NE approach is given in \cref{tab:NE-time}.
 \begin{table}[!ht]
   \centering
   \begin{tabular}{|c|c|}
-    
     \hline
     Components & Number of flops\\
     \hline
@@ -154,21 +152,19 @@ The cost of NE depends on the size of $\mat{A}$ and $\mat{B}$. For $\mat{A} \in 
     Back solves & $2pn^2$ \\
     \hline
   \end{tabular}
-  \caption{Breakdown of time for doing NE to solve least sqaure problem}
+  \caption{Breakdown of time for using NE to solve \cref{eq:LS} for $\mat{A} \in \mathbb{R}^{m \times n}$ and $\mat{B} \in \mathbb{R}^{p \times m}$}
   \label{tab:NE-time}
 \end{table}
 
-
-
-\GB{There's lot's wrong here, you can't equate $\mat{X}\mat{A}^\top$ and $\mat{B}$, we are seeking only an approximation.  At the very least, you should claim that solving the linear system $\mat{X}\mat{R}^\top=\mat{B}\mat{Q}$ using triangular solve gives the solution $\mat{X}$. I would prefer you derive it correctly, but again maybe that's lower priority.}
-For QR factorization, we will first compute the QR decomposition $\mat{A} = \mat{Q}\mat{R}$ and then apply this into \cref{eq:NE}.
+In the QR decomposition approach, we first compute the compact QR decomposition $\mat{A} = \mat{Q}\mat{R}$ (so that $\mat{Q}\in \mathbb{R}^{m \times n}$)and then solve the  triangular system
 \begin{align}
-  \mat{X}\mat{A}^\top\mat{A} &= \mat{B}\mat{A} \nonumber \\
-  \mat{X}(\mat{Q}\mat{R})^\top(\mat{Q}\mat{R}) &= \mat{B}\mat{A} \nonumber \\
-  \mat{X}\mat{R}^\top\mat{Q}^\top\mat{Q}\mat{R} &= \mat{B}\mat{A} \nonumber \\
-  \mat{X}\mat{R}^\top &= \mat{B}\mat{A}\mat{R}^{-1} = \mat{B}\mat{Q}  \label{eq:QR}  
+\label{eq:QR}  
+\mat{X} \mat{R}^\top = \mat{B}\mat{Q}.
 \end{align}
-
+The time complexity of each step of this approach is given in \cref{tab:QR-time}.
+Note that the cost of the QR decomposition assumes that Householder QR is used in the factorization and that the $\mat{Q}$ matrix is formed explicitly.
+If $p$ is smaller than $n$, then it is more efficient to leave $\mat{Q}$ in implicit Householder form, reducing the cost of QR to $2mn^2-2/3n^3$.
+In this case, we apply $\mat{Q}$ to $\mat{B}$ using Householder transformations, which increases the cost of computing $\mat{B}\mat{Q}$ to $4mnp$. 
 %\begin{align}
 %  &arg\min_{\mat{X}}||\mat{B} - \mat{X}\mat{A}^\top||_{F}^2 \\
 %  &= arg \min_{\mat{X}}||\mat{B} - \mat{X}(\mat{Q}\mat{R})^\top||_{F}^2 \\
@@ -177,34 +173,30 @@ For QR factorization, we will first compute the QR decomposition $\mat{A} = \mat
 %  &= arg \min_{\mat{X}}||\mat{B}\mat{Q} - \mat{X}\mat{R}^\top||_{F}^2 + ||\mat{B}\mat{Q}^\bot||_{F}^2
 %\end{align}
 
-
-\GB{This time complexity needs to be fixed similar to NE, and you should provide constant factors for the leading terms.}
-The most commonly used method for QR decomposition is through Householder triangularization. The following time distribution table is based on this method.
 \begin{table}[!ht]
-  
   \centering
   \begin{tabular}{|c|c|}
-    
     \hline
     Components & Number of flops\\
     \hline
-    Compute $\mat{Q}\mat{R} = \mat{A}$ & $2mn^2 - 2/3n^3$ \\
+    Compute QR & $4mn^2 - 4/3n^3$ \\
     Compute $\mat{B}\mat{Q}$ & $2mnp$\\
     N/A & \\
     Back solves & $pn^2$ \\
     \hline
   \end{tabular}
-  \caption{Breakdown of time for QR factorization to solve least sqaure problem}
+  \caption{Breakdown of time for using QR to solve \cref{eq:LS} for $\mat{A} \in \mathbb{R}^{m \times n}$ and $\mat{B} \in \mathbb{R}^{p \times m}$}
   \label{tab:QR-time}
 \end{table}
 
-If $\mat{B}$ has few columns, NE is cheaper because of the smaller coefficient in the leading order cost. 
-However, when $\mat{B}$ has many columns, the largest cost is computing $\mat{B}\mat{A}$ for NE and $\mat{B}\mat{Q}$ for QR factorization, which are the same.
+If $\mat{B}$ has few columns ($p\ll n$), NE is cheaper because of the smaller coefficient in the leading order cost ($mn^2$ vs $2mn^2$). 
+However, when $\mat{B}$ has many columns ($p\gg n$), the largest cost is computing $\mat{B}\mat{A}$ for NE and $\mat{B}\mat{Q}$ for QR factorization, which have the same leading order cost and same constant ($2mnp$).
 
-Using QR is more numerically stable than NE. Because given the condition number for $\mat{A} = \kappa(\mat{A})$, the condition number of least sqaure problem
+Using QR is more numerically stable than NE. 
+Because given the condition number for $\mat{A} = \kappa(\mat{A})$, the condition number of least sqaure problem
 lies between $\kappa(\mat{A})$ and $\kappa(\mat{A})^2$. However, in NE, we first compute $\mat{A}^\top\mat{A}$ and then perform Cholesky solve. We have increased the 
 condition number by computing $\mat{A}^\top\mat{A}$ to $\kappa(\mat{A})^2$. In this case condition number for least sqaure problem can best be $\kappa(\mat{A})^2$. Using QR is more prefered when condition number is really large (i.e.$1e8$).
-\GB{State the bounds on the accuracy of QR and NE explicitly (use your NLA textbook and cite it).  Then you can say in what case it's really important to use QR (i.e., when the condition number is large).}
+\GB{Give equations (19.2) and (19.3) from Trefethen and Bau as numbered equations.  You'll need to define $\theta$ and $\eta$ for (19.2).  Then you can give a little intuition for why this exists.  Here's how you cite: \cite{trefethen1997numerical}.}
 
 
 \subsection{CP-ALS}
@@ -452,7 +444,7 @@ can be improved.
 
 
 
-\section{Conclusion and Futrue Work}
+\section{Conclusion and Future Work}
 
 \section{Appendix}
 \subsection{Reflection}
