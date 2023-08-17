@@ -198,8 +198,7 @@ However, if we use the NE approach, then by \cite[Eq. (19.3)]{trefethen1997numer
 \begin{equation}
   \frac{||\tilde{x} - x||}{||x||} = O \biggl(\kappa^2 \epsilon_{\text{mach}}\biggr).
 \end{equation}
-Because of the numerical sensitivity introduced by using the NE approach, the QR approach is much more accurate when $\kappa$ is large (e.g., on the order of $
-\epsilon_{\text{mach}}^{-1/2}$ or larger).
+Because of the numerical sensitivity introduced by using the NE approach, the QR approach is much more accurate when $\kappa$ is large (e.g., on the order of $\epsilon_{\text{mach}}^{-1/2}$ or larger).
 
 
 \subsection{CP-ALS}
@@ -220,6 +219,16 @@ That is, it alternates over the factor matrices, holding all but one fixed and c
 
 \GB{Give CP-ALS algorithm here with least squares problem formulation (not using NE)}
 
+
+The idea is to unfold $\T[]{X}$ and $\T[]{K}$ along all modes so that we can solve a linear least squares problem for each factor matrix.
+$$\min||\T[]{X} - \T[]{K}|| = \min||\mat{X}_{(n)} - \mat{K}_{(n)}||$$
+where $\mat{K}_{(n)} = \hat{\mat{A}}_n(\mat{A}_N \odot \dots \odot \mat{A}_{n+1} \odot \mat{A}_{n-1} \odot \dots \odot \mat{A}_1)^\top$, $\hat{\mat{A}}_n = \mat{A}_n \cdot diag(\lambda)$.
+Let $\mat{Z}_n=\mat{A}_N \odot \dots \odot \mat{A}_{n+1} \odot \mat{A}_{n-1} \odot \dots \odot \mat{A}_1$, then $\mat{K}_{(n)} = \hat{\mat{A}}_n\mat{Z}_n^\top$.
+We can rewrite this minimize problem to be a least square problem for $\hat{\mat{A}}_n$.
+\begin{equation}
+  \min_{\hat{\mat{A}}_n}\|\mat{X}_{(n)}-\hat{\mat{A}}_n\mat{Z}_n^\top\|
+\end{equation}
+
 \subsubsection{CP-Rounding}
 
 \GB{I started to edit this section, but it's in rough shape.  You don't want to introduce the CP notation here, that should be done earlier in the CP Decomposition section.  You should introduce what notation you'll use to distinguish between input and output.  You should use B's to represent the input to match what you do later in the QR section.  But you need to show how NE works with Kruskal input.  You can leave some details out, but you need the expressions so we can do the complexity analysis for comparison.  You can cite the Kolda-Bader paper on sparse and structured tensors here.  Also, don't switch to 3-way tensors here, you're doing $d$-way everywhere else so stick to that.}
@@ -230,14 +239,14 @@ Given a d-way tensor $\T[]{X} \in \mathbb{R}^{I_1 \times \dots \times I_d}$, it 
 $$\T[]{X} = \sum^R_{i=1}\lambda_i\V{b}_i^{(1)} \circ \dots \circ \V{b}_i^{(d)}$$
 This is referred as \emph{Kruskal} tensor. It's shorthand notation will be 
 
-$$\T{K} = [\![\bm{\lambda} ; \mat{B}^{(1)}, \dots ,\mat{B}^{(d)}]\!].$$ 
+$$\T{X} = [\![\bm{\lambda} ; \mat{B}^{(1)}, \dots ,\mat{B}^{(d)}]\!].$$ 
 
 
 where $\mat{B}^{(n)} = \big[\V[]{b}_1^{(n)} \dots \V[]{b}_R^{(n)}\big]$ and $\bm{\lambda} = \big[\lambda_1 \dots \lambda_R\big]^\top$ are called factor matrices and corresponding coefficients.
-\\
-Another important usage for Kruskal tensor input is that it has speical mode-$k$ unfolding representation. Given a d-way Kruskal tensor $\T{K}$ for example. It's mode-k unfolding 
-in terms of Khatri-Rao product of factor matrices is
-$$\mat{K}_{(k)} = \mat{B}_k(\mat{B}_d \odot \dots \mat{B}_{k+1} \odot \mat{B}_{k-1} \odot \dots \odot \mat{B}_1)^\top$$
+If we already have a Kruskal tensor input, we can then utilize its special mode-$k$ unfolding representation when solving least squares problem. 
+Given a d-way Kruskal tensor $\T{K}$ for example. It's mode-k unfolding in terms of Khatri-Rao product of factor matrices is
+$$\mat{X}_{(k)} = \mat{B}_k(\mat{B}_d \odot \dots \mat{B}_{k+1} \odot \mat{B}_{k-1} \odot \dots \odot \mat{B}_1)^\top$$
+Which we can reduce computation cost by applying special matrices multiplication.
 
 
 
@@ -250,8 +259,7 @@ The key to the CP-ALS-NE algorithm is that the problem in each factor matrix is 
 
 In terms of the work in CP-ALS-NE, we need to solve a sequence of least square problems of the form 
 $$\min_{\mat{\hat{A}}_n}||\mat{X_{(n)}} - {\mat{\hat{A}_n}}\mat{Z}^\top_n ||$$
-where $\mat{X_{(n)}}$ is a matricized tensor, $\mat{\hat{A}_n}$ is the variable factor matrix, and 
-$\mat{Z}^\top_n$ is the transpose of the Khatri-Rao product of all the fixed factor matrices:
+where $\mat{X_{(n)}}$ is a matricized tensor, $\mat{\hat{A}_n}$ is the variable factor matrix, and $\mat{Z}^\top_n$ is the transpose of the Khatri-Rao product of all the fixed factor matrices:
 $$\mat{Z}^\top_n = (\mat{A}_N \odot \mat{A}_{N-1} \odot \dots \odot \mat{A}_{n+1} \odot \mat{A}_{n-1} \odot \dots \odot \mat{A}_1)^\top. $$ 
 \GB{We shouldn't use CP-ALS to refer to the normal equations approach, as our QR approach is also based on CP-ALS.  Let's use CP-ALS-NE to refer to the standard approach.  Update this in the text and in \cref{alg:cp-als-ne}.}
 In the standard implementations of CP-ALS, this least squares problem is solved using the normal equations approach,
@@ -265,29 +273,25 @@ We refer to this standard approach as CP-ALS-NE. Pseudocode for CP-ALS-NE is giv
 \end{algorithm}
 \subsubsection{Dense Input}
 \subsubsection{Kruskal Input}
-If the input tensor $\T[]{X}$ is already in Kruskal format, we can also use Hadamard prodcut to compute right-hand-side more efficient.
+If the input tensor $\T[]{X}$ is already in Kruskal format, we can also use Hadamard product to compute right-hand-side more efficient.
 \begin{align}
   \mat{X}_{(n)}\mat{Z}_n &= \mat{X}_n(\mat{X}_N \odot \dots \odot \mat{X}_{n+1} \odot \mat{X}_{n-1} \odot \dots \odot \mat{X}_1)^\top(\mat{A}_N \odot \dots \odot \mat{A}_1) \nonumber \\
  &= \mat{X}_n(\mat{X}_N^\top\mat{A}_N) \ast \dots \ast (\mat{X}_{n+1}^\top\mat{A}_{n+1}) \ast (\mat{X}_{n-1}^\top\mat{A}_{n-1}) \ast \dots \ast (\mat{X}_1^\top\mat{A}_1)  \nonumber 
 \end{align}
 \subsection{CP-ALS-Explicit-QR}
-For CP-ALS-QR approach, it is similar to CP-ALS-NE, but this time more stable QR decomposition is used for solving least sqaure
-problem instead of normal eqaution.
-For normal N-mode tensor $\T{X}^{I_1 \times \dots \times I_N}$, we still need to solve a bunch of least sqaure problems in the form
-$$\min_{\mat{\hat{A}}_n}||\mat{X_{(n)}} - {\mat{\hat{A}_n}}\mat{Z}^\top_n ||$$
-for every mode.\\
+For CP-ALS-QR approach, it is similar to CP-ALS-NE, but this time more stable QR decomposition is used for solving least square problem instead of normal equation.
+For normal N-mode tensor $\T{X}^{I_1 \times \dots \times I_N}$, we still need to solve a bunch of least square problems in the form
+$$\min_{\mat{\hat{A}}_n}||\mat{X_{(n)}} - {\mat{\hat{A}_n}}\mat{Z}^\top_n ||$$ for every mode.\\
 This time we will first perform QR on each factor matrix in $\mat{Z}_n$, which 
 \begin{align}
   \mat{Z}_n &= \mat{A}_N \odot \dots \odot \mat{A}_{n+1} \odot \mat{A}_{n-1} \odot \dots \odot \mat{A}_1 \nonumber \\
   &= (\mat{Q}_N\mat{R}_N) \odot \dots \odot (\mat{Q}_{n+1}\mat{R}_{n+1}) \odot (\mat{Q}_{n-1}\mat{R}_{n-1}) \odot \dots \odot (\mat{Q}_1\mat{R}_1) \nonumber \\
   &= (\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1)(\mat{R}_N \odot \dots \odot \mat{R}_{n+1} \odot \mat{R}_{n-1} \odot \dots \odot \mat{R}_1)\nonumber  
 \end{align}
-After that we will perform QR again on Khatri-Rao prodcut of $\mat{R}_{N,\dots,1}$, so $\mat{Z}_n$ will be
+After that we will perform QR again on Khatri-Rao product of $\mat{R}_{N,\dots,1}$, so $\mat{Z}_n$ will be
 $$\mat{Z}_n = (\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1)\mat{Q}_0\mat{R}_0$$
-For solving least sqaure problem, we will first apply kronecker product of Qs 
-$\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1$ into $\mat{X}_{(n)}$ through TTM 
-$\mat{Y}_{(n)} =  \T{X} \times_1 \mat{Q}_1^\top \dots \times_{n-1} \mat{Q}_{n-1}^\top \times_{n+1} \mat{Q}_{n+1}^\top \dots \times_N \mat{Q}_N^\top$.
-and this problem becomes
+For solving least square problem, we will first apply kronecker product of Qs $\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1$ into $\mat{X}_{(n)}$ through TTM  $\mat{Y}_{(n)} =  \T{X} \times_1 \mat{Q}_1^\top \dots \times_{n-1} \mat{Q}_{n-1}^\top \times_{n+1} \mat{Q}_{n+1}^\top \dots \times_N \mat{Q}_N^\top$.
+This problem becomes
 \begin{align}
   \mat{\hat{A}_n}\mat{Q}_0^\top \mat{R}_0^\top &= \mat{Y}_{(n)} \nonumber \\
   \mat{\hat{A}_n}\mat{R}_0^\top &= \mat{Y}_{(n)} \mat{Q}_0 \nonumber \\
@@ -307,9 +311,8 @@ Sample pseudocode for CP-ALS-QR is showed in \cref{alg:cp-als-qr}
 
 \subsection{CP-ALS-Pairwise-QR}
 \subsubsection{Algo}
-For Kruskal tensor input, we introduced a new QR-based method utilizing this Kruskal format avoiding
-forming Multi-TTM tensor $\mat{Y}$ in dense tensor case. We can represent Kruskal unfolding into
-Khatri-Rao product of factor matrices. This will help us to just do simple matrix multiplication.
+For Kruskal tensor input, we introduced a new QR-based method utilizing this Kruskal format avoiding forming Multi-TTM tensor $\mat{Y}$ in dense tensor case. 
+We can represent Kruskal unfolding into Khatri-Rao product of factor matrices. This will help us to just do simple matrix multiplication.
 
 Take the same least square problem in dense case, we still need to do QR factorization for each factor matrix in $\mat{Z}_n$, which
 $$\mat{Z}_n = (\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1)(\mat{R}_N \odot \dots \odot \mat{R}_{n+1} \odot \mat{R}_{n-1} \odot \dots \odot \mat{R}_1)$$
@@ -331,9 +334,10 @@ The sample pseudocode is showed in \cref{alg:cp-als-pairwise-qr}
 \subsubsection{Dense Input}
 
 \subsubsection{Kruskal Input}
-We also need to first apply kronecker product of $\mat{Q}$ in $\mat{Z}_n$ to $\mat{X}_n$. But this time since we 
-can use the Kruskal structure which $\mat{X}_{(n)} = \mat{B}_{n}(\mat{B}_{N} \odot \dots \odot \mat{B}_{n+1} \odot \mat{B}_{n-1}  \odot \dots \odot \mat{B}_{1})^\top$. Applying $\mat{Q}$ into 
-$\mat{X}_n$. This gives us
+We also need to first apply kronecker product of $\mat{Q}$ in $\mat{Z}_n$ to $\mat{X}_n$. 
+But this time since we can use the Kruskal structure which $\mat{X}_{(n)} = \mat{B}_{n}(\mat{B}_{N} \odot \dots \odot \mat{B}_{n+1} \odot \mat{B}_{n-1}  \odot \dots \odot \mat{B}_{1})^\top$. 
+Applying $\mat{Q}$ into $\mat{X}_n$. 
+This gives us
 \begin{align}
   \mat{Y}_n &= (\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1)(\mat{B}_{n}(\mat{B}_{N} \odot \dots \odot \mat{B}_{n+1} \odot \mat{B}_{n-1}  \odot \dots \odot \mat{B}_{1})^\top) \nonumber \\
   &= (\mat{Q}_N\mat{B}_N \odot \dots \odot \mat{Q}_{n+1} \mat{B}_{n+1} \odot \mat{Q}_{n-1}\mat{B}_{n-1} \odot \dots \odot \mat{Q}_{1}\mat{B}_{1})^\top\mat{B}_n \nonumber   
@@ -346,8 +350,8 @@ On following step, we will apply that set of kronecker $\mat{Q}$ into $\mat{Y}_n
       & \vdots \nonumber \\
     \mat{U}_n  &= (\mat{Q}_{M}^\top\mat{B}_M)^\top\mat{B}_n \nonumber  
 \end{align}
-Notice that we only have to do one matrix multiplication once a time because when use the same porperty, one matrix times an identity matrix will still be itself.
-We can then follow the same way to solve the least sqaure problem with calculated $\mat{Q}^\top\mat{B}$.
+Notice that we only have to do one matrix multiplication once a time because when use the same property, one matrix times an identity matrix will still be itself.
+We can then follow the same way to solve the least square problem with calculated $\mat{Q}^\top\mat{B}$.
 \begin{align}
   \mat{\hat{A}}_n \mat{R}^\top_{A_1} &= \mat{B}^\top_M\mat{Q}_M\mat{B}_n \nonumber \\ 
   \mat{\hat{A}}_n &= \mat{R}^\top_{A_1} \text{\textbackslash} \mat{B}^\top_M\mat{Q}_M\mat{B}_n \nonumber 
@@ -358,8 +362,8 @@ We can then follow the same way to solve the least sqaure problem with calculate
 
 \subsection{Complexity}
 
-For a d-way Kruskal tensor $\T{K} \in \mathbb{R}^{n_1 \times \dots \times n_d}$ and assume $n_1, \dots , n_d$ are the same. If we want to do the rank-$r$ CP Decomposition
-for two different ALS methods, the distribution of time is presented in \cref{tab:its_parts}
+For a d-way Kruskal tensor $\T{K} \in \mathbb{R}^{n_1 \times \dots \times n_d}$ and assume $n_1, \dots , n_d$ are the same. 
+If we want to do the rank-$r$ CP Decomposition for two different ALS methods, the distribution of time is presented in \cref{tab:its_parts}
 
 
 \begin{table}[!ht]
@@ -391,19 +395,17 @@ To test our new QR-based method, we setup an problem which is sine of sums sin$(
 Usually this sine wave can be represented in $2^{d-1}$ term, for example
 $$\text{sin}(x_1+x_2+x_3) = \text{sin}(x_1)\text{cos}(x_2)\text{cos}(x_3)+\text{cos}(x_1)\text{cos}(x_2)\text{sin}(x_3)$$
 $$+\text{cos}(x_1)\text{sin}(x_2)\text{cos}(x_3) - \text{sin}(x_1)\text{sin}(x_2)\text{sin}(x_3)$$
-In this test, we need to approximate this N-dimensional function in a low rank linear representation instead of 
-a exponential one, which by Beylkin and Mohlenkamp,
+In this test, we need to approximate this N-dimensional function in a low rank linear representation instead of a exponential one, which by Beylkin and Mohlenkamp,
 $$\text{sin}\bigl(\sum^d_{j=1}x_j\bigr) = \sum^d_{j=1}\text{sin}(x_j)\prod^d_{k=1,k\neq j}\frac{\text{sin}(x_k - \alpha_k -\alpha_j)}{\text{sin}(\alpha_k - \alpha_j)}$$
 for all choices of  ${\alpha_j}$ such that $\text{sin}(\alpha_k - \alpha_j) \neq 0$ for all $j \neq k$.
 \\
-We can somehow treat this sine of sum be a N-mode tensor $\T{X} \in \mathbb{R}^{n \times \dots \times n}$, and each term of exponential representation
-corresponde to a rank $2^{d-1}$ CP decomposition. It is also possible to have a rank $n$ CP decomposition by the linear
-representation mentioned aboved. This representation can be ill-conditioned if $\alpha_k \rightarrow \alpha_j$.
-But we also found out that this ill-conditioned porperty still holds when we choose $\alpha$ to be evenly spaced.
+We can somehow treat this sine of sum be a N-mode tensor $\T{X} \in \mathbb{R}^{n \times \dots \times n}$, and each term of exponential representation corresponds to a rank $2^{d-1}$ CP decomposition. 
+It is also possible to have a rank $n$ CP decomposition by the linear representation mentioned above. 
+This representation can be ill-conditioned if $\alpha_k \rightarrow \alpha_j$.
+But we also found out that this ill-conditioned property still holds when we choose $\alpha$ to be evenly spaced.
 
-We first used this ill-conditioned problem to solve a least sqaure problem which takes this 6-way exponential sin of sums Kruskal tensor as an input,
-tries to solve a least square problem on the last factor matrix, and compute the error between original full ktensor 
-and the full ktensor that has been approximated. We did visualization for both runtime and accuracy showed in \cref{fig:LS_problem}
+We first used this ill-conditioned problem to solve a least square problem which takes this 6-way exponential sin of sums Kruskal tensor as an input, tries to solve a least square problem on the last factor matrix, and compute the error between original full ktensor and the full ktensor that has been approximated. 
+We did visualization for both runtime and accuracy showed in \cref{fig:LS_problem}
 
 \begin{figure}[ht!]
   
@@ -417,16 +419,14 @@ and the full ktensor that has been approximated. We did visualization for both r
 \end{figure}
 
 
-Based on these two figures, we can know that new QR-based method has better accuracy than old QR method, and just slightly slower than 
-normal equation because it still has steps for computing and apply QR. To be more specific about the relative error, we can observe
-that in accuracy figure, new QR method is really close to the true error when condition number is $4e11$. The relative error through normal eqaution
-blows up in this large condition number.
-Another thing to point out is that when dimension goes up more than 7, our old QR-based method's error has a sudden increase which I believe 
-it is because of too large Khatri-Rao prouduct formation.
+Based on these two figures, we can know that new QR-based method has better accuracy than old QR method, and just slightly slower than normal equation because it still has steps for computing and apply QR. 
+To be more specific about the relative error, we can observe that in accuracy figure, new QR method is really close to the true error when condition number is $4e11$. 
+The relative error through normal equation blows up in this large condition number.
+Another thing to point out is that when dimension goes up more than 7, our old QR-based method's error has a sudden increase which I believe it is because of too large Khatri-Rao product formation.
 
 
-In the next step, I put new QR-based method into CP-ALS which further compare the runtime and accuracy to 
-CP-ALS method using normal equation and Explicit. There are also some visualizations showed in \cref{fig:runtime} and \cref{fig:error}
+In the next step, I put new QR-based method into CP-ALS which further compare the runtime and accuracy to CP-ALS method using normal equation and Explicit. 
+There are also some visualizations showed in \cref{fig:runtime} and \cref{fig:error}
 \begin{figure}[ht!]
   \begin{center}
     
@@ -447,22 +447,17 @@ difference
   
 \end{figure}
 
-As showed in \cref*{fig:runtime}, for a 7-way sine of sum rank-7 ktensor, the execution time for explicit QR decomposition
-grows increasing large respect to the rank, but both ALS and pairwise QR technique are more efficient.
-For pairwise QR, it is even faster than ALS using normal eqaution when dimension is 2000. This can be more clearly seen in speedup figure.
+As showed in \cref*{fig:runtime}, for a 7-way sine of sum rank-7 ktensor, the execution time for explicit QR decomposition grows increasing large respect to the rank, but both ALS and pairwise QR technique are more efficient.
+For pairwise QR, it is even faster than ALS using normal equation when dimension is 2000. This can be more clearly seen in speedup figure.
 
-In \cref*{fig:error},
-the accuracy plot shows that CP-ALS can't achieve relative error much below the square root 
-of machine precision, but CP-ALS-QR gets to around 1e-13. The yellow line indicates the difference
-between input and the actual solution given by the formula. It is just a reference which we don't
-expect both algorithms will get close to it.
+In \cref*{fig:error}, the accuracy plot shows that CP-ALS can't achieve relative error much below the square root of machine precision, but CP-ALS-QR gets to around 1e-13. 
+The yellow line indicates the difference between input and the actual solution given by the formula. 
+It is just a reference which we don't expect both algorithms will get close to it.
 
 The runtime plot indicates that both algorithms have time that depends linearly on n.  
-They have different slopes, and in particular the slope of CP-ALS-QR is better, 
-because CP-ALS does redundant computation for each subiteration while our implementation 
-of CP-ALS-QR avoids this.  So the speedup increases with n (and will also increase with d).
-Throughout the test, we used built-in CP-ALS function in tensor toolbox, which there are some redundant computation 
-can be improved.
+They have different slopes, and in particular the slope of CP-ALS-QR is better, because CP-ALS does redundant computation for each subiteration while our implementation of CP-ALS-QR avoids this. 
+So the speedup increases with n (and will also increase with d).
+Throughout the test, we used built-in CP-ALS function in tensor toolbox, which there are some redundant computation can be improved.
 
 
 
@@ -471,30 +466,27 @@ can be improved.
 
 \section{Appendix}
 \subsection{Reflection}
-After doing this project in this summer, I really got a sense about how interesting
-doing research is. At the beginning of this research, I and professor Ballard
-first tried another coefficient matrices technique for a few weeks. It didn't work
-well which made me kind of frustrated. Luckily, Another profeesor from England 
-used to think of one different method that after carefuly expansion and examination, we found 
-it worked. We further tested this method and we were pretty decent about the result.
-Then I had to write the report which is less excite because I have to define variables, setup notation
-and explain how formula and algorithm work. My mind in this researching process is just bouncing up and down
-which is interesting.
+After doing this project in this summer, I really got a sense about how interesting doing research is.
+At the beginning of this research, I and professor Ballard first tried another coefficient matrices technique for a few weeks. 
+It didn't work well which made me kind of frustrated. 
+Luckily, Another professor from England used to think of one different method that after carefully expansion and examination, we found it worked. 
+We further tested this method and we were pretty decent about the result.
+Then I had to write the report which is less excite because I have to define variables, setup notation and explain how formula and algorithm work. 
+My mind in this researching process is just bouncing up and down which is interesting.
 
-For educational development, the main feeling when I was doing research is that I do not have really solid mathematical
-background. Even though I have already took Numerical Linear Algebra and two linear algebra courses in math department,
-I sometimes still feel like I cannot understand lemmas and porperties. If I was better at 
-math, I maybe more efficiency and can locate the problem quicker. I'm thinking about presuting a math minor in the 
-future. Besides from this part, I also had a chance to look deep into what I have learnt through this research.
+For educational development, the main feeling when I was doing research is that I do not have really solid mathematical background. 
+Even though I have already took Numerical Linear Algebra and two linear algebra courses in math department, I sometimes still feel like I cannot understand lemmas and properties. 
+If I was better at math, I maybe more efficiency and can locate the problem quicker. 
+I'm thinking about getting a math minor in the future. 
+Besides from this part, I also had a chance to look deep into what I have learnt through this research.
 There are lots of mathematical reasons that support these computation methods which I found out really interesting.
-
-For personal development, I think inthe future I may persuitinng higher degree because doing research
-is interesting for now. However this doesn't mean that I will always do research.
+For personal development, I think in the future I may get a higher degree because doing research is interesting for now. 
+However this doesn't mean that I will always do research.
 Right now, I just feel kind of tired because sticking with one thing for 10 more weeks definitely will wipe some excitements from people.
 Right now I really want the new semester starts so that I can learn new stuff and take a break from research.
 Speaking of this, my future personal goal is try to find a balance between studying and relax, or researching and studying.
 \bibliographystyle{plain}
-\cite{1}
+
 
 \bibliography{reference}
 
