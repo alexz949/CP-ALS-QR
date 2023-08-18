@@ -7,7 +7,7 @@
       \For{$n = 1, \dots, N$}
       \State $\mat{Z}_n^\top\mat{Z}_n = \mat{G}_1 \ast \mat{G}_2 \ast \dots \ast \mat{G}_n$
       \State $\mat{Z}_n =  (\mat{A}_N \odot \mat{A}_{N-1} \odot \dots \odot \mat{A}_{n+1} \odot \mat{A}_{n-1} \odot \dots \odot \mat{A}_1)$
-      \State Compute $\mat{X}_{(n)}\mat{Z}_n$
+      \State Compute MTTKRP $\mat{X}_{(n)}\mat{Z}_n$ \label{l:NE-krp}
       \State Solve $\mat{\hat{A}}_n = \mat{Z}_n^\top\mat{Z}_n \text{\textbackslash}  \mat{X}_{(n)}\mat{Z}_n$
       \State Update $\mat{A}_n$ and $\bm{\lambda}$
       \State Update gram $\mat{G}_n$ by recomputing $\mat{A}_n^\top\mat{A}_n$

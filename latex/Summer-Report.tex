@@ -60,7 +60,7 @@
 \let\ds\displaystyle
 
 \newcommand{\GB}[1]{\textcolor{red}{\textbf{GB}: #1}}
-
+\newcommand{\AZ}[1]{\textcolor{blue}{\textbf{AZ}: #1}}
 
 \begin{document}
 
@@ -87,8 +87,6 @@
 %The normal equations approach is linear in $N$ for Kruskal tensor. During the summer I tried
 %to revise and implement former QR method which archieved better stability than normal equations
 %but computation time increases linearly with respect to $N$.
-
-
 
 
 
@@ -260,16 +258,17 @@ This structure can be exploited in different ways depending on how the least squ
 \subsubsection{Algo}
 
 
-The key to the CP-ALS-NE algorithm is that the problem in each factor matrix is a \emph{linear} least squares problem, which we can solve using linear algebra as described in \cref{sec:LS}.
-
-In terms of the work in CP-ALS-NE, we need to solve a sequence of least square problems of the form 
+The key to the CP-ALS-NE algorithm is that we will use normal equation (NE) \cref{eq:NE} method to solve linear least squares problems along all modes.
+The least squares problem for n-mode is
 $$\min_{\mat{\hat{A}}_n}||\mat{X_{(n)}} - {\mat{\hat{A}_n}}\mat{Z}^\top_n ||$$
-where $\mat{X_{(n)}}$ is a matricized tensor, $\mat{\hat{A}_n}$ is the variable factor matrix, and $\mat{Z}^\top_n$ is the transpose of the Khatri-Rao product of all the fixed factor matrices:
-$$\mat{Z}^\top_n = (\mat{A}_N \odot \mat{A}_{N-1} \odot \dots \odot \mat{A}_{n+1} \odot \mat{A}_{n-1} \odot \dots \odot \mat{A}_1)^\top. $$ 
+in NE representation, it will be
 \GB{We shouldn't use CP-ALS to refer to the normal equations approach, as our QR approach is also based on CP-ALS.  Let's use CP-ALS-NE to refer to the standard approach.  Update this in the text and in \cref{alg:cp-als-ne}.}
-In the standard implementations of CP-ALS, this least squares problem is solved using the normal equations approach,
-$$\mat{\hat{A}_n}\mat{Z}_n^\top\mat{Z}_n = \mat{X}_{(n)}\mat{Z}_n$$
-where $\mat{Z}_n^\top\mat{Z}_n$ can be computed as a Hadamard product of Gram matrices of $\mat{A}_{1}, \dots, \mat{A}_{n-1}, \mat{A}_{n+1}, \dots, \mat{A}_{n}$. 
+\begin{equation}
+  \mat{\hat{A}_n}\mat{Z}_n^\top\mat{Z}_n = \mat{X}_{(n)}\mat{Z}_n
+  \label{eq:CP-NE}
+\end{equation}
+where $\mat{Z}_n^\top\mat{Z}_n$ can be computed as a Hadamard product of Gram matrices of $\mat{A}_{1}, \dots, \mat{A}_{n-1}, \mat{A}_{n+1}, \dots, \mat{A}_{n}$.
+$\mat{X}_{(n)}\mat{Z}_n$ can be computed as MTTKRP.
 We refer to this standard approach as CP-ALS-NE. Pseudocode for CP-ALS-NE is given in \cref{alg:cp-als-ne}.
 \begin{algorithm}[!ht]
   \caption{CP-ALS-NE}
@@ -277,51 +276,82 @@ We refer to this standard approach as CP-ALS-NE. Pseudocode for CP-ALS-NE is giv
   \input{algo/cp_als.tex}
 \end{algorithm}
 \subsubsection{Dense Input}
+When we have a dense tensor input, the majority cost comes from the computation of $\mat{X}_{(n)}\mat{Z}_n$.
+This is called matricized-tensor times Khatri-Rao product (MTTKRP).
+MATLAB Tensor Toolbox has this MTTKRP function which is used in CP-ALS standard approach (NE).
+
 \subsubsection{Kruskal Input}
-If the input tensor $\T[]{X}$ is already in Kruskal format, we can also use Hadamard product to compute right-hand-side more efficient.
+If the input tensor $\T[]{X}$ is already in Kruskal format, we can compute $\mat{X}_{(n)}\mat{Z}_n$ more efficient by applying hadamard product.
+
 \begin{align}
-  \mat{X}_{(n)}\mat{Z}_n &= \mat{X}_n(\mat{X}_N \odot \dots \odot \mat{X}_{n+1} \odot \mat{X}_{n-1} \odot \dots \odot \mat{X}_1)^\top(\mat{A}_N \odot \dots \odot \mat{A}_1) \nonumber \\
- &= \mat{X}_n(\mat{X}_N^\top\mat{A}_N) \ast \dots \ast (\mat{X}_{n+1}^\top\mat{A}_{n+1}) \ast (\mat{X}_{n-1}^\top\mat{A}_{n-1}) \ast \dots \ast (\mat{X}_1^\top\mat{A}_1)  \nonumber 
+  \mat{X}_{(n)}\mat{Z}_n &= \mat{B}_n(\mat{B}_N \odot \dots \odot \mat{B}_{n+1} \odot \mat{B}_{n-1} \odot \dots \odot \mat{B}_1)^\top(\mat{A}_N \odot \dots \odot \mat{A}_1) \nonumber \\
+ &= \mat{B}_n(\mat{B}_N^\top\mat{A}_N) \ast \dots \ast (\mat{B}_{n+1}^\top\mat{A}_{n+1}) \ast (\mat{B}_{n-1}^\top\mat{A}_{n-1}) \ast \dots \ast (\mat{B}_1^\top\mat{A}_1)  \nonumber 
 \end{align}
+Which in \cref{l:NE-krp}, it will be 
+\begin{algorithm}[!ht]
+  \begin{algorithmic}
+    \State Compute $\mat{X}_{(n)}\mat{Z}_n$ as hadamard product for all $\mat{B}_n^\top\mat{A}_n$
+  \end{algorithmic}
+\end{algorithm}
+
+
+
+
 \subsection{CP-ALS-Explicit-QR}
-For CP-ALS-QR approach, it is similar to CP-ALS-NE, but this time more stable QR decomposition is used for solving least square problem instead of normal equation.
-For normal N-mode tensor $\T{X}^{I_1 \times \dots \times I_N}$, we still need to solve a bunch of least square problems in the form
-$$\min_{\mat{\hat{A}}_n}||\mat{X_{(n)}} - {\mat{\hat{A}_n}}\mat{Z}^\top_n ||$$ for every mode.\\
-This time we will first perform QR on each factor matrix in $\mat{Z}_n$, which 
+For CP-ALS-QR approach, it is similar to CP-ALS-NE, but this time more stable QR decomposition is used for solving least square problem instead of NE.
+For mode-n least squares problem,
+$$\min_{\mat{\hat{A}}_n}||\mat{X_{(n)}} - {\mat{\hat{A}_n}}\mat{Z}^\top_n ||$$
+We will first perform QR on each factor matrix in $\mat{Z}_n$, which 
 \begin{align}
   \mat{Z}_n &= \mat{A}_N \odot \dots \odot \mat{A}_{n+1} \odot \mat{A}_{n-1} \odot \dots \odot \mat{A}_1 \nonumber \\
   &= (\mat{Q}_N\mat{R}_N) \odot \dots \odot (\mat{Q}_{n+1}\mat{R}_{n+1}) \odot (\mat{Q}_{n-1}\mat{R}_{n-1}) \odot \dots \odot (\mat{Q}_1\mat{R}_1) \nonumber \\
   &= (\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1)(\mat{R}_N \odot \dots \odot \mat{R}_{n+1} \odot \mat{R}_{n-1} \odot \dots \odot \mat{R}_1)\nonumber  
 \end{align}
-After that we will perform QR again on Khatri-Rao product of $\mat{R}_{N,\dots,1}$, so $\mat{Z}_n$ will be
+After that we will perform QR again on $\mat{Q}_0\mat{R}_0=(\mat{R}_N \odot \dots \odot \mat{R}_1)$, so $\mat{Z}_n$ will be
 $$\mat{Z}_n = (\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1)\mat{Q}_0\mat{R}_0$$
-For solving least square problem, we will first apply kronecker product of Qs $\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1$ into $\mat{X}_{(n)}$ through TTM  $\mat{Y}_{(n)} =  \T{X} \times_1 \mat{Q}_1^\top \dots \times_{n-1} \mat{Q}_{n-1}^\top \times_{n+1} \mat{Q}_{n+1}^\top \dots \times_N \mat{Q}_N^\top$.
-This problem becomes
-\begin{align}
-  \mat{\hat{A}_n}\mat{Q}_0^\top \mat{R}_0^\top &= \mat{Y}_{(n)} \nonumber \\
-  \mat{\hat{A}_n}\mat{R}_0^\top &= \mat{Y}_{(n)} \mat{Q}_0 \nonumber \\
-  \mat{\hat{A}_n} &= \mat{R}_0^\top \text{\textbackslash} \mat{Y}_{(n)} \mat{Q}_0 \nonumber
-\end{align}
+The triangular system for QR in this case will be 
+\begin{equation}
+  \hat{\mat{A}}_n\mat{R}_0^\top = \mat{X}_{(n)}(\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1)\mat{Q}_0 
+  \label{eq:CP-EXP-QR}
+\end{equation}
+For solving least square problem, we will first apply kronecker product of Qs $\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1$ into $\mat{X}_{(n)}$
+$$\mat{Y}_{(n)} = \mat{X}_{(n)}(\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1)$$
+Then use backslash to solve the linear system
+\begin{equation}
+  \hat{\mat{A}}_n = \mat{R}_0^\top \text{\textbackslash} \mat{Y}_{(n)}\mat{Q}_0
+\end{equation}
 Sample pseudocode for CP-ALS-QR is showed in \cref{alg:cp-als-qr}
 \begin{algorithm}
-  \caption{CP-ALS-QR}
+  \caption{CP-ALS-explicit-QR}
   \label{alg:cp-als-qr}
   \input{algo/cp_als_qr.tex}
 \end{algorithm}
 \subsubsection{Dense Input}
+The difference between dense and Kruskal tensor is the computation of $\mat{Y}_{(n)}$. In dense case, the computation is doing tensor times matrix (TTM) through all modes.
+$$\T[]{Y} = \T[]{X} \times_1 \mat{Q}_1 \times \dots \times_{n-1} \mat{Q}_{n-1} \times_{n+1}\mat{Q}_{n+1} \times \dots \times_N \mat{Q}_N$$
+and use matricized tensor $\mat{Y}_{(n)}$ times $\mat{Q}_0$.
 
 \subsubsection{Kruskal Input}
+If we have a Kruskal tensor input, the computation of right hand side will be 
+\begin{equation}
+  \mat{Y}_{(n)}\mat{Q}_0  = \mat{B}_n(\mat{B}_N\mat{Q}_N \odot \dots \odot \mat{B}_{n+1}\mat{Q}_{n+1} \odot \mat{B}_{n-1}\mat{B}_{n-1} \odot  \dots \odot \mat{B}_1\mat{Q}_1)\mat{Q}_0 \nonumber 
+\end{equation}
+We can treat $\mat{Q}_0$ as a matricized tensor and we can compute this as MTTKRP and a small matrix multiplication in \cref{l:TTM} and \cref{l:apply}.
+\begin{algorithm}[!ht]
+  \begin{algorithmic}
+    \State MTTKRP for $\mat{B}_n(\mat{B}_N\mat{Q}_N \odot \dots \odot \mat{B}_{n+1}\mat{Q}_{n+1} \odot \mat{B}_{n-1}\mat{B}_{n-1} \odot  \dots \odot \mat{B}_1\mat{Q}_1)\mat{Q}_0 $
+  \end{algorithmic}
+\end{algorithm}
 
 
 
 \subsection{CP-ALS-Pairwise-QR}
 \subsubsection{Algo}
-For Kruskal tensor input, we introduced a new QR-based method utilizing this Kruskal format avoiding forming Multi-TTM tensor $\mat{Y}$ in dense tensor case. 
-We can represent Kruskal unfolding into Khatri-Rao product of factor matrices. This will help us to just do simple matrix multiplication.
-
-Take the same least square problem in dense case, we still need to do QR factorization for each factor matrix in $\mat{Z}_n$, which
+There is also a new QR-based method instead of computing QR on $(\mat{R}_N \odot \dots \odot \mat{R}_1)$, it compute QR for Khatri-Rao product of two matrices $\mat{R_n} \odot \mat{R}_{n-1}$.
+It avoids the formation of $\mat{Q}_0\mat{R}_0$ which its cost is exponential respect to the size of input tensor.
+Doing QR on factor matrices is the same.
 $$\mat{Z}_n = (\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1)(\mat{R}_N \odot \dots \odot \mat{R}_{n+1} \odot \mat{R}_{n-1} \odot \dots \odot \mat{R}_1)$$
-But this time instead of forming QR for Khatri-Rao product of $\mat{R}_N \odot \dots \odot \mat{R}_{n+1} \odot \mat{R}_{n-1} \odot \dots \odot \mat{R}_1$, we will first do QR for $\mat{R}_N \odot \mat{R}_{N-1} = \mat{Q}_{A}\mat{R}_A$ and Khatri-Rao product of $\mat{R}$ will be 
+But this time we will first do QR for $\mat{R}_N \odot \mat{R}_{N-1} = \mat{Q}_{A}\mat{R}_A$ and Khatri-Rao product of $\mat{R}$ will be 
 $$\mat{Q}_{A_{N-1}}\mat{R}_{A_{N-1}} \odot \mat{R}_{N-2} \odot \dots \odot \mat{R}_{n+1} \odot \mat{R}_{n-1} \odot \dots \odot \mat{R}_1$$
 We will use the same technique in representing $\mat{Z}_n$, which this will transform into 
 $$(\mat{Q}_{A_{N-1}} \otimes \dots \otimes \mat{I}_N \otimes \mat{I}_N \otimes \dots  \otimes  \mat{I}_N)(\mat{R}_{A_{N-1}} \odot \dots \odot \mat{R}_{n+1} \odot \mat{R}_{n-1} \odot \dots \odot \mat{R}_1)$$
@@ -330,17 +360,18 @@ $$\mat{V}_N = \underbrace{(\mat{Q}_{A_{N-1}} \otimes \dots  \otimes  \mat{I}_N)}
 where $\mat{Z}_n$ will be 
 $$\mat{Z}_n = (\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1) (\mat{Q}_{A_{N-1}} \otimes \dots  \otimes  \mat{I}_N)(\mat{Q}_{A_{N-2}} \otimes \dots \otimes \mat{I}_N) \cdots (\mat{Q}_{A_{2}} \otimes \mat{I}_N) \mat{Q}_{A_{1}}\mat{R}_{A_{1}}$$
 
-The sample pseudocode is showed in \cref{alg:cp-als-pairwise-qr}
+The sample pseudocode is showed in \cref{alg:cp-als-pairwise-qr} \AZ{This algo needs some change in line 7,8}
 \begin{algorithm}
   \caption{CP-ALS-Pairwise-QR}
   \label{alg:cp-als-pairwise-qr}
   \input{algo/cp_als_pairwise.tex}
 \end{algorithm}
 \subsubsection{Dense Input}
+\AZ{I haven't started this part yet because I'm still confused how to apply pairwise QR into RHS after I did Multi-TTM to get $\T[]{Y}$}
 
 \subsubsection{Kruskal Input}
-We also need to first apply kronecker product of $\mat{Q}$ in $\mat{Z}_n$ to $\mat{X}_n$. 
-But this time since we can use the Kruskal structure which $\mat{X}_{(n)} = \mat{B}_{n}(\mat{B}_{N} \odot \dots \odot \mat{B}_{n+1} \odot \mat{B}_{n-1}  \odot \dots \odot \mat{B}_{1})^\top$. 
+
+With Kruskal input, we can use the Kruskal structure $\mat{X}_{(n)} = \mat{B}_{n}(\mat{B}_{N} \odot \dots \odot \mat{B}_{n+1} \odot \mat{B}_{n-1}  \odot \dots \odot \mat{B}_{1})^\top$. 
 Applying $\mat{Q}$ into $\mat{X}_n$. 
 This gives us
 \begin{align}
@@ -351,16 +382,16 @@ On following step, we will apply that set of kronecker $\mat{Q}$ into $\mat{Y}_n
 \begin{align}
   \mat{Y}_n   &= (\mat{Q}_N\mat{B}_N \odot \dots \odot \mat{Q}_{n+1} \mat{B}_{n+1} \odot \mat{Q}_{n-1}\mat{B}_{n-1} \odot \dots \odot \mat{Q}_{1}\mat{B}_{1}) \nonumber   \\
       &= ((\mat{Q}_N\mat{B}_N \odot \mat{Q}_{N-1}\mat{B}_{N-1}) \odot \dots \odot \mat{Q}_{n+1} \mat{B}_{n+1} \odot \mat{Q}_{n-1}\mat{B}_{n-1} \odot \dots \odot \mat{Q}_{1}\mat{B}_{1})^\top\mat{B}_n \nonumber      \\
-      \mat{Y}_n\mat{Q}_{A_{N-1}}^\top  &= (\mat{Q}_{A_{N-1}}^\top(\mat{Q}_N\mat{B}_N \odot \mat{Q}_{N-1}\mat{B}_{N-1}) \odot \dots \odot \mat{Q}_{n+1} \mat{B}_{n+1} \odot \mat{Q}_{n-1}\mat{B}_{n-1} \odot \dots \odot \mat{Q}_{1}\mat{B}_{1})^\top\mat{B}_n \nonumber \\
+      \mat{Y}_n\mat{Q}_{A_{N-1}}  &= (\mat{Q}_{A_{N-1}}(\mat{Q}_N\mat{B}_N \odot \mat{Q}_{N-1}\mat{B}_{N-1}) \odot \dots \odot \mat{Q}_{n+1} \mat{B}_{n+1} \odot \mat{Q}_{n-1}\mat{B}_{n-1} \odot \dots \odot \mat{Q}_{1}\mat{B}_{1})^\top\mat{B}_n \nonumber \\
       & \vdots \nonumber \\
-    \mat{U}_n  &= (\mat{Q}_{M}^\top\mat{B}_M)^\top\mat{B}_n \nonumber  
+    \mat{U}_n  &= (\mat{Q}_{M}\mat{B}_M)^\top\mat{B}_n \nonumber  
 \end{align}
 Notice that we only have to do one matrix multiplication once a time because when use the same property, one matrix times an identity matrix will still be itself.
-We can then follow the same way to solve the least square problem with calculated $\mat{Q}^\top\mat{B}$.
-\begin{align}
-  \mat{\hat{A}}_n \mat{R}^\top_{A_1} &= \mat{B}^\top_M\mat{Q}_M\mat{B}_n \nonumber \\ 
-  \mat{\hat{A}}_n &= \mat{R}^\top_{A_1} \text{\textbackslash} \mat{B}^\top_M\mat{Q}_M\mat{B}_n \nonumber 
-\end{align}
+We can solve this linear system
+\begin{equation}
+  \mat{\hat{A}}_n\mat{R}_{A_1}^\top = \mat{U}_n 
+\end{equation}
+
 
 
 
