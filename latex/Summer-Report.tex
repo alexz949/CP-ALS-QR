@@ -114,6 +114,11 @@ There exists ambiguity in the weighting of the columns of the factor matrices an
 For simplicity of presentation, we drop the weight vector $\V{\lambda}$ throughout this report and use the representation
 $$\T{K} = [\![\mat{A}_1,\mat{A}_2, \dots,\mat{A}_d ]\!].$$
 
+A tensor unfolding is a reshaping of the tensor elements into a matrix; mode-wise unfoldings map tensor fibers of a particular mode to columns of a matrix.
+In the case of CP-format tensors like $\T{K}$, the $k$th mode-wise unfolding can be expressed in terms of the factor matrices:
+$$\mat{K}_{(k)} = \mat{A}_k (\mat{A}_N \odot \dots \odot \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \dots \odot \mat{A}_1)^\top,$$
+where $\odot$ denotes the Khatri-Rao product.
+
 \subsection{Linear Least Squares Problem}
 \label{sec:LS}
 
@@ -185,18 +190,18 @@ In this case, we apply $\mat{Q}$ to $\mat{B}$ using Householder transformations,
 \end{table}
 
 If $\mat{B}$ has few columns ($p\ll n$), NE is cheaper because of the smaller coefficient in the leading order cost ($mn^2$ vs $2mn^2$). 
-However, when $\mat{B}$ has many columns ($p\gg n$), the largest cost is computing $\mat{B}\mat{A}$ for NE and $\mat{B}\mat{Q}$ for QR factorization, which have the same leading order cost and same constant ($2mnp$).
+However, when $\mat{B}$ has many columns ($p\gg n$), the largest cost is computing $\mat{B}\mat{A}$ for NE and $\mat{B}\mat{Q}$ for QR factorization, which have leading order cost with the same constant ($2mnp$).
 
 Using QR is more numerically stable than NE. 
 Let $\kappa = \sigma_1(\mat{A})/\sigma_n(\mat{A})$ be the standard condition number of $\mat{A}$.
 If we use QR to solve a least squares problem with a single right hand side; i.e. $\min\|\mat{A}\V{x} - \V{b} \|$, then from \cite[Eq. (19.2)]{trefethen1997numerical} the relative forward error satisfies
 \begin{equation}
-  \frac{||\tilde{x} - x||}{||x||} = O \biggl(\biggl(\kappa + \frac{\kappa^2\tan\theta}{\eta}\biggr)\epsilon_{mach}\biggr),
+  \frac{||\V[\tilde]{x} - \V{x}||}{||\V{x}||} = O \biggl(\biggl(\kappa + \frac{\kappa^2\tan\theta}{\eta}\biggr)\epsilon_{mach}\biggr),
 \end{equation}
 where $\V[\tilde]{x}$ is the computed solution, $\V{x}$ is the exact solution, $\theta$ is the angle between $\mat{A}\V{x}$ and $\V{b}$, and $\eta = \|\mat{A}\|\|\V{x}\|/\|\mat{A}\V{x}\|$.
 However, if we use the NE approach, then by \cite[Eq. (19.3)]{trefethen1997numerical} the forward error guarantee can be much larger: 
 \begin{equation}
-  \frac{||\tilde{x} - x||}{||x||} = O \biggl(\kappa^2 \epsilon_{\text{mach}}\biggr).
+  \frac{||\V[\tilde]{x} - \V{x}||}{||\V{x}||} = O \biggl(\kappa^2 \epsilon_{\text{mach}}\biggr).
 \end{equation}
 Because of the numerical sensitivity introduced by using the NE approach, the QR approach is much more accurate when $\kappa$ is large (e.g., on the order of $\epsilon_{\text{mach}}^{-1/2}$ or larger).
 
@@ -207,7 +212,7 @@ Because of the numerical sensitivity introduced by using the NE approach, the QR
 
 When computing a rank-$r$ CP approximation $\T{K}$ for a N-way tensor $\T{X}$, we seek to minimize $\| \T{X} - \T{K} \|$, where the tensor norm generalizes the vector 2-norm or the matrix Frobenius norm.
 Expressed using \cref{eq:CP}, we have  
-$$\min_{\mat{A}_1,\mat{A}_2, \dots,\mat{A}_d} \sum_{i_1=1}^{n_1} \cdots \sum_{i_d=1}^{n_d} \left(\T{X}(i_1,i_2,\dots, i_d) - \sum^{r}_{j=1} \mat{A_1}(i_1,j)\mat{A_2}(i_2,j) \dots \mat{A_d}(i_d,j) \right)^2 $$
+$$\min_{\mat{A}_1,\mat{A}_2, \dots,\mat{A}_d} \| \T{X} - \T{K} \|^2 = \min_{\mat{A}_1,\mat{A}_2, \dots,\mat{A}_d} \sum_{i_1=1}^{n_1} \cdots \sum_{i_d=1}^{n_d} \left(\T{X}(i_1,i_2,\dots, i_d) - \sum^{r}_{j=1} \mat{A_1}(i_1,j)\mat{A_2}(i_2,j) \dots \mat{A_d}(i_d,j) \right)^2. $$
 However, this is a nonlinear, nonconvex optimization problem and no closed form solution exists. 
 We must resort to using iterative methods to approximate a solution \cite{kolda2009tensor}.
 
@@ -217,37 +222,37 @@ One of the most effective algorithms for computing a CP decomposition of a tenso
 The algorithm works as a block coordinate descent method, where each block of variables is a factor matrix.
 That is, it alternates over the factor matrices, holding all but one fixed and computing the optimal solution for the variable matrix.
 
-\GB{Give CP-ALS algorithm here with least squares problem formulation (not using NE)}
+We can solve each subproblem directly because it is a linear least squares problem.
+In updating the $n$th factor matrix, we expose the linear least squares problem by unfolding $\T{X}$ and $\T{K}$ along the $k$th mode:
+\begin{align}
+\label{eq:cp-als-sub}
+\min_{\mat{A}_k}||\T{X} - \T{K}|| &= \min_{\mat{A}_k}||\mat{X}_{(k)} - \mat{K}_{(k)}||_F \notag \\ 
+&=  \min_{\mat{A}_k}||\mat{X}_{(k)} - \mat{A}_k(\mat{A}_N \odot \dots \odot \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \dots \odot \mat{A}_1)^\top||_F \notag \\ 
+&=  \min_{\mat{A}_k}\|\mat{X}_{(k)}-\mat{A}_k\mat{Z}_k^\top\|_F,
+\end{align}
+where $\mat{Z}_k=\mat{A}_N \odot \dots \odot \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \dots \odot \mat{A}_1$.
+Note that the coefficient matrix $\mat{Z}_k^\top$ appears on the right of the variable matrix, matching the generic formulation in \cref{eq:LS}.
 
-
-The idea is to unfold $\T[]{X}$ and $\T[]{K}$ along all modes so that we can solve a linear least squares problem for each factor matrix.
-$$\min||\T[]{X} - \T[]{K}|| = \min||\mat{X}_{(n)} - \mat{K}_{(n)}||$$
-where $\mat{K}_{(n)} = \hat{\mat{A}}_n(\mat{A}_N \odot \dots \odot \mat{A}_{n+1} \odot \mat{A}_{n-1} \odot \dots \odot \mat{A}_1)^\top$, $\hat{\mat{A}}_n = \mat{A}_n \cdot diag(\lambda)$.
-Let $\mat{Z}_n=\mat{A}_N \odot \dots \odot \mat{A}_{n+1} \odot \mat{A}_{n-1} \odot \dots \odot \mat{A}_1$, then $\mat{K}_{(n)} = \hat{\mat{A}}_n\mat{Z}_n^\top$.
-We can rewrite this minimize problem to be a least square problem for $\hat{\mat{A}}_n$.
-\begin{equation}
-  \min_{\hat{\mat{A}}_n}\|\mat{X}_{(n)}-\hat{\mat{A}}_n\mat{Z}_n^\top\|
-\end{equation}
+All of the algorithms we consider in this report are based on CP-ALS, but they differ in how they solve the linear least squares subproblems specified in \cref{eq:cp-als-sub}.
 
 \subsubsection{CP-Rounding}
 
-\GB{I started to edit this section, but it's in rough shape.  You don't want to introduce the CP notation here, that should be done earlier in the CP Decomposition section.  You should introduce what notation you'll use to distinguish between input and output.  You should use B's to represent the input to match what you do later in the QR section.  But you need to show how NE works with Kruskal input.  You can leave some details out, but you need the expressions so we can do the complexity analysis for comparison.  You can cite the Kolda-Bader paper on sparse and structured tensors here.  Also, don't switch to 3-way tensors here, you're doing $d$-way everywhere else so stick to that.}
-
-For some applications, we wish to compute a CP decomposition of a matrix that is already in CP or \emph{Kruskal} format.
+For some applications, we wish to compute a CP decomposition of a matrix that is already in CP format.
 That is, we wish to compute a lower-rank representation of the input tensor, sometimes referred to a CP-Rounding.
-Given a d-way tensor $\T[]{X} \in \mathbb{R}^{I_1 \times \dots \times I_d}$, it can be written as a sum of $R$ rank-1 tensors.
-$$\T[]{X} = \sum^R_{i=1}\lambda_i\V{b}_i^{(1)} \circ \dots \circ \V{b}_i^{(d)}$$
-This is referred as \emph{Kruskal} tensor. It's shorthand notation will be 
+If $\T{X} \in \mathbb{R}^{n_1 \times \dots \times n_d}$ is a CP-format tensor with rank $s$, it can be written as 
+$$\T{X}(i_1,i_2,\dots, i_d) = \sum^{s}_{j=1} \mat{B}_1(i_1,j)\mat{B}_2(i_2,j) \dots \mat{B}_d(i_d,j)$$
+with shorthand notation $\T{X} = [\![\mat{B}^{(1)}, \dots ,\mat{B}^{(d)}]\!]$.
 
-$$\T{X} = [\![\bm{\lambda} ; \mat{B}^{(1)}, \dots ,\mat{B}^{(d)}]\!].$$ 
-
-
-where $\mat{B}^{(n)} = \big[\V[]{b}_1^{(n)} \dots \V[]{b}_R^{(n)}\big]$ and $\bm{\lambda} = \big[\lambda_1 \dots \lambda_R\big]^\top$ are called factor matrices and corresponding coefficients.
-If we already have a Kruskal tensor input, we can then utilize its special mode-$k$ unfolding representation when solving least squares problem. 
-Given a d-way Kruskal tensor $\T{K}$ for example. It's mode-k unfolding in terms of Khatri-Rao product of factor matrices is
+In the case the input tensor is in CP format, we can then utilize its special mode-$k$ unfolding representation 
 $$\mat{X}_{(k)} = \mat{B}_k(\mat{B}_d \odot \dots \mat{B}_{k+1} \odot \mat{B}_{k-1} \odot \dots \odot \mat{B}_1)^\top$$
-Which we can reduce computation cost by applying special matrices multiplication.
-
+when solving the linear least squares problem given in \cref{eq:cp-als-sub}. 
+That is, the least squares subproblem is given by 
+\begin{equation}
+\label{eq:cp-als-sub-ktensor}
+\min_{\mat{A}_k}\|\mat{B}_{k}\mat{Y}_k^\top-\mat{A}_k\mat{Z}_k^\top\|_F,
+\end{equation}
+where $\mat{Y}_k = \mat{B}_N \odot \dots \odot \mat{B}_{k+1} \odot \mat{B}_{k-1} \odot \dots \odot \mat{B}_1$.
+This structure can be exploited in different ways depending on how the least squares problem is solved.
 
 
 \section{Algorithm}
