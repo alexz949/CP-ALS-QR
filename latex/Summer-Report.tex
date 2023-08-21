@@ -397,6 +397,7 @@ We can solve this linear system
 
 
 \subsection{Complexity}
+\AZ{I don't know whether it is fine to just leave a table w/o explaination here.}
 
 For a d-way Kruskal tensor $\T{K} \in \mathbb{R}^{n_1 \times \dots \times n_d}$ and assume $n_1, \dots , n_d$ are the same. 
 If we want to do the rank-$r$ CP Decomposition for two different ALS methods, the distribution of time is presented in \cref{tab:its_parts}
@@ -434,69 +435,72 @@ $$+\text{cos}(x_1)\text{sin}(x_2)\text{cos}(x_3) - \text{sin}(x_1)\text{sin}(x_2
 In this test, we need to approximate this N-dimensional function in a low rank linear representation instead of a exponential one, which by Beylkin and Mohlenkamp,
 $$\text{sin}\bigl(\sum^d_{j=1}x_j\bigr) = \sum^d_{j=1}\text{sin}(x_j)\prod^d_{k=1,k\neq j}\frac{\text{sin}(x_k - \alpha_k -\alpha_j)}{\text{sin}(\alpha_k - \alpha_j)}$$
 for all choices of  ${\alpha_j}$ such that $\text{sin}(\alpha_k - \alpha_j) \neq 0$ for all $j \neq k$.
-\\
+
 We can somehow treat this sine of sum be a N-mode tensor $\T{X} \in \mathbb{R}^{n \times \dots \times n}$, and each term of exponential representation corresponds to a rank $2^{d-1}$ CP decomposition. 
 It is also possible to have a rank $n$ CP decomposition by the linear representation mentioned above. 
 This representation can be ill-conditioned if $\alpha_k \rightarrow \alpha_j$.
-But we also found out that this ill-conditioned property still holds when we choose $\alpha$ to be evenly spaced.
+In the actual problem setup, we make $a_k$ and $a_j$ to be evenly spaced between $\frac{\pi}{d}\frac{(d-1)}{100}$. 
 
-We first used this ill-conditioned problem to solve a least square problem which takes this 6-way exponential sin of sums Kruskal tensor as an input, tries to solve a least square problem on the last factor matrix, and compute the error between original full ktensor and the full ktensor that has been approximated. 
-We did visualization for both runtime and accuracy showed in \cref{fig:LS_problem}
+The goal for this test is to see how the speed and accuracy of different algorithms will change when varying condition number $K$.
+We first created bunch of ktensors given different $d$. The least squares problems here are trying to approximate the last factor matrix in exponential representation. Comparing the relative error between approximated matrix and the factor matrix we formed in linear representation through built function. 
+The table and figure for showing speed and accuracy is showed in \cref{fig:LS_problem}.
 
 \begin{figure}[ht!]
   
   \begin{center}
-    \includegraphics*[scale = 0.12]{6stacked.jpg}
-    \includegraphics*[scale = 0.22]{6wayacc.jpg}
-    \caption[Figure]{runtime and accuracy for pairwise Elim, normal equation, and explicit QR \label{fig:LS_problem}}
+    \includegraphics*[scale = 0.2]{6dim.jpg}
+    \caption[Figure]{runtime for pairwise QR, normal equation, and explicit QR in different dimensions \label{fig:LS_problem}}
+    \AZ{I need to add a table here}
   \end{center}
-  
-  
+    
 \end{figure}
+\AZ{For the table showing accuracy, I have a mat file but I don't know whether I should put that in latex table or through MATLAB}
 
+For speed figure \cref{fig:LS_problem}, we can observe that the time for doing QR on $\mat{R}_N \odot \dots \odot \mat{R}_1$ and applying $\mat{Q}_0$ increases exponentially respect to $d$ for Explicit QR algorithm.
+Whereas the cost for doing pairwise QR and NE only increases linearly respect to $d$.
+We can know that new QR-based method runs much faster than Explicit QR, and just slightly slower than NE because it still has steps for computing and apply QR.
+For accuracy table, 
 
-Based on these two figures, we can know that new QR-based method has better accuracy than old QR method, and just slightly slower than normal equation because it still has steps for computing and apply QR. 
-To be more specific about the relative error, we can observe that in accuracy figure, new QR method is really close to the true error when condition number is $4e11$. 
-The relative error through normal equation blows up in this large condition number.
-Another thing to point out is that when dimension goes up more than 7, our old QR-based method's error has a sudden increase which I believe it is because of too large Khatri-Rao product formation.
+Another thing to point out is that when dimension goes up more than 7, the explicit QR's error has a sudden increase which I believe it is because of too large Khatri-Rao product formation.
 
-
-In the next step, I put new QR-based method into CP-ALS which further compare the runtime and accuracy to CP-ALS method using normal equation and Explicit. 
+\AZ{This figure needs to be double checked, feels like the time for Gram/QR is still not right.}
+In the next step, we put pairwise QR into CP-ALS which further compare the runtime and accuracy to CP-ALS-NE and CP-ALS-Explicit-QR. 
 There are also some visualizations showed in \cref{fig:runtime} and \cref{fig:error}
 \begin{figure}[ht!]
   \begin{center}
     
-    \includegraphics[scale = 0.25]{7runtime.jpg}
-    
-    \caption[Figure]{runtime for ALS and QR in different dimensions \label{fig:runtime}}
+    \includegraphics[scale = 0.15]{7runtime.jpg}
+    \caption[Figure]{runtime for NE, pairwise QR and Explicit QR in different dimensions \label{fig:runtime}}
   \end{center}
-difference 
 \end{figure}
+
+
+
+
+As showed in \cref*{fig:runtime}, for a 7-way sine of sum rank-7 ktensor, the execution time for CP-ALS-Explicit-QR always has a large cost despite varying dimensions. 
+Both ALS-NE and ALS-Pairwise-QR technique are more efficient.
+For pairwise QR, it is even faster than ALS using normal equation when dimension is 2000. This can be more clearly seen in \cref{fig:error}.
+In order to further compare the accuracy and time for NE and Pairwise QR algorithm, we put them into a larger dimensions scales from $n = 8$ to $20000$ in \cref{fig:error}.
+
 \begin{figure}[ht!]
   \begin{center}
     
     \includegraphics*[scale = 0.3]{accuracy.jpeg}
-    \includegraphics*[scale = 0.3]{runtime.jpeg}
+    \includegraphics*[scale = 0.3]{runtime.jpeg} 
     
     \caption[Figure]{runtime and accuracy figure for CP-ALS \label{fig:error}}
   \end{center}
   
 \end{figure}
 
-As showed in \cref*{fig:runtime}, for a 7-way sine of sum rank-7 ktensor, the execution time for explicit QR decomposition grows increasing large respect to the rank, but both ALS and pairwise QR technique are more efficient.
-For pairwise QR, it is even faster than ALS using normal equation when dimension is 2000. This can be more clearly seen in speedup figure.
-
-In \cref*{fig:error}, the accuracy plot shows that CP-ALS can't achieve relative error much below the square root of machine precision, but CP-ALS-QR gets to around 1e-13. 
+In \cref{fig:error}, when $d = 7, n=16$, the accuracy plot shows that CP-ALS can't achieve relative error much below the square root of machine precision, but CP-ALS-QR gets to around 1e-13. 
 The yellow line indicates the difference between input and the actual solution given by the formula. 
 It is just a reference which we don't expect both algorithms will get close to it.
 
 The runtime plot indicates that both algorithms have time that depends linearly on n.  
-They have different slopes, and in particular the slope of CP-ALS-QR is better, because CP-ALS does redundant computation for each subiteration while our implementation of CP-ALS-QR avoids this. 
-So the speedup increases with n (and will also increase with d).
+They have different slopes, and in particular the slope of CP-ALS-Pairwise-QR is smaller, because CP-ALS-NE does redundant computation for each subiteration while our implementation of pairwise QR avoids this. 
+The speedup for pairwise QR increases with n (and will also increase with d).
 Throughout the test, we used built-in CP-ALS function in tensor toolbox, which there are some redundant computation can be improved.
-
-
-
 
 \section{Conclusion and Future Work}
 

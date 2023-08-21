@@ -122,11 +122,14 @@ Qs = cell(N,1); %%% The Kronecker product of these tells us part of the Q of the
 Rs = cell(N,1); %%% The Khatri-Rao product of these tells us the rest of Q and the R of the Khatri-Rao product. %%%
 
 %%% Compute economy-sized QR decomposition. %%%
+qrf = 0;
+tic;
 for i = 1:N
     if ~isempty(U{i})
         [Qs{i}, Rs{i}] = qr(U{i},0); 
     end
 end
+qrf = toc;
    
 for iter = 1:maxiters
     t_ttm = 0; % TTM
@@ -194,7 +197,7 @@ for iter = 1:maxiters
         U{n} = Unew;
         
         %%% Recompute QR factorization for updated factor matrix. %%%
-        tic; [Qs{n}, Rs{n}] = qr(U{n},0); t_qrf = toc;
+        tic; [Qs{n}, Rs{n}] = qr(U{n},0); t = toc; t_qrf = t + t_qrf;
     end
 
     %%% Changes for cp_als_qr end here. %%%

@@ -129,8 +129,10 @@ for i = 1:N
     end
 end
 %%% TTM on all modes but the first one
+extra = 0;
+tic;
 Y = ttm(X,Qs,-1,'t');
-
+extra = toc;
 for iter = 1:maxiters
     t_ttm = 0; % TTM
     t_qrf = 0; % QR of factor matrices
@@ -198,7 +200,7 @@ for iter = 1:maxiters
         U{n} = Unew;
         
         %%% Recompute QR factorization for updated factor matrix. %%%
-        tic; [Qs{n}, Rs{n}] = qr(U{n},0); t_qrf = toc;
+        tic; [Qs{n}, Rs{n}] = qr(U{n},0); t = toc; t_qrf = t_qrf+t;
         %%% Update TTM on mode n
         if isa(X,'ktensor')             
             tic; Y.U{n} = Qs{n}' * X.U{n}; t = toc; t_ttm = t_ttm + t;
@@ -262,7 +264,7 @@ for iter = 1:maxiters
         break;
     end     
     
-    times(iter,:) = [t_ttm, t_qrf, t_kr, t_q0, t_back, t_lamb, t_err];
+    times(iter,:) = [t_ttm+extra, t_qrf, t_kr, t_q0, t_back, t_lamb, t_err];
 end   
 
 
