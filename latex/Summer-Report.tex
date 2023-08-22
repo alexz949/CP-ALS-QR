@@ -55,8 +55,8 @@
 \newcommand{\Vs}[3][]{\bm{#1{\mathbf{\MakeLowercase{#2}}}}^{(#3)}} 		% vector in series
 \newcommand{\Ve}[3][]{\bm{#1{\mathbf{\MakeLowercase{#2}}}}({#3})}		% vector entry
 \newcommand{\T}[2][]{#1{\mathbf{\cal{#2}}}} 						% tensor
-\newcommand{\Te}[3][]{#1{\mathbf{\cal{#2}}}({#3})}		
-
+\newcommand{\Te}[3][]{#1{\mathbf{\cal{#2}}}({#3})}	
+\DeclareMathOperator*{\hada}{\scalebox{1.5}{$\ast$}}
 \let\ds\displaystyle
 
 \newcommand{\GB}[1]{\textcolor{red}{\textbf{GB}: #1}}
@@ -234,6 +234,7 @@ Note that the coefficient matrix $\mat{Z}_k^\top$ appears on the right of the va
 All of the algorithms we consider in this report are based on CP-ALS, but they differ in how they solve the linear least squares subproblems specified in \cref{eq:cp-als-sub}.
 
 \subsubsection{CP-Rounding}
+\label{sec:cp-rounding}
 
 For some applications, we wish to compute a CP decomposition of a matrix that is already in CP format.
 That is, we wish to compute a lower-rank representation of the input tensor, sometimes referred to a CP-Rounding.
@@ -254,40 +255,48 @@ This structure can be exploited in different ways depending on how the least squ
 
 
 \section{Algorithm}
+
+\GB{need to specify notation/dimensions/etc for cost analyses; let's use $n_1 \times \cdots \times n_d$ as tensor dimension, $\bar n$ is the average dimension so that $d\bar n = \sum_k n_k$ and $\hat n$ is the geometric mean so that $\hat n^d = \prod_k n_k$}
+
 \subsection{CP-ALS-NE}
-\subsubsection{Algo}
 
 
-The key to the CP-ALS-NE algorithm is that we will use normal equation (NE) \cref{eq:NE} method to solve linear least squares problems along all modes.
-The least squares problem for n-mode is
-$$\min_{\mat{\hat{A}}_n}||\mat{X_{(n)}} - {\mat{\hat{A}_n}}\mat{Z}^\top_n ||$$
-in NE representation, it will be
-\GB{We shouldn't use CP-ALS to refer to the normal equations approach, as our QR approach is also based on CP-ALS.  Let's use CP-ALS-NE to refer to the standard approach.  Update this in the text and in \cref{alg:cp-als-ne}.}
+The key to the CP-ALS-NE algorithm is that we will use the normal equations (NE) method to solve the linear least squares problem given by \cref{eq:cp-als-sub} in each mode.
+The normal equations for this problem are given by
 \begin{equation}
-  \mat{\hat{A}_n}\mat{Z}_n^\top\mat{Z}_n = \mat{X}_{(n)}\mat{Z}_n
   \label{eq:CP-NE}
+  \mat{\hat{A}_k}\mat{Z}_k^\top\mat{Z}_k = \mat{X}_{(k)}\mat{Z}_k.
 \end{equation}
-where $\mat{Z}_n^\top\mat{Z}_n$ can be computed as a Hadamard product of Gram matrices of $\mat{A}_{1}, \dots, \mat{A}_{n-1}, \mat{A}_{n+1}, \dots, \mat{A}_{n}$.
-$\mat{X}_{(n)}\mat{Z}_n$ can be computed as MTTKRP.
+The coefficient matrix $\mat{Z}_k^\top\mat{Z}_k$ can be computed as a Hadamard product of Gram matrices of the Khatri-Rao factors:
+\begin{equation*}
+\mat{Z}_k^\top\mat{Z}_k %= (\mat{A}_N \odot \dots \odot \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \dots \odot \mat{A}_1)^\top(\mat{A}_N \odot \dots \odot \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \dots \odot \mat{A}_1) 
+= \mat{A}_d^\top \mat{A}_d \hada \cdots \hada \mat{A}_{k+1}^\top\mat{A}_{k+1} \hada \mat{A}_{k-1}^\top\mat{A}_{k-1} \hada \cdots \hada \mat{A}_{1}^\top\mat{A}_{1}.
+\end{equation*}
+The right hand side matrix $\mat{X}_{(k)}\mat{Z}_k$ can be computed as a matricized tensor times Khatri-Rao product (MTTKRP).
 We refer to this standard approach as CP-ALS-NE. Pseudocode for CP-ALS-NE is given in \cref{alg:cp-als-ne}.
 \begin{algorithm}[!ht]
   \caption{CP-ALS-NE}
   \label{alg:cp-als-ne}
   \input{algo/cp_als.tex}
 \end{algorithm}
+
 \subsubsection{Dense Input}
-When we have a dense tensor input, the majority cost comes from the computation of $\mat{X}_{(n)}\mat{Z}_n$.
-This is called matricized-tensor times Khatri-Rao product (MTTKRP).
-MATLAB Tensor Toolbox has this MTTKRP function which is used in CP-ALS standard approach (NE).
+
+When we have a dense tensor input, the dominant cost of each subiteration comes from the MTTKRP computation of $\mat{M}_k = \mat{X}_{(k)}\mat{Z}_k$ in \cref{l:NE-mttkrp}, which has leading order arithmetic cost of $2\hat n^dr$.
+Computing $\mat{H}_k$ in \cref{l:NE-Hada} requires $O(dr^2)$ operations, solving the normal equations in \cref{l:NE-solve} costs $O(r^3+n_kr^2)$, and computing the Gram matrix in \cref{l:NE-Gram} costs $O(n_kr^2)$.
+Thus, the sum of an entire CP-ALS-NE iteration (updating all factor matrices once) is given by
+\begin{equation*}
+2d\hat n^dr + O(d\bar n r^2 + d^2r^2 + dr^3).
+\end{equation*}
+We note that the leading order term can be reduced to $4\hat n^d r$ and the $O(d^2r^2)$ term can be reduced to $O(dr^2)$ using memoization \GB{add citation here}.
 
 \subsubsection{Kruskal Input}
-If the input tensor $\T[]{X}$ is already in Kruskal format, we can compute $\mat{X}_{(n)}\mat{Z}_n$ more efficient by applying hadamard product.
-
-\begin{align}
-  \mat{X}_{(n)}\mat{Z}_n &= \mat{B}_n(\mat{B}_N \odot \dots \odot \mat{B}_{n+1} \odot \mat{B}_{n-1} \odot \dots \odot \mat{B}_1)^\top(\mat{A}_N \odot \dots \odot \mat{A}_1) \nonumber \\
- &= \mat{B}_n(\mat{B}_N^\top\mat{A}_N) \ast \dots \ast (\mat{B}_{n+1}^\top\mat{A}_{n+1}) \ast (\mat{B}_{n-1}^\top\mat{A}_{n-1}) \ast \dots \ast (\mat{B}_1^\top\mat{A}_1)  \nonumber 
-\end{align}
-Which in \cref{l:NE-krp}, it will be 
+If the input tensor $\T{X}=[\![\mat{B}^{(1)}, \dots ,\mat{B}^{(d)}]\!]$ is already in Kruskal format (see \cref{sec:cp-rounding}), we can compute the MTTKRP more efficiently using the following identity:
+\begin{align*}
+  \mat{X}_{(k)}\mat{Z}_k &= \mat{B}_d(\mat{B}_d \odot \dots \odot \mat{B}_{k+1} \odot \mat{B}_{k-1} \odot \dots \odot \mat{B}_1)^\top(\mat{A}_d \odot \cdots \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \cdots \odot \mat{A}_1) \\
+ &= \mat{B}_k(\mat{B}_d^\top\mat{A}_d) \hada \cdots \hada (\mat{B}_{k+1}^\top\mat{A}_{k+1}) \hada (\mat{B}_{k-1}^\top\mat{A}_{k-1}) \hada \cdots \hada (\mat{B}_1^\top\mat{A}_1).  
+\end{align*}
+\GB{continue here, need to add a new algorithm environment for this case that computes $\mat{C}_k = \mat{B}_{k}^\top\mat{A}_{k}$ after $\mat{A}_k$ gets updated and $\mat{D}_k$ which is the Hadamard of $\mat{C}_\ell's$, then add complexity analysis like I did above with references to the line numbers...}Which in \cref{l:NE-krp}, it will be 
 \begin{algorithm}[!ht]
   \begin{algorithmic}
     \State Compute $\mat{X}_{(n)}\mat{Z}_n$ as hadamard product for all $\mat{B}_n^\top\mat{A}_n$
