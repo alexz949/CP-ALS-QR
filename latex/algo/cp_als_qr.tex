@@ -4,9 +4,10 @@
       \State Compute QR decomposition for factor matrices $\mat{Q}_N\mat{R}_N, \dots \mat{Q}_1\mat{R}_1$
       \While{not converge}
       \For{$n = 1, \dots, N$}
-      \State Compute QR factorization $\mat{Q}_0\mat{R}_0$ for Khatri-Rao product of $\mat{R}_N, \dots, \mat{R}_1$
-      \State TTM for $\mat{Y}_{(n)} =  \T{X} \times_1 \mat{Q}_1^\top \dots \times_{n-1} \mat{Q}_{n-1}^\top \times_{n+1} \mat{Q}_{n+1}^\top \dots \times_N \mat{Q}_N^\top$ \label{l:TTM}
-      \State Compute $\mat{U}_n = \mat{Y}_{(n)}\mat{Q}_0$ \label{l:apply}
+      %\State Compute QR factorization $\mat{Q}_0\mat{R}_0$ for Khatri-Rao product of $\mat{R}_N, \dots, \mat{R}_1$
+      \State $[\mat{Q}_0,\mat{R}_0] = \Call{QR}{\mat{R}_N \odot \cdots \odot \mat{R}_1}$
+      \State $\T{Y} =  \T{X} \times_1 \mat{Q}_1^\top \dots \times_{n-1} \mat{Q}_{n-1}^\top \times_{n+1} \mat{Q}_{n+1}^\top \dots \times_N \mat{Q}_N^\top$ \Comment{Multi-TTM} \label{l:TTM}
+      \State $\mat{U}_n = \mat{Y}_{(n)}\mat{Q}_0$ \label{l:apply}
       \State Solve $\mat{\hat{A}_n} = \mat{R}_0^\top \text{\textbackslash} \mat{U}_n$
       \State Update $\mat{A}_n$ and $\bm{\lambda}$
       \State Update QR for $\mat{A}_n = \mat{Q}_n\mat{R}_n$      
