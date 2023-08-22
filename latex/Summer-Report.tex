@@ -257,7 +257,9 @@ This structure can be exploited in different ways depending on how the least squ
 \section{Algorithm}
 
 \GB{need to specify notation/dimensions/etc for cost analyses; let's use $n_1 \times \cdots \times n_d$ as tensor dimension, $\bar n$ is the average dimension so that $d\bar n = \sum_k n_k$ and $\hat n$ is the geometric mean so that $\hat n^d = \prod_k n_k$}
-
+The following explanation and tensor notation are assumed having a tensor in$\in \mathbb{R}^{n_1 \times \cdots \times n_d}$.
+We define average dimension for that tensor to be $\bar n$ and its geometric mean to be $\hat n$.
+$r$ in this section refers to the rank of CP decomposition, and $s$ means the rank for input CP tensor.
 \subsection{CP-ALS-NE}
 
 
@@ -288,7 +290,7 @@ Thus, the sum of an entire CP-ALS-NE iteration (updating all factor matrices onc
 \begin{equation*}
 2d\hat n^dr + O(d\bar n r^2 + d^2r^2 + dr^3).
 \end{equation*}
-We note that the leading order term can be reduced to $4\hat n^d r$ and the $O(d^2r^2)$ term can be reduced to $O(dr^2)$ using memoization \GB{add citation here}.
+We note that the leading order term can be reduced to $4\hat n^d r$ and the $O(d^2r^2)$ term can be reduced to $O(dr^2)$ using memoization \cite{phan2013fast}. \GB{add citation here}.
 
 \subsubsection{Kruskal Input}
 If the input tensor $\T{X}=[\![\mat{B}^{(1)}, \dots ,\mat{B}^{(d)}]\!]$ is already in Kruskal format (see \cref{sec:cp-rounding}), we can compute the MTTKRP more efficiently using the following identity:
@@ -296,10 +298,20 @@ If the input tensor $\T{X}=[\![\mat{B}^{(1)}, \dots ,\mat{B}^{(d)}]\!]$ is alrea
   \mat{X}_{(k)}\mat{Z}_k &= \mat{B}_d(\mat{B}_d \odot \dots \odot \mat{B}_{k+1} \odot \mat{B}_{k-1} \odot \dots \odot \mat{B}_1)^\top(\mat{A}_d \odot \cdots \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \cdots \odot \mat{A}_1) \\
  &= \mat{B}_k(\mat{B}_d^\top\mat{A}_d) \hada \cdots \hada (\mat{B}_{k+1}^\top\mat{A}_{k+1}) \hada (\mat{B}_{k-1}^\top\mat{A}_{k-1}) \hada \cdots \hada (\mat{B}_1^\top\mat{A}_1).  
 \end{align*}
-\GB{continue here, need to add a new algorithm environment for this case that computes $\mat{C}_k = \mat{B}_{k}^\top\mat{A}_{k}$ after $\mat{A}_k$ gets updated and $\mat{D}_k$ which is the Hadamard of $\mat{C}_\ell's$, then add complexity analysis like I did above with references to the line numbers...}Which in \cref{l:NE-krp}, it will be 
+
+\GB{continue here, need to add a new algorithm environment for this case that computes $\mat{C}_k = \mat{B}_{k}^\top\mat{A}_{k}$ after $\mat{A}_k$ gets updated and $\mat{D}_k$ which is the Hadamard of $\mat{C}_\ell's$, then add complexity analysis like I did above with references to the line numbers...}
+With the structure, the computation along all modes for Kruskal input tensor will be 
 \begin{algorithm}[!ht]
+  \caption{CP-ALS-NE Kruskal (partial)}
   \begin{algorithmic}
-    \State Compute $\mat{X}_{(n)}\mat{Z}_n$ as hadamard product for all $\mat{B}_n^\top\mat{A}_n$
+    \State Compute $\mat{C}_k = \mat{B}_k^\top\mat{A}_k$ for all $k \in {1,\cdots,d}$
+    
+    \For{$k = 1, \dots, d$}
+      \State $\mat{H}_k = \mat{G}_d \hada \cdots \mat{G}_{k+1} \hada \mat{G}_{k-1} \cdots \hada \mat{G}_1$ \Comment{Compute $\mat{Z}_k^\top \mat{Z}_k$} 
+      \State $\mat{D}_k = \mat{C}_d \ast \cdots \mat{C}_{k+1}\ast \mat{C}_{k-1}\ast \cdot \mat{C}_1$ \Comment{Compute $\mat{X}_{(k)\mat{Z}_n}$}
+      \State Solve $\mat{A}_k \mat{H}_k = \mat{D}_{k}$ for $\mat{A}_k$ \Comment{via Cholesky} \label{l:NE-solve}
+      \State $\mat{G}_k = \mat{A}_k^\top\mat{A}_k$, $\mat{C}_k = \mat{B}_k^\top\mat{A}_k$ \Comment{update Gram}   \label{l:NE-Gram}
+    \EndFor
   \end{algorithmic}
 \end{algorithm}
 
@@ -309,25 +321,25 @@ If the input tensor $\T{X}=[\![\mat{B}^{(1)}, \dots ,\mat{B}^{(d)}]\!]$ is alrea
 \subsection{CP-ALS-Explicit-QR}
 For CP-ALS-QR approach, it is similar to CP-ALS-NE, but this time more stable QR decomposition is used for solving least square problem instead of NE.
 For mode-n least squares problem,
-$$\min_{\mat{\hat{A}}_n}||\mat{X_{(n)}} - {\mat{\hat{A}_n}}\mat{Z}^\top_n ||$$
-We will first perform QR on each factor matrix in $\mat{Z}_n$, which 
+$$\min_{\mat{\hat{A}}_k}||\mat{X}_{(k)} - {\mat{\hat{A}}_k}\mat{Z}^\top_k ||$$
+We will first perform QR on each factor matrix in $\mat{Z}_k$, which 
 \begin{align}
-  \mat{Z}_n &= \mat{A}_N \odot \dots \odot \mat{A}_{n+1} \odot \mat{A}_{n-1} \odot \dots \odot \mat{A}_1 \nonumber \\
-  &= (\mat{Q}_N\mat{R}_N) \odot \dots \odot (\mat{Q}_{n+1}\mat{R}_{n+1}) \odot (\mat{Q}_{n-1}\mat{R}_{n-1}) \odot \dots \odot (\mat{Q}_1\mat{R}_1) \nonumber \\
-  &= (\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1)(\mat{R}_N \odot \dots \odot \mat{R}_{n+1} \odot \mat{R}_{n-1} \odot \dots \odot \mat{R}_1)\nonumber  
+  \mat{Z}_k &= \mat{A}_d \odot \dots \odot \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \dots \odot \mat{A}_1 \nonumber \\
+  &= (\mat{Q}_d\mat{R}_d) \odot \dots \odot (\mat{Q}_{k+1}\mat{R}_{k+1}) \odot (\mat{Q}_{k-1}\mat{R}_{k-1}) \odot \dots \odot (\mat{Q}_1\mat{R}_1) \nonumber \\
+  &= (\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1)(\mat{R}_d \odot \dots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \dots \odot \mat{R}_1)\nonumber  
 \end{align}
-After that we will perform QR again on $\mat{Q}_0\mat{R}_0=(\mat{R}_N \odot \dots \odot \mat{R}_1)$, so $\mat{Z}_n$ will be
-$$\mat{Z}_n = (\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1)\mat{Q}_0\mat{R}_0$$
+After that we will perform QR again on $\mat{Q}_0\mat{R}_0= (\mat{R}_d \odot \dots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \dots \odot \mat{R}_1)$, so $\mat{Z}_k$ will be
+$$\mat{Z}_k = (\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1)\mat{Q}_0\mat{R}_0$$
 The triangular system for QR in this case will be 
 \begin{equation}
-  \hat{\mat{A}}_n\mat{R}_0^\top = \mat{X}_{(n)}(\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1)\mat{Q}_0 
+  \hat{\mat{A}}_k\mat{R}_0^\top = \mat{X}_{(k)}(\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1)\mat{Q}_0 
   \label{eq:CP-EXP-QR}
 \end{equation}
-For solving least square problem, we will first apply kronecker product of Qs $\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1$ into $\mat{X}_{(n)}$
-$$\mat{Y}_{(n)} = \mat{X}_{(n)}(\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1)$$
+For solving least square problem, we will first apply kronecker product of Qs $\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1$ into $\mat{X}_{(k)}$
+$$\mat{Y}_{(k)} = \mat{X}_{(k)}(\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1)$$
 Then use backslash to solve the linear system
 \begin{equation}
-  \hat{\mat{A}}_n = \mat{R}_0^\top \text{\textbackslash} \mat{Y}_{(n)}\mat{Q}_0
+  \hat{\mat{A}}_k = \mat{R}_0^\top \text{\textbackslash} \mat{Y}_{(k)}\mat{Q}_0
 \end{equation}
 Sample pseudocode for CP-ALS-QR is showed in \cref{alg:cp-als-qr}
 \begin{algorithm}
@@ -336,16 +348,17 @@ Sample pseudocode for CP-ALS-QR is showed in \cref{alg:cp-als-qr}
   \input{algo/cp_als_qr.tex}
 \end{algorithm}
 \subsubsection{Dense Input}
-The difference between dense and Kruskal tensor is the computation of $\mat{Y}_{(n)}$. In dense case, the computation is doing tensor times matrix (TTM) through all modes.
-$$\T[]{Y} = \T[]{X} \times_1 \mat{Q}_1 \times \dots \times_{n-1} \mat{Q}_{n-1} \times_{n+1}\mat{Q}_{n+1} \times \dots \times_N \mat{Q}_N$$
-and use matricized tensor $\mat{Y}_{(n)}$ times $\mat{Q}_0$.
+The difference between dense and Kruskal tensor is the computation of $\mat{Y}_{(k)}$. In dense case, the computation is doing tensor times matrix (TTM) through all modes.
+$$\T[]{Y} = \T[]{X} \times_1 \mat{Q}_1 \times \dots \times_{k-1} \mat{Q}_{k-1} \times_{k+1}\mat{Q}_{k+1} \times \dots \times_d \mat{Q}_d$$
+and use matricized tensor $\mat{Y}_{(k)}$ times $\mat{Q}_0$.
 
 \subsubsection{Kruskal Input}
 If we have a Kruskal tensor input, the computation of right hand side will be 
 \begin{equation}
-  \mat{Y}_{(n)}\mat{Q}_0  = \mat{B}_n(\mat{B}_N\mat{Q}_N \odot \dots \odot \mat{B}_{n+1}\mat{Q}_{n+1} \odot \mat{B}_{n-1}\mat{B}_{n-1} \odot  \dots \odot \mat{B}_1\mat{Q}_1)\mat{Q}_0 \nonumber 
+  \mat{Y}_{(k)}\mat{Q}_0  = \mat{B}_k(\mat{B}_d\mat{Q}_d \odot \dots \odot \mat{B}_{k+1}\mat{Q}_{k+1} \odot \mat{B}_{k-1}\mat{B}_{k-1} \odot  \dots \odot \mat{B}_1\mat{Q}_1)\mat{Q}_0 \nonumber 
 \end{equation}
-We can treat $\mat{Q}_0$ as a matricized tensor and we can compute this as MTTKRP and a small matrix multiplication in \cref{l:TTM} and \cref{l:apply}.
+We can treat $\mat{Q}_0$ as a matricized tensor and we can compute this as MTTKRP and a small matrix multiplication.
+
 \begin{algorithm}[!ht]
   \begin{algorithmic}
     \State MTTKRP for $\mat{B}_n(\mat{B}_N\mat{Q}_N \odot \dots \odot \mat{B}_{n+1}\mat{Q}_{n+1} \odot \mat{B}_{n-1}\mat{B}_{n-1} \odot  \dots \odot \mat{B}_1\mat{Q}_1)\mat{Q}_0 $
@@ -378,6 +391,14 @@ The sample pseudocode is showed in \cref{alg:cp-als-pairwise-qr} \AZ{This algo n
 \subsubsection{Dense Input}
 \AZ{I haven't started this part yet because I'm still confused how to apply pairwise QR into RHS after I did Multi-TTM to get $\T[]{Y}$}
 
+After finishing Multi-TTM to get $\T[]{Y}$, we will perform Multi-TTM again and again on $\mat{Q}_{A_d} \otimes \cdots \otimes \mat{I}_d$, $\mat{Q}_{A_{d-1}} \otimes \cdots \otimes \mat{I}_d$ until $\mat{Q}_{A_1}$.
+In order to match the dimension, we will reshape tensor $\T[]{Y}$ by shrinking its dimension every time before we do Multi-TTM for pairwise QR.
+To better implement the algorithm, we also need to do permutation for $\T[]{Y}$.
+
+The dominant cost of Pairwise QR is in \cref{l:Pair-TTM} which is $r^d\bar{n}$. 
+The cost for doing Multi-TTM on pairwise Q will be $\bar{n}(r^d + r^{d-1}+\cdots + r^2)$. 
+The time spent on computing pairwise QR on $\mat{R}_d \odot \cdots \odot \mat{R}_{n+1} \odot \mat{R}_{n-1} \odot \cdots \odot \mat{R}_1$ will be $(d-2)r^4$.
+The rest computation holds the same for explicit QR dense case.
 \subsubsection{Kruskal Input}
 
 With Kruskal input, we can use the Kruskal structure $\mat{X}_{(n)} = \mat{B}_{n}(\mat{B}_{N} \odot \dots \odot \mat{B}_{n+1} \odot \mat{B}_{n-1}  \odot \dots \odot \mat{B}_{1})^\top$. 

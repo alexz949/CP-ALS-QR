@@ -5,7 +5,7 @@
       \While{not converge}
       \For{$n = 1, \dots, N$}
       \State Compute pairwise QR factorization $(\mat{Q}_{A_{N-1}} \otimes \dots  \otimes  \mat{I}_N) \dots \mat{Q}_{A_{1}}\mat{R}_{A_{1}}$ for each $\mat{R}_N, \dots, \mat{R}_1$
-      \State TTM for $\mat{Y}_{(n)} =  \T{X} \times_1 \mat{Q}_1^\top \dots \times_{n-1} \mat{Q}_{n-1}^\top \times_{n+1} \mat{Q}_{n+1}^\top \dots \times_N \mat{Q}_N^\top$
+      \State TTM for $\mat{Y}_{(n)} =  \T{X} \times_1 \mat{Q}_1^\top \dots \times_{n-1} \mat{Q}_{n-1}^\top \times_{n+1} \mat{Q}_{n+1}^\top \dots \times_N \mat{Q}_N^\top$ \label{l:Pair-TTM}
       \State Apply pairwise QR on $\mat{Y}_n\mat{Q}_{A_{N-1}}^\top  = (\mat{Q}_{A_{N-1}}^\top(\mat{Q}_N\mat{B}_N \odot \mat{Q}_{N-1}\mat{B}_{N-1}) \odot \dots \odot  \odot \mat{Q}_{1}\mat{B}_{1})^\top\mat{B}_n $
       
       \State Solve $  \mat{\hat{A}}_n = \mat{R}^\top_{A_1} \text{\textbackslash} \mat{B}^\top_M\mat{Q}_M\mat{B}_n $
