@@ -300,21 +300,28 @@ If the input tensor $\T{X}=[\![\mat{B}^{(1)}, \dots ,\mat{B}^{(d)}]\!]$ is alrea
 \end{align*}
 
 \GB{continue here, need to add a new algorithm environment for this case that computes $\mat{C}_k = \mat{B}_{k}^\top\mat{A}_{k}$ after $\mat{A}_k$ gets updated and $\mat{D}_k$ which is the Hadamard of $\mat{C}_\ell's$, then add complexity analysis like I did above with references to the line numbers...}
-With the structure, the computation along all modes for Kruskal input tensor will be 
+With this structure, the algorithm for computing CP decomposition with Kruskal tensor will be  
 \begin{algorithm}[!ht]
-  \caption{CP-ALS-NE Kruskal (partial)}
-  \begin{algorithmic}
+  \caption{CP-ALS-NE-Kruskal}
+  \begin{algorithmic}[1]
+    \Function{$\{\M{A}_{k}\}=$ CP-ALS-NE-Kruskal}{$\T{X},r$}
+    \State Initialize factor matrices $\mat{A}_1$, $\mat{A}_2$, $\dots$, $\mat{A}_d$
+    \State Precompute Grams of factor matrices $\mat{G}_1 = \mat{A}_1^\top \mat{A}_1$, $\dots$, $\mat{G}_d = \mat{A}_d^\top \mat{A}_d$  
     \State Compute $\mat{C}_k = \mat{B}_k^\top\mat{A}_k$ for all $k \in {1,\cdots,d}$
-    
+    \While{not converge}
     \For{$k = 1, \dots, d$}
       \State $\mat{H}_k = \mat{G}_d \hada \cdots \mat{G}_{k+1} \hada \mat{G}_{k-1} \cdots \hada \mat{G}_1$ \Comment{Compute $\mat{Z}_k^\top \mat{Z}_k$} 
-      \State $\mat{D}_k = \mat{C}_d \ast \cdots \mat{C}_{k+1}\ast \mat{C}_{k-1}\ast \cdot \mat{C}_1$ \Comment{Compute $\mat{X}_{(k)\mat{Z}_n}$}
-      \State Solve $\mat{A}_k \mat{H}_k = \mat{D}_{k}$ for $\mat{A}_k$ \Comment{via Cholesky} \label{l:NE-solve}
-      \State $\mat{G}_k = \mat{A}_k^\top\mat{A}_k$, $\mat{C}_k = \mat{B}_k^\top\mat{A}_k$ \Comment{update Gram}   \label{l:NE-Gram}
+      \State $\mat{D}_k = \mat{C}_d \hada \cdots \mat{C}_{k+1} \hada \mat{C}_{k-1} \cdots\hada \mat{C}_1$ \Comment{Compute $\mat{X}_{(k)\mat{Z}_n}$}
+      \State Solve $\mat{A}_k \mat{H}_k = \mat{D}_{k}$ for $\mat{A}_k$ \Comment{via Cholesky} \label{l:NE-K-solve}
+      \State $\mat{G}_k = \mat{A}_k^\top\mat{A}_k$
+      \State $\mat{C}_k = \mat{B}_k^\top\mat{A}_k$ \Comment{update Gram}   \label{l:NE-K-Gram}
     \EndFor
+    \EndWhile
+    \EndFunction
   \end{algorithmic}
 \end{algorithm}
 
+The cost when having a Kruskal input is basically the same as dense case. Except for $\mat{X}_{(n)}\mat{Z}_n$ which we only need to do hadamard product requires $O(sn_kr)$ instead of $2\hat{n}^dr$.
 
 
 
@@ -349,87 +356,140 @@ Sample pseudocode for CP-ALS-QR is showed in \cref{alg:cp-als-qr}
 \end{algorithm}
 \subsubsection{Dense Input}
 The difference between dense and Kruskal tensor is the computation of $\mat{Y}_{(k)}$. In dense case, the computation is doing tensor times matrix (TTM) through all modes.
-$$\T[]{Y} = \T[]{X} \times_1 \mat{Q}_1 \times \dots \times_{k-1} \mat{Q}_{k-1} \times_{k+1}\mat{Q}_{k+1} \times \dots \times_d \mat{Q}_d$$
+$$\T[]{Y} = \T[]{X} \times_1 \mat{Q}_1^\top \times \dots \times_{k-1} \mat{Q}_{k-1}^\top \times_{k+1}\mat{Q}_{k+1}^\top \times \dots \times_d \mat{Q}_d^\top$$
 and use matricized tensor $\mat{Y}_{(k)}$ times $\mat{Q}_0$.
-
+The computation of QR for factor matrices takes $(d-2)r^2\bar{n}$. 
+The QR for Khatri-Rao product of $\mat{R}$ takes $O(r^{d+1})$ overall. 
+The cost for doing Multi-TTM will be $\hat{n}^dr$ and $\mat{U}_k = \mat{Y}_{(k)}\mat{Q}_0$ in \cref{l:apply} will be $\bar{n}r^d$.
+Overall, the sum of cost for CP-ALS-Explicit-QR will be
+$$O((d-2)r^2\bar{n} + r^{d+1} + \hat{n}^dr + \bar{n}r^d)$$
 \subsubsection{Kruskal Input}
 If we have a Kruskal tensor input, the computation of right hand side will be 
 \begin{equation}
-  \mat{Y}_{(k)}\mat{Q}_0  = \mat{B}_k(\mat{B}_d\mat{Q}_d \odot \dots \odot \mat{B}_{k+1}\mat{Q}_{k+1} \odot \mat{B}_{k-1}\mat{B}_{k-1} \odot  \dots \odot \mat{B}_1\mat{Q}_1)\mat{Q}_0 \nonumber 
+  \mat{Y}_{(k)}\mat{Q}_0  = \mat{B}_k(\mat{B}_d^\top\mat{Q}_d \odot \dots \odot \mat{B}_{k+1}^\top\mat{Q}_{k+1} \odot \mat{B}_{k-1}^\top\mat{B}_{k-1} \odot  \dots \odot \mat{B}_1^\top\mat{Q}_1)\mat{Q}_0 \nonumber 
 \end{equation}
 We can treat $\mat{Q}_0$ as a matricized tensor and we can compute this as MTTKRP and a small matrix multiplication.
 
 \begin{algorithm}[!ht]
-  \begin{algorithmic}
-    \State MTTKRP for $\mat{B}_n(\mat{B}_N\mat{Q}_N \odot \dots \odot \mat{B}_{n+1}\mat{Q}_{n+1} \odot \mat{B}_{n-1}\mat{B}_{n-1} \odot  \dots \odot \mat{B}_1\mat{Q}_1)\mat{Q}_0 $
+  \caption{CP-ALS-explicit-QR-Kruskal}
+  \begin{algorithmic}[1]
+    \Function{$\{\M{A}_{n}\}=$ CP-ALS-Explicit-QR-Kruskal}{$\T{X},r$}
+      \State Setup factor matrices  $\mat{A}_1$, $\mat{A}_2$, $\dots$, $\mat{A}_d$
+      \State Compute QR decomposition for factor matrices $\mat{Q}_d\mat{R}_d, \dots \mat{Q}_1\mat{R}_1$
+      \While{not converge}
+      \For{$k = 1, \dots, d$}
+      \State $[\mat{Q}_0,\mat{R}_0] = \Call{QR}{\mat{R}_d \odot \cdots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \cdots \odot \mat{R}_1}$
+      \State Update $\mat{Y}_{(n)}  = \mat{B}_k(\mat{B}_d^\top\mat{Q}_d \odot \cdots \mat{B}_{k+1}^\top\mat{Q}_{k+1} \odot \mat{B}_{k-1}^\top\mat{Q}_{k+1} \cdots \odot \mat{B}_1^\top\mat{Q})$ \Comment{Apply factor Qs} \label{l:EXP-K-Apply}
+      \State $\mat{U}_k = \mat{Y}_{(k)}\mat{Q}_0 =\mat{B}_k(\mat{B}_d^\top\mat{Q}_d \odot \cdots \mat{B}_{k+1}^\top\mat{Q}_{k+1} \odot \mat{B}_{k-1}^\top\mat{B}_{k-1} \odot  \cdots \mat{B}_1^\top\mat{Q}_1)\mat{Q}_0 $ \Comment{MTTKRP}
+      \State Solve $\mat{\hat{A}_k}\mat{R}_0^\top = \mat{U}_k$ \Comment{via TRMS}
+      \State $[\mat{Q}_k,\mat{R}_k] = \Call{QR}{\mat{A}_k}$ \Comment{Update $\mat{A}_k$ and $\mat{Q}_k\mat{R}_k$}     
+      \EndFor
+      \EndWhile
+    \EndFunction
   \end{algorithmic}
 \end{algorithm}
+The cost for this algorithm is also similar to the code in dense case. However, in \cref{l:EXP-K-Apply}, the cost is $O(snr)$.
+In next line the MTTKRP dominates the cost which is $(\hat{n}^dr)$.
 
 
 
 \subsection{CP-ALS-Pairwise-QR}
 \subsubsection{Algo}
-There is also a new QR-based method instead of computing QR on $(\mat{R}_N \odot \dots \odot \mat{R}_1)$, it compute QR for Khatri-Rao product of two matrices $\mat{R_n} \odot \mat{R}_{n-1}$.
+There is also a new QR-based method instead of computing QR on $(\mat{R}_d \odot \dots \odot \mat{R}_1)$, it compute QR for Khatri-Rao product of two matrices $\mat{R_n} \odot \mat{R}_{n-1}$.
 It avoids the formation of $\mat{Q}_0\mat{R}_0$ which its cost is exponential respect to the size of input tensor.
 Doing QR on factor matrices is the same.
-$$\mat{Z}_n = (\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1)(\mat{R}_N \odot \dots \odot \mat{R}_{n+1} \odot \mat{R}_{n-1} \odot \dots \odot \mat{R}_1)$$
-But this time we will first do QR for $\mat{R}_N \odot \mat{R}_{N-1} = \mat{Q}_{A}\mat{R}_A$ and Khatri-Rao product of $\mat{R}$ will be 
-$$\mat{Q}_{A_{N-1}}\mat{R}_{A_{N-1}} \odot \mat{R}_{N-2} \odot \dots \odot \mat{R}_{n+1} \odot \mat{R}_{n-1} \odot \dots \odot \mat{R}_1$$
-We will use the same technique in representing $\mat{Z}_n$, which this will transform into 
-$$(\mat{Q}_{A_{N-1}} \otimes \dots \otimes \mat{I}_N \otimes \mat{I}_N \otimes \dots  \otimes  \mat{I}_N)(\mat{R}_{A_{N-1}} \odot \dots \odot \mat{R}_{n+1} \odot \mat{R}_{n-1} \odot \dots \odot \mat{R}_1)$$
+$$\mat{Z}_k = (\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1)(\mat{R}_d \odot \dots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \dots \odot \mat{R}_1)$$
+But this time we will first do QR for $\mat{R}_d \odot \mat{R}_{d-1} = \mat{Q}_{A}\mat{R}_A$ and Khatri-Rao product of $\mat{R}$ will be 
+$$\mat{Q}_{A_{d-1}}\mat{R}_{A_{d-1}} \odot \mat{R}_{d-2} \odot \dots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \dots \odot \mat{R}_1$$
+We will use the same technique in representing $\mat{Z}_k$, which this will transform into 
+$$(\mat{Q}_{A_{d-1}} \otimes \dots \otimes \mat{I}_d \otimes \mat{I}_d \otimes \dots  \otimes  \mat{I}_d)(\mat{R}_{A_{d-1}} \odot \dots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \dots \odot \mat{R}_1)$$
 By continuing doing this pariwise QR decomposition on $\mat{R}$, we eventually will have a bunch of new QR representations like
-$$\mat{V}_N = \underbrace{(\mat{Q}_{A_{N-1}} \otimes \dots  \otimes  \mat{I}_N)}_{N-2}\underbrace{(\mat{Q}_{A_{N-2}} \otimes \dots \otimes \mat{I}_N)}_{N-3} \cdots (\mat{Q}_{A_{2}} \otimes \mat{I}_N) \mat{Q}_{A_{1}}\mat{R}_{A_{1}}$$
-where $\mat{Z}_n$ will be 
-$$\mat{Z}_n = (\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1) (\mat{Q}_{A_{N-1}} \otimes \dots  \otimes  \mat{I}_N)(\mat{Q}_{A_{N-2}} \otimes \dots \otimes \mat{I}_N) \cdots (\mat{Q}_{A_{2}} \otimes \mat{I}_N) \mat{Q}_{A_{1}}\mat{R}_{A_{1}}$$
+$$\mat{V}_d = \underbrace{(\mat{Q}_{A_{d-1}} \otimes \dots  \otimes  \mat{I}_d)}_{d-2}\underbrace{(\mat{Q}_{A_{d-2}} \otimes \dots \otimes \mat{I}_d)}_{d-3} \cdots (\mat{Q}_{A_{2}} \otimes \mat{I}_d) \mat{Q}_{A_{1}}\mat{R}_{A_{1}}$$
+where $\mat{Z}_k$ will be 
+$$\mat{Z}_k = (\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1) (\mat{Q}_{A_{d-1}} \otimes \dots  \otimes  \mat{I}_d)(\mat{Q}_{A_{d-2}} \otimes \dots \otimes \mat{I}_d) \cdots (\mat{Q}_{A_{2}} \otimes \mat{I}_d) \mat{Q}_{A_{1}}\mat{R}_{A_{1}}$$
 
-The sample pseudocode is showed in \cref{alg:cp-als-pairwise-qr} \AZ{This algo needs some change in line 7,8}
+The sample pseudocode is showed in \cref{alg:cp-als-pairwise-qr} 
 \begin{algorithm}
   \caption{CP-ALS-Pairwise-QR}
   \label{alg:cp-als-pairwise-qr}
   \input{algo/cp_als_pairwise.tex}
 \end{algorithm}
 \subsubsection{Dense Input}
-\AZ{I haven't started this part yet because I'm still confused how to apply pairwise QR into RHS after I did Multi-TTM to get $\T[]{Y}$}
+\AZ{cost analysis!!!}
 
 After finishing Multi-TTM to get $\T[]{Y}$, we will perform Multi-TTM again and again on $\mat{Q}_{A_d} \otimes \cdots \otimes \mat{I}_d$, $\mat{Q}_{A_{d-1}} \otimes \cdots \otimes \mat{I}_d$ until $\mat{Q}_{A_1}$.
-In order to match the dimension, we will reshape tensor $\T[]{Y}$ by shrinking its dimension every time before we do Multi-TTM for pairwise QR.
+In order to match the dimension, we will reshape tensor $\T[]{Y}$ by shrinking its dimension every time before we do TTM for pairwise QR.
 To better implement the algorithm, we also need to do permutation for $\T[]{Y}$.
 
-The dominant cost of Pairwise QR is in \cref{l:Pair-TTM} which is $r^d\bar{n}$. 
-The cost for doing Multi-TTM on pairwise Q will be $\bar{n}(r^d + r^{d-1}+\cdots + r^2)$. 
-The time spent on computing pairwise QR on $\mat{R}_d \odot \cdots \odot \mat{R}_{n+1} \odot \mat{R}_{n-1} \odot \cdots \odot \mat{R}_1$ will be $(d-2)r^4$.
+The dominant cost of Pairwise QR is in \cref{l:Pair-TTM} which is $\hat n^d r$. 
+The cost for doing TTM on pairwise Q in \cref{l:pair-R-TTM} will be $\bar{n}(r^d + r^{d-1}+\cdots + r^2)$. 
+The time spent on computing pairwise QR on $\mat{R}_d \odot \cdots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \cdots \odot \mat{R}_1$ will be $(d-2)r^4$.
 The rest computation holds the same for explicit QR dense case.
+Overall, the sum of all costs will be 
+$$O(r^2\bar n + r^4 + \hat n^d r + \bar n(r^d + \cdots + r^2))$$
 \subsubsection{Kruskal Input}
 
-With Kruskal input, we can use the Kruskal structure $\mat{X}_{(n)} = \mat{B}_{n}(\mat{B}_{N} \odot \dots \odot \mat{B}_{n+1} \odot \mat{B}_{n-1}  \odot \dots \odot \mat{B}_{1})^\top$. 
-Applying $\mat{Q}$ into $\mat{X}_n$. 
+With Kruskal input, we can use the Kruskal structure $\mat{X}_{(k)} = \mat{B}_{k}(\mat{B}_{d} \odot \dots \odot \mat{B}_{k+1} \odot \mat{B}_{k-1}  \odot \dots \odot \mat{B}_{1})^\top$. 
+Applying $\mat{Q}$ into $\mat{X}_k$. 
 This gives us
 \begin{align}
-  \mat{Y}_n &= (\mat{Q}_N \otimes \dots \otimes \mat{Q}_{n+1} \otimes \mat{Q}_{n-1} \otimes \dots \otimes \mat{Q}_1)(\mat{B}_{n}(\mat{B}_{N} \odot \dots \odot \mat{B}_{n+1} \odot \mat{B}_{n-1}  \odot \dots \odot \mat{B}_{1})^\top) \nonumber \\
-  &= (\mat{Q}_N\mat{B}_N \odot \dots \odot \mat{Q}_{n+1} \mat{B}_{n+1} \odot \mat{Q}_{n-1}\mat{B}_{n-1} \odot \dots \odot \mat{Q}_{1}\mat{B}_{1})^\top\mat{B}_n \nonumber   
+  \mat{Y}_k &= (\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1)(\mat{B}_{k}(\mat{B}_{d} \odot \dots \odot \mat{B}_{k+1} \odot \mat{B}_{k-1}  \odot \dots \odot \mat{B}_{1})^\top) \nonumber \\
+  &= (\mat{Q}_d\mat{B}_d \odot \dots \odot \mat{Q}_{k+1} \mat{B}_{k+1} \odot \mat{Q}_{k-1}\mat{B}_{k-1} \odot \dots \odot \mat{Q}_{1}\mat{B}_{1})^\top\mat{B}_k \nonumber   
 \end{align}
-On following step, we will apply that set of kronecker $\mat{Q}$ into $\mat{Y}_n$ in similar pairwise way.
+On following step, we will apply that set of kronecker $\mat{Q}$ into $\mat{Y}_k$ in similar pairwise way.
 \begin{align}
-  \mat{Y}_n   &= (\mat{Q}_N\mat{B}_N \odot \dots \odot \mat{Q}_{n+1} \mat{B}_{n+1} \odot \mat{Q}_{n-1}\mat{B}_{n-1} \odot \dots \odot \mat{Q}_{1}\mat{B}_{1}) \nonumber   \\
-      &= ((\mat{Q}_N\mat{B}_N \odot \mat{Q}_{N-1}\mat{B}_{N-1}) \odot \dots \odot \mat{Q}_{n+1} \mat{B}_{n+1} \odot \mat{Q}_{n-1}\mat{B}_{n-1} \odot \dots \odot \mat{Q}_{1}\mat{B}_{1})^\top\mat{B}_n \nonumber      \\
-      \mat{Y}_n\mat{Q}_{A_{N-1}}  &= (\mat{Q}_{A_{N-1}}(\mat{Q}_N\mat{B}_N \odot \mat{Q}_{N-1}\mat{B}_{N-1}) \odot \dots \odot \mat{Q}_{n+1} \mat{B}_{n+1} \odot \mat{Q}_{n-1}\mat{B}_{n-1} \odot \dots \odot \mat{Q}_{1}\mat{B}_{1})^\top\mat{B}_n \nonumber \\
+  \mat{Y}_k   &= (\mat{Q}_d\mat{B}_d\odot \dots \odot \mat{Q}_{k+1} \mat{B}_{k+1} \odot \mat{Q}_{k-1}\mat{B}_{k-1} \odot \dots \odot \mat{Q}_{1}\mat{B}_{1}) \nonumber   \\
+      &= ((\mat{Q}_d\mat{B}_d \odot \mat{Q}_{d-1}\mat{B}_{d-1}) \odot \dots \odot \mat{Q}_{k+1} \mat{B}_{k+1} \odot \mat{Q}_{k-1}\mat{B}_{k-1} \odot \dots \odot \mat{Q}_{1}\mat{B}_{1})^\top\mat{B}_k \nonumber      \\
+      \mat{Y}_k\mat{Q}_{A_{d-1}}  &= (\mat{Q}_{A_{d-1}}(\mat{Q}_d\mat{B}_d \odot \mat{Q}_{d-1}\mat{B}_{d-1}) \odot \dots \odot \mat{Q}_{k+1} \mat{B}_{k+1} \odot \mat{Q}_{k-1}\mat{B}_{k-1} \odot \dots \odot \mat{Q}_{1}\mat{B}_{1})^\top\mat{B}_k \nonumber \\
       & \vdots \nonumber \\
-    \mat{U}_n  &= (\mat{Q}_{M}\mat{B}_M)^\top\mat{B}_n \nonumber  
+    \mat{U}_k  &= (\mat{Q}_{M}\mat{B}_M)^\top\mat{B}_k \nonumber  
 \end{align}
 Notice that we only have to do one matrix multiplication once a time because when use the same property, one matrix times an identity matrix will still be itself.
 We can solve this linear system
 \begin{equation}
-  \mat{\hat{A}}_n\mat{R}_{A_1}^\top = \mat{U}_n 
+  \mat{\hat{A}}_k\mat{R}_{A_1}^\top = \mat{U}_k 
 \end{equation}
+The algorithm for CP-ALS-Pairwise-QR in Kruskal input will be
+\begin{algorithm}
+  \caption{CP-ALS-Pairwise-QR-Kruskal}
+  \label{alg:cp-als-pairwise-qr-kruskal}
+  \begin{algorithmic}[1]
+    \Function{$\{\M{A}_{k}\}=$ CP-ALS-Pairwise-QR}{$\T{X},r$}
+      \State Setup factor matrices  $\mat{A}_1$, $\mat{A}_2$, $\dots$, $\mat{A}_d$
+      \State Compute QR decomposition for factor matrices $\mat{Q}_d\mat{R}_d, \dots \mat{Q}_1\mat{R}_1$
+      \While{not converge}
+      \For{$k = 1, \dots, d$}
+        \State Update $\mat{Y}_{(n)}  = \mat{B}_k(\mat{B}_d^\top\mat{Q}_d \odot \cdots \mat{B}_{k+1}^\top\mat{Q}_{k+1} \odot \mat{B}_{k-1}^\top\mat{Q}_{k+1} \cdots \odot \mat{B}_1^\top\mat{Q})$ \Comment{Apply factor Qs} \label{l:Pair-K-Apply}
+        
+        \State $\mat{R}_0 = \mat{R}_1$ ,$\mat{U}_{(k)} = \mat{B}_1$ \Comment{Init}
+        \For{$i = 2, \dots, d$} \Comment{pairwise QR}
+        \State $[\mat{Q}_0,\mat{R}_0] = \Call{QR}{\mat{R}_0 \odot \mat{R}_i}$ \label{l:pair-QR-R}
+        \State Update $\mat{U}_{(k)} = \mat{Q}_0(\mat{U}_k \odot \mat{B}_i)^\top$
+        \EndFor
+        \State $\mat{U}_{(k)} = \mat{U}_{(k)}\mat{B}_k$
+              
+      \State Solve $  \mat{\hat{A}}_k\mat{R}_0^\top = \mat{U}_{(k)}$ \Comment{via TRMS}
+      
+      \State $\mat{A}_k = \mat{Q}_k\mat{R}_k$   \Comment{Update $\mat{Q}_k\mat{R}_k$ and $\mat{A}_k$}    
+      \EndFor
+      \EndWhile
+    \EndFunction
+  \end{algorithmic}
+\end{algorithm}
+The cost for computing QR for factor matrices and pairwise QR \cref{l:pair-QR-R} is the same as dense case.
+For applying factor Qs, it takes $O((d-1)s\bar{n}r)$.
+For applying pairwise Qs, it takes $O((d-2)r^2\bar{n}^2 + r^3\bar{n}^2)$.
+
+
+
 
 
 
 
 
 \subsection{Complexity}
-\AZ{I don't know whether it is fine to just leave a table w/o explaination here.}
-
-For a d-way Kruskal tensor $\T{K} \in \mathbb{R}^{n_1 \times \dots \times n_d}$ and assume $n_1, \dots , n_d$ are the same. 
+\AZ{I don't think current cost analysis is exactly right so I will wait until algorithm part is finished.I don't know whether it is necessary to have two table showing dense and Kruskal case seperately.}
+Given a dense tensor has the properties at the beginning of this section. 
 If we want to do the rank-$r$ CP Decomposition for two different ALS methods, the distribution of time is presented in \cref{tab:its_parts}
 
 
