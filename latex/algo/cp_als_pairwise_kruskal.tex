@@ -13,8 +13,8 @@
           \State $\mat{R}_0 = \mat{R}_a$, $\mat{C}_0 = \mat{C}_a$ \Comment{initialize pairwise results}
           \For{$\ell = 1, \dots, d$} 
             \If{$\ell\neq k \textbf{ and }\ell\neq a$}
-              \State $[\mat{Q}_0,\mat{R}_0] = \Call{QR}{\mat{R}_0 \odot \mat{R}_\ell}$ \label{l:pair-QR-R} \Comment{pairwise QR}
-              \State $\mat{C}_0 = \mat{Q}_0(\mat{C}_0 \odot \mat{B}_\ell)^\top$ \Comment{pairwise apply}
+              \State $[\mat{Q}_0,\mat{R}_0] = \Call{QR}{\mat{R}_\ell \odot \mat{R}_0}$ \label{l:pair-QR-R} \Comment{pairwise QR}
+              \State $\mat{C}_0 = \mat{Q}_0(\mat{B}_\ell \odot \mat{C}_0)^\top$ \Comment{pairwise apply}
             \EndIf
           \EndFor
           \State $\mat{U}_k = \mat{C}_0\mat{B}_k$ \Comment{via matrix multiplication}
