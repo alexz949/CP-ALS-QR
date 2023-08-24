@@ -3,8 +3,10 @@
 \begin{algorithmic}[1]\footnotesize
     
     \Function{$\{\M{A}_{k}\}=$ CP-ALS-NE}{$\T{X},r$}
-      \State Initialize factor matrices $\mat{A}_1$, $\mat{A}_2$, $\dots$, $\mat{A}_d$
-      \State Precompute Grams of factor matrices $\mat{G}_1 = \mat{A}_1^\top \mat{A}_1$, $\dots$, $\mat{G}_d = \mat{A}_d^\top \mat{A}_d$  
+      \For{$l = 1, \dots, d$}
+        \State Init $\mat{A}_l$
+        \State $\mat{G}_l = \mat{A}_l^\top\mat{A}_l$ \Comment{Compute Gram}
+      \EndFor
       \While{not converged}
           \For{$k = 1, \dots, d$}
               \State $\mat{H}_k = \mat{G}_d \hada \cdots \mat{G}_{k+1} \hada \mat{G}_{k-1} \cdots \hada \mat{G}_1$ \Comment{Compute $\mat{Z}_k^\top \mat{Z}_k$} \label{l:NE-Hada}

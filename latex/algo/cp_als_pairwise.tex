@@ -1,22 +1,26 @@
 \begin{algorithmic}[1]
-    \Function{$\{\M{A}_{k}\}=$ CP-ALS}{$\T{X},r$}
-      \State Setup factor matrices  $\mat{A}_1$, $\mat{A}_2$, $\dots$, $\mat{A}_d$
-      \State Compute QR decomposition for factor matrices $\mat{Q}_d\mat{R}_d, \dots \mat{Q}_1\mat{R}_1$
+    \Function{$\{\M{A}_{k}\}=$ CP-ALS-PAIRWISE-QR}{$\T{X},r$}
+      \For{$l = 1, \dots, d$}
+      \State Init $\mat{A}_l$
+      \State $[\mat{Q}_l,\mat{R}_l] = \Call{QR}{\mat{A}_l}$ \Comment{Factor QR}
+      \EndFor
       \While{not converge}
       \For{$k = 1, \dots, d$}
         \State $\T{Y} =  \T{X} \times_1 \mat{Q}_1^\top \dots \times_{k-1} \mat{Q}_{k-1}^\top \times_{k+1} \mat{Q}_{k+1}^\top \dots \times_d \mat{Q}_d^\top$ \label{l:Pair-TTM} \Comment{Multi-TTM}
-        \State Permute $\T[]{Y}$  
-        \State $\mat{R}_0 = \mat{R}_1$ 
-        \For{$i = 2, \dots, d$}
-        \State $[\mat{Q}_0,\mat{R}_0] = \Call{QR}{\mat{R}_0 \odot \mat{R}_i}$
+        \State Permute $\T[]{Y}$ to $\mathbb{R}^{r \times \cdots \times n}$
+        \State \AZ{needs revise} 
+        \IfThenElse{$k\neq 1$}{$z=1$}{$z=2$}
+        \State $\mat{R} = \mat{R}_z$
+        \For{$l = 1, \dots, d$} \Comment{Pairwise QR}
+        \State $[\mat{Q}_l,\mat{R}] = \Call{QR}{\mat{R} \odot \mat{R}_l}$
         \State $\T{Y}= \Call{collapse}{\T{Y}}$
-        \State $\T[]{Y} = \T[]{Y} \times_1 \mat{Q}_0$ \Comment{TTM} \label{l:pair-R-TTM}
+        \State $\T[]{Y} = \T[]{Y} \times_1 \mat{Q}_l^\top$ \Comment{TTM} \label{l:pair-R-TTM}
 
         \EndFor
               
-      \State Solve $  \mat{\hat{A}}_k\mat{R}_0^\top = \mat{Y}_{(k)}$ \Comment{via TRMS}
+      \State Solve $  \mat{\hat{A}}_k\mat{R}^\top = \mat{Y}_{(k)}$ for $\mat{A}_k$ \Comment{via TRSM}
       
-      \State $\mat{A}_k = \mat{Q}_k\mat{R}_k$   \Comment{Update $\mat{Q}_k\mat{R}_k$ and $\mat{A}_k$}    
+      \State $[\mat{Q}_k,\mat{R}_k] = \Call{QR}{\mat{A}_k}$ \Comment{Update $\mat{Q}_k\mat{R}_k$}  
       \EndFor
       \EndWhile
     \EndFunction

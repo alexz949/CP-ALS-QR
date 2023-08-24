@@ -1,0 +1,30 @@
+\begin{algorithmic}[1]
+    \Function{$\{\M{A}_{k}\}=$ CP-ALS-PAIRWISE-QR}{$\T{X},r$}
+      \For{$l = 1, \dots, d$}
+        \State Init $\mat{A}_l$
+        \State $[\mat{Q}_l,\mat{R}_l] = \Call{QR}{\mat{A}_l}$ \Comment{Factor QR}
+        \State $\mat{C}_l = \mat{B}_k\mat{Q}_l$ \Comment{Update $\mat{Y}_{(k)}$}  \label{l:Pair-K-Apply}
+      \EndFor
+      \While{not converge}
+      \For{$k = 1, \dots, d$}
+      
+        
+        \IfThenElse{$k \neq 1$}{$z=1$}{$z=2$} 
+        \State $\mat{R} = \mat{R}_z$, $\mat{C} = \mat{C}_z$ \Comment{Init}
+        \For{$l = 1, \dots, d$} \Comment{pairwise QR}
+          \If{$l\neq k \text{ and }l\neq z$}
+            \State $[\mat{Q}_1,\mat{R}] = \Call{QR}{\mat{R} \odot \mat{R}_i}$ \label{l:pair-QR-R}
+            \State $\mat{C} = \mat{Q}_l(\mat{C} \odot \mat{B}_i)^\top$
+          
+          \EndIf
+        
+        \EndFor
+        \State $\mat{C} = \mat{C}\mat{B}_k$
+              
+      \State Solve $  \mat{\hat{A}}_k\mat{R}_0^\top = \mat{C}$ for $\mat{A}_k$ \Comment{via TRSM}
+      
+      \State $[\mat{Q}_k,\mat{R}_k] = \Call{QR}{\mat{A}_k}$ \Comment{Update $\mat{Q}_k\mat{R}_k$}   
+      \EndFor
+      \EndWhile
+    \EndFunction
+  \end{algorithmic}

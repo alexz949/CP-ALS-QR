@@ -1,0 +1,19 @@
+\begin{algorithmic}[1]
+    \Function{$\{\M{A}_{n}\}=$ CP-ALS-EXPLICIT-QR-KRUSKAL}{$\T{X},r$}
+      \For{$l = 1,\dots, d$}
+      \State Init $\mat{A}_l$
+      \State $[\mat{Q}_l,\mat{R}_l] = \Call{QR}{\mat{A}_l}$ \Comment{Factor QR}
+        \State $\mat{C}_l = \mat{B}_l^\top\mat{Q}_l$ \Comment{Update $\mat{Y}_{(k)}$} \label{l:EXP-K-Apply}
+
+      \EndFor
+      \While{not converge}
+      \For{$k = 1, \dots, d$}
+      
+      \State $\mat{U}_k = (\mat{C}_d \odot \cdots \mat{C}_{k+1} \odot \mat{C}_{n-1} \odot \cdots \mat{C}_1)\mat{Q}_0$ \Comment{MTTKRP}
+      \State $\mat{U}_k = \mat{B}_k\mat{U}_k$ \Comment{matrix Mult}
+      \State Solve $\mat{\hat{A}_k}\mat{R}_0^\top = \mat{U}_k$ for $\mat{A}_k$ \Comment{via TRSM}
+      \State $[\mat{Q}_k,\mat{R}_k] = \Call{QR}{\mat{A}_k}$ \Comment{Update $\mat{Q}_k\mat{R}_k$}     
+      \EndFor
+      \EndWhile
+    \EndFunction
+  \end{algorithmic}

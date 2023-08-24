@@ -1,0 +1,20 @@
+%!TEX root = ../Summer-Report.tex
+\begin{algorithmic}[1]
+    \Function{$\{\M{A}_{k}\}=$ CP-ALS-NE-KRUSKAL}{$\T{X},r$}
+      \For{$l = 1, \dots, d$}
+        \State Init $\mat{A}_l$
+        \State $\mat{G}_l = \mat{A}_l^\top\mat{A}_l$
+        \State $\mat{C}_l = \mat{B}_l^\top\mat{A}_l$ \Comment{Compute corss prod}
+       \EndFor
+    
+    \While{not converge}
+    \For{$k = 1, \dots, d$}
+      \State $\mat{H}_k = \mat{G}_d \hada \cdots \mat{G}_{k+1} \hada \mat{G}_{k-1} \cdots \hada \mat{G}_1$ \Comment{Compute $\mat{Z}_k^\top \mat{Z}_k$} 
+      \State $\mat{D}_k = \mat{C}_d \hada \cdots \mat{C}_{k+1} \hada \mat{C}_{k-1} \cdots\hada \mat{C}_1$ \Comment{Compute $\mat{X}_{(k)}\mat{Z}_n}$
+      \State Solve $\mat{A}_k \mat{H}_k = \mat{D}_{k}$ for $\mat{A}_k$ \Comment{via Cholesky} \label{l:NE-K-solve}
+      \State $\mat{G}_k = \mat{A}_k^\top\mat{A}_k$
+      \State $\mat{C}_k = \mat{B}_k^\top\mat{A}_k$ \Comment{update cross prod}   \label{l:NE-K-Gram}
+    \EndFor
+    \EndWhile
+    \EndFunction
+  \end{algorithmic}

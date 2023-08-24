@@ -61,6 +61,8 @@
 
 \newcommand{\GB}[1]{\textcolor{red}{\textbf{GB}: #1}}
 \newcommand{\AZ}[1]{\textcolor{blue}{\textbf{AZ}: #1}}
+\algnewcommand{\IfThenElse}[3]{\State \algorithmicif\ #1\ \algorithmicthen\ #2\ \algorithmicelse\ #3} % single line: \IfThenElse{<if>}{<then>}{<else>}
+\algnewcommand{\IfThen}[2]{\State \algorithmicif\ #1\ \algorithmicthen\ #2} % single line: \IfThen{<if>}{<then>}
 
 \begin{document}
 
@@ -279,7 +281,7 @@ We refer to this standard approach as CP-ALS-NE. Pseudocode for CP-ALS-NE is giv
 \begin{algorithm}[!ht]
   \caption{CP-ALS-NE}
   \label{alg:cp-als-ne}
-  \input{algo/cp_als.tex}
+  \input{algo/cp_als_ne.tex}
 \end{algorithm}
 
 \subsubsection{Dense Input}
@@ -303,22 +305,9 @@ If the input tensor $\T{X}=[\![\mat{B}^{(1)}, \dots ,\mat{B}^{(d)}]\!]$ is alrea
 With this structure, the algorithm for computing CP decomposition with Kruskal tensor will be  
 \begin{algorithm}[!ht]
   \caption{CP-ALS-NE-Kruskal}
-  \begin{algorithmic}[1]
-    \Function{$\{\M{A}_{k}\}=$ CP-ALS-NE-Kruskal}{$\T{X},r$}
-    \State Initialize factor matrices $\mat{A}_1$, $\mat{A}_2$, $\dots$, $\mat{A}_d$
-    \State Precompute Grams of factor matrices $\mat{G}_1 = \mat{A}_1^\top \mat{A}_1$, $\dots$, $\mat{G}_d = \mat{A}_d^\top \mat{A}_d$  
-    \State Compute $\mat{C}_k = \mat{B}_k^\top\mat{A}_k$ for all $k \in {1,\cdots,d}$
-    \While{not converge}
-    \For{$k = 1, \dots, d$}
-      \State $\mat{H}_k = \mat{G}_d \hada \cdots \mat{G}_{k+1} \hada \mat{G}_{k-1} \cdots \hada \mat{G}_1$ \Comment{Compute $\mat{Z}_k^\top \mat{Z}_k$} 
-      \State $\mat{D}_k = \mat{C}_d \hada \cdots \mat{C}_{k+1} \hada \mat{C}_{k-1} \cdots\hada \mat{C}_1$ \Comment{Compute $\mat{X}_{(k)\mat{Z}_n}$}
-      \State Solve $\mat{A}_k \mat{H}_k = \mat{D}_{k}$ for $\mat{A}_k$ \Comment{via Cholesky} \label{l:NE-K-solve}
-      \State $\mat{G}_k = \mat{A}_k^\top\mat{A}_k$
-      \State $\mat{C}_k = \mat{B}_k^\top\mat{A}_k$ \Comment{update Gram}   \label{l:NE-K-Gram}
-    \EndFor
-    \EndWhile
-    \EndFunction
-  \end{algorithmic}
+  \label{alg:cp-als-ne-k}
+  \input{algo/cp_als_ne_kruskal.tex}
+  
 \end{algorithm}
 
 The cost when having a Kruskal input is basically the same as dense case. Except for $\mat{X}_{(n)}\mat{Z}_n$ which we only need to do hadamard product requires $O(sn_kr)$ instead of $2\hat{n}^dr$.
@@ -350,7 +339,7 @@ Then use backslash to solve the linear system
 \end{equation}
 Sample pseudocode for CP-ALS-QR is showed in \cref{alg:cp-als-qr}
 \begin{algorithm}
-  \caption{CP-ALS-explicit-QR}
+  \caption{CP-ALS-Explicit-QR}
   \label{alg:cp-als-qr}
   \input{algo/cp_als_qr.tex}
 \end{algorithm}
@@ -371,22 +360,9 @@ If we have a Kruskal tensor input, the computation of right hand side will be
 We can treat $\mat{Q}_0$ as a matricized tensor and we can compute this as MTTKRP and a small matrix multiplication.
 
 \begin{algorithm}[!ht]
-  \caption{CP-ALS-explicit-QR-Kruskal}
-  \begin{algorithmic}[1]
-    \Function{$\{\M{A}_{n}\}=$ CP-ALS-Explicit-QR-Kruskal}{$\T{X},r$}
-      \State Setup factor matrices  $\mat{A}_1$, $\mat{A}_2$, $\dots$, $\mat{A}_d$
-      \State Compute QR decomposition for factor matrices $\mat{Q}_d\mat{R}_d, \dots \mat{Q}_1\mat{R}_1$
-      \While{not converge}
-      \For{$k = 1, \dots, d$}
-      \State $[\mat{Q}_0,\mat{R}_0] = \Call{QR}{\mat{R}_d \odot \cdots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \cdots \odot \mat{R}_1}$
-      \State Update $\mat{Y}_{(n)}  = \mat{B}_k(\mat{B}_d^\top\mat{Q}_d \odot \cdots \mat{B}_{k+1}^\top\mat{Q}_{k+1} \odot \mat{B}_{k-1}^\top\mat{Q}_{k+1} \cdots \odot \mat{B}_1^\top\mat{Q})$ \Comment{Apply factor Qs} \label{l:EXP-K-Apply}
-      \State $\mat{U}_k = \mat{Y}_{(k)}\mat{Q}_0 =\mat{B}_k(\mat{B}_d^\top\mat{Q}_d \odot \cdots \mat{B}_{k+1}^\top\mat{Q}_{k+1} \odot \mat{B}_{k-1}^\top\mat{B}_{k-1} \odot  \cdots \mat{B}_1^\top\mat{Q}_1)\mat{Q}_0 $ \Comment{MTTKRP}
-      \State Solve $\mat{\hat{A}_k}\mat{R}_0^\top = \mat{U}_k$ \Comment{via TRMS}
-      \State $[\mat{Q}_k,\mat{R}_k] = \Call{QR}{\mat{A}_k}$ \Comment{Update $\mat{A}_k$ and $\mat{Q}_k\mat{R}_k$}     
-      \EndFor
-      \EndWhile
-    \EndFunction
-  \end{algorithmic}
+  \caption{CP-ALS-Explicit-QR-Kruskal}
+  \label{alg:cp-als-qr-k}
+  \input{algo/cp_als_qr_kruskal.tex}
 \end{algorithm}
 The cost for this algorithm is also similar to the code in dense case. However, in \cref{l:EXP-K-Apply}, the cost is $O(snr)$.
 In next line the MTTKRP dominates the cost which is $(\hat{n}^dr)$.
@@ -453,28 +429,7 @@ The algorithm for CP-ALS-Pairwise-QR in Kruskal input will be
 \begin{algorithm}
   \caption{CP-ALS-Pairwise-QR-Kruskal}
   \label{alg:cp-als-pairwise-qr-kruskal}
-  \begin{algorithmic}[1]
-    \Function{$\{\M{A}_{k}\}=$ CP-ALS-Pairwise-QR}{$\T{X},r$}
-      \State Setup factor matrices  $\mat{A}_1$, $\mat{A}_2$, $\dots$, $\mat{A}_d$
-      \State Compute QR decomposition for factor matrices $\mat{Q}_d\mat{R}_d, \dots \mat{Q}_1\mat{R}_1$
-      \While{not converge}
-      \For{$k = 1, \dots, d$}
-        \State Update $\mat{Y}_{(n)}  = \mat{B}_k(\mat{B}_d^\top\mat{Q}_d \odot \cdots \mat{B}_{k+1}^\top\mat{Q}_{k+1} \odot \mat{B}_{k-1}^\top\mat{Q}_{k+1} \cdots \odot \mat{B}_1^\top\mat{Q})$ \Comment{Apply factor Qs} \label{l:Pair-K-Apply}
-        
-        \State $\mat{R}_0 = \mat{R}_1$ ,$\mat{U}_{(k)} = \mat{B}_1$ \Comment{Init}
-        \For{$i = 2, \dots, d$} \Comment{pairwise QR}
-        \State $[\mat{Q}_0,\mat{R}_0] = \Call{QR}{\mat{R}_0 \odot \mat{R}_i}$ \label{l:pair-QR-R}
-        \State Update $\mat{U}_{(k)} = \mat{Q}_0(\mat{U}_k \odot \mat{B}_i)^\top$
-        \EndFor
-        \State $\mat{U}_{(k)} = \mat{U}_{(k)}\mat{B}_k$
-              
-      \State Solve $  \mat{\hat{A}}_k\mat{R}_0^\top = \mat{U}_{(k)}$ \Comment{via TRMS}
-      
-      \State $\mat{A}_k = \mat{Q}_k\mat{R}_k$   \Comment{Update $\mat{Q}_k\mat{R}_k$ and $\mat{A}_k$}    
-      \EndFor
-      \EndWhile
-    \EndFunction
-  \end{algorithmic}
+  \input{algo/cp_als_pairwise_kruskal.tex}
 \end{algorithm}
 The cost for computing QR for factor matrices and pairwise QR \cref{l:pair-QR-R} is the same as dense case.
 For applying factor Qs, it takes $O((d-1)s\bar{n}r)$.
