@@ -304,7 +304,7 @@ If the input tensor $\T{X}=[\![\mat{B}^{(1)}, \dots ,\mat{B}^{(d)}]\!]$ is alrea
 \GB{continue here, need to add a new algorithm environment for this case that computes $\mat{C}_k = \mat{B}_{k}^\top\mat{A}_{k}$ after $\mat{A}_k$ gets updated and $\mat{D}_k$ which is the Hadamard of $\mat{C}_\ell's$, then add complexity analysis like I did above with references to the line numbers...}
 With this structure, the algorithm for computing CP decomposition with Kruskal tensor will be  
 \begin{algorithm}[!ht]
-  \caption{CP-ALS-NE-Kruskal}
+  \caption{CP-Round-ALS-NE}
   \label{alg:cp-als-ne-k}
   \input{algo/cp_als_ne_kruskal.tex}
   
@@ -339,7 +339,7 @@ Then use backslash to solve the linear system
 \end{equation}
 Sample pseudocode for CP-ALS-QR is showed in \cref{alg:cp-als-qr}
 \begin{algorithm}
-  \caption{CP-ALS-Explicit-QR}
+  \caption{CP-ALS-QR-Exp}
   \label{alg:cp-als-qr}
   \input{algo/cp_als_qr.tex}
 \end{algorithm}
@@ -360,7 +360,7 @@ If we have a Kruskal tensor input, the computation of right hand side will be
 We can treat $\mat{Q}_0$ as a matricized tensor and we can compute this as MTTKRP and a small matrix multiplication.
 
 \begin{algorithm}[!ht]
-  \caption{CP-ALS-Explicit-QR-Kruskal}
+  \caption{CP-Round-ALS-QR-Exp}
   \label{alg:cp-als-qr-k}
   \input{algo/cp_als_qr_kruskal.tex}
 \end{algorithm}
@@ -386,7 +386,7 @@ $$\mat{Z}_k = (\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-
 
 The sample pseudocode is showed in \cref{alg:cp-als-pairwise-qr} 
 \begin{algorithm}
-  \caption{CP-ALS-Pairwise-QR}
+  \caption{CP-ALS-QR-Imp}
   \label{alg:cp-als-pairwise-qr}
   \input{algo/cp_als_pairwise.tex}
 \end{algorithm}
@@ -427,7 +427,7 @@ We can solve this linear system
 \end{equation}
 The algorithm for CP-ALS-Pairwise-QR in Kruskal input will be
 \begin{algorithm}
-  \caption{CP-ALS-Pairwise-QR-Kruskal}
+  \caption{CP-Round-ALS-QR-Imp}
   \label{alg:cp-als-pairwise-qr-kruskal}
   \input{algo/cp_als_pairwise_kruskal.tex}
 \end{algorithm}

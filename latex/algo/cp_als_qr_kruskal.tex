@@ -1,19 +1,20 @@
-\begin{algorithmic}[1]
-    \Function{$\{\M{A}_{n}\}=$ CP-ALS-EXPLICIT-QR-KRUSKAL}{$\T{X},r$}
-      \For{$l = 1,\dots, d$}
-      \State Init $\mat{A}_l$
-      \State $[\mat{Q}_l,\mat{R}_l] = \Call{QR}{\mat{A}_l}$ \Comment{Factor QR}
-        \State $\mat{C}_l = \mat{B}_l^\top\mat{Q}_l$ \Comment{Update $\mat{Y}_{(k)}$} \label{l:EXP-K-Apply}
+%!TEX root = ../Summer-Report.tex
 
+\begin{algorithmic}[1]
+    \Function{$\{\M{A}_{k}\}=$ CP-Round-ALS-QR-Exp}{$\{\M{B}_{k}\},r$}
+      \For{$k = 1,\dots, d$}
+        \State Initialize $\mat{A}_k$
+        \State $[\mat{Q}_k,\mat{R}_k] = \Call{QR}{\mat{A}_k}$ \Comment{compute QR}
+        \State $\mat{C}_k = \mat{B}_k^\top\mat{Q}_k$  \label{l:EXP-K-Apply} \Comment{compute cross product}
       \EndFor
-      \While{not converge}
-      \For{$k = 1, \dots, d$}
-      
-      \State $\mat{U}_k = (\mat{C}_d \odot \cdots \mat{C}_{k+1} \odot \mat{C}_{n-1} \odot \cdots \mat{C}_1)\mat{Q}_0$ \Comment{MTTKRP}
-      \State $\mat{U}_k = \mat{B}_k\mat{U}_k$ \Comment{matrix Mult}
-      \State Solve $\mat{\hat{A}_k}\mat{R}_0^\top = \mat{U}_k$ for $\mat{A}_k$ \Comment{via TRSM}
-      \State $[\mat{Q}_k,\mat{R}_k] = \Call{QR}{\mat{A}_k}$ \Comment{Update $\mat{Q}_k\mat{R}_k$}     
-      \EndFor
+      \While{not converged}
+        \For{$k = 1, \dots, d$}
+          \State $[\mat{Q}_0,\mat{R}_0] = \Call{QR}{\mat{R}_d \odot \cdots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \cdots \odot \mat{R}_1}$ \Comment{compute explicit QR}
+          \State $\mat{D}_k = (\mat{C}_d \odot \cdots \mat{C}_{k+1} \odot \mat{C}_{n-1} \odot \cdots \mat{C}_1)\mat{Q}_0$ \Comment{MTTKRP}
+          \State $\mat{U}_k = \mat{B}_k\mat{D}_k$ \Comment{via matrix multiplication}
+          \State Solve $\mat{A}_k\mat{R}_0^\top = \mat{U}_k$ for $\mat{A}_k$ \Comment{via triangular solve}
+          \State $[\mat{Q}_k,\mat{R}_k] = \Call{QR}{\mat{A}_k}$ \Comment{update QR}     
+        \EndFor
       \EndWhile
     \EndFunction
   \end{algorithmic}

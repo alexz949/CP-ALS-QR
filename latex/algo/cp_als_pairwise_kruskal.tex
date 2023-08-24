@@ -1,30 +1,26 @@
+%!TEX root = ../Summer-Report.tex
+
 \begin{algorithmic}[1]
-    \Function{$\{\M{A}_{k}\}=$ CP-ALS-PAIRWISE-QR}{$\T{X},r$}
-      \For{$l = 1, \dots, d$}
-        \State Init $\mat{A}_l$
-        \State $[\mat{Q}_l,\mat{R}_l] = \Call{QR}{\mat{A}_l}$ \Comment{Factor QR}
-        \State $\mat{C}_l = \mat{B}_k\mat{Q}_l$ \Comment{Update $\mat{Y}_{(k)}$}  \label{l:Pair-K-Apply}
+    \Function{$\{\M{A}_{k}\}=$ CP-Round-ALS-QR-Imp}{$\{\M{B}_{k}\},r$}
+      \For{$k = 1, \dots, d$}
+        \State Initialize $\mat{A}_k$
+        \State $[\mat{Q}_k,\mat{R}_k] = \Call{QR}{\mat{A}_k}$ \Comment{compute QR}
+        \State $\mat{C}_k = \mat{B}_k^\top\mat{Q}_k$ \label{l:Pair-K-Apply} \Comment{compute cross product}  
       \EndFor
       \While{not converge}
-      \For{$k = 1, \dots, d$}
-      
-        
-        \IfThenElse{$k \neq 1$}{$z=1$}{$z=2$} 
-        \State $\mat{R} = \mat{R}_z$, $\mat{C} = \mat{C}_z$ \Comment{Init}
-        \For{$l = 1, \dots, d$} \Comment{pairwise QR}
-          \If{$l\neq k \text{ and }l\neq z$}
-            \State $[\mat{Q}_1,\mat{R}] = \Call{QR}{\mat{R} \odot \mat{R}_i}$ \label{l:pair-QR-R}
-            \State $\mat{C} = \mat{Q}_l(\mat{C} \odot \mat{B}_i)^\top$
-          
-          \EndIf
-        
+        \For{$k = 1, \dots, d$}
+          \IfThenElse{$k \neq 1$}{$a=1$}{$a=2$} \Comment{set starting index}
+          \State $\mat{R}_0 = \mat{R}_a$, $\mat{C}_0 = \mat{C}_a$ \Comment{initialize pairwise results}
+          \For{$\ell = 1, \dots, d$} 
+            \If{$\ell\neq k \textbf{ and }\ell\neq a$}
+              \State $[\mat{Q}_0,\mat{R}_0] = \Call{QR}{\mat{R}_0 \odot \mat{R}_\ell}$ \label{l:pair-QR-R} \Comment{pairwise QR}
+              \State $\mat{C}_0 = \mat{Q}_0(\mat{C}_0 \odot \mat{B}_\ell)^\top$ \Comment{pairwise apply}
+            \EndIf
+          \EndFor
+          \State $\mat{U}_k = \mat{C}_0\mat{B}_k$ \Comment{via matrix multiplication}
+          \State Solve $  \mat{A}_k\mat{R}_0^\top = \mat{U}_k$ for $\mat{A}_k$ \Comment{via triangular solve}    
+          \State $[\mat{Q}_k,\mat{R}_k] = \Call{QR}{\mat{A}_k}$ \Comment{Update QR}   
         \EndFor
-        \State $\mat{C} = \mat{C}\mat{B}_k$
-              
-      \State Solve $  \mat{\hat{A}}_k\mat{R}_0^\top = \mat{C}$ for $\mat{A}_k$ \Comment{via TRSM}
-      
-      \State $[\mat{Q}_k,\mat{R}_k] = \Call{QR}{\mat{A}_k}$ \Comment{Update $\mat{Q}_k\mat{R}_k$}   
-      \EndFor
       \EndWhile
     \EndFunction
   \end{algorithmic}

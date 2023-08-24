@@ -1,8 +1,10 @@
+%!TEX root = ../Summer-Report.tex
+
 \begin{algorithmic}[1]
-    \Function{$\{\M{A}_{k}\}=$ CP-ALS-PAIRWISE-QR}{$\T{X},r$}
-      \For{$l = 1, \dots, d$}
-      \State Init $\mat{A}_l$
-      \State $[\mat{Q}_l,\mat{R}_l] = \Call{QR}{\mat{A}_l}$ \Comment{Factor QR}
+    \Function{$\{\M{A}_{k}\}=$ CP-ALS-QR-Imp}{$\T{X},r$}
+      \For{$k = 1, \dots, d$}
+      \State Initialize $\mat{A}_k$
+      \State $[\mat{Q}_k,\mat{R}_k] = \Call{QR}{\mat{A}_k}$ \Comment{compute QR}
       \EndFor
       \While{not converge}
       \For{$k = 1, \dots, d$}

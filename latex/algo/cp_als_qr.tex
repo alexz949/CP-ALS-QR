@@ -1,17 +1,19 @@
+%!TEX root = ../Summer-Report.tex
+
 \begin{algorithmic}[1]
-    \Function{$\{\M{A}_{n}\}=$ CP-ALS-EXPLICIT-QR}{$\T{X},r$}
-      \For{$l = 1, \dots, d$}
-      \State Init $\mat{A}_l$
-      \State $[\mat{Q}_l,\mat{R}_l] = \Call{QR}{\mat{A}_l}$ \Comment{Factor QR}
-      \EndFor
-      \While{not converge}
+    \Function{$\{\M{A}_{k}\}=$ CP-ALS-QR-Exp}{$\T{X},r$}
       \For{$k = 1, \dots, d$}
-      \State $[\mat{Q}_0,\mat{R}_0] = \Call{QR}{\mat{R}_d \odot \cdots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \cdots \odot \mat{R}_1}$
-      \State $\T{Y} =  \T{X} \times_1 \mat{Q}_1^\top \dots \times_{k-1} \mat{Q}_{k-1}^\top \times_{k+1} \mat{Q}_{k+1}^\top \dots \times_d \mat{Q}_d^\top$ \Comment{Multi-TTM} \label{l:EXP-TTM}
-      \State $\mat{U}_k = \mat{Y}_{(k)}\mat{Q}_0$ \label{l:apply}
-      \State Solve $\mat{\hat{A}_k}\mat{R}_0^\top = \mat{U}_k$ for $\mat{A}_k$ \Comment{via TRSM}
-      \State $[\mat{Q}_k,\mat{R}_k] = \Call{QR}{\mat{A}_k}$ \Comment{Update $\mat{Q}_k\mat{R}_k$}     
+        \State Initialize $\mat{A}_k$
+        \State $[\mat{Q}_k,\mat{R}_k] = \Call{QR}{\mat{A}_k}$ \Comment{compute QR}
       \EndFor
+      \While{not converged}
+        \For{$k = 1, \dots, d$}
+          \State $\T{Y} =  \T{X} \times_1 \mat{Q}_1^\top \dots \times_{k-1} \mat{Q}_{k-1}^\top \times_{k+1} \mat{Q}_{k+1}^\top \dots \times_d \mat{Q}_d^\top$ \label{l:EXP-TTM} \Comment{Multi-TTM} 
+          \State $[\mat{Q}_0,\mat{R}_0] = \Call{QR}{\mat{R}_d \odot \cdots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \cdots \odot \mat{R}_1}$ \Comment{compute explicit QR}
+          \State $\mat{U}_k = \mat{Y}_{(k)}\mat{Q}_0$ \label{l:apply} \Comment{via matrix multiplication} 
+          \State Solve $\mat{A}_k\mat{R}_0^\top = \mat{U}_k$ for $\mat{A}_k$ \Comment{via triangular solve}
+          \State $[\mat{Q}_k,\mat{R}_k] = \Call{QR}{\mat{A}_k}$ \Comment{update QR}     
+        \EndFor
       \EndWhile
     \EndFunction
   \end{algorithmic}
