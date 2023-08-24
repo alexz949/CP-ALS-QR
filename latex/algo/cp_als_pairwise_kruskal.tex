@@ -5,7 +5,7 @@
       \For{$k = 1, \dots, d$}
         \State Initialize $\mat{A}_k$
         \State $[\mat{Q}_k,\mat{R}_k] = \Call{QR}{\mat{A}_k}$ \Comment{compute QR}
-        \State $\mat{C}_k = \mat{B}_k^\top\mat{Q}_k$ \label{l:Pair-K-Apply} \Comment{compute cross product}  
+        \State $\mat{C}_k = \mat{Q}_k^\top\mat{B}_k$ \label{l:Pair-K-Apply} \Comment{compute cross product}  
       \EndFor
       \While{not converge}
         \For{$k = 1, \dots, d$}
@@ -14,10 +14,10 @@
           \For{$\ell = 1, \dots, d$} 
             \If{$\ell\neq k \textbf{ and }\ell\neq a$}
               \State $[\mat{Q}_0,\mat{R}_0] = \Call{QR}{\mat{R}_\ell \odot \mat{R}_0}$ \label{l:pair-QR-R} \Comment{pairwise QR}
-              \State $\mat{C}_0 = \mat{Q}_0(\mat{B}_\ell \odot \mat{C}_0)^\top$ \Comment{pairwise apply}
+              \State $\mat{C}_0 = \mat{Q}_0(\mat{C}_\ell \odot \mat{C}_0)^\top$ \Comment{pairwise apply}
             \EndIf
           \EndFor
-          \State $\mat{U}_k = \mat{C}_0\mat{B}_k$ \Comment{via matrix multiplication}
+          \State $\mat{U}_k = \mat{B}_k\mat{C}_0$ \Comment{via matrix multiplication}
           \State Solve $  \mat{A}_k\mat{R}_0^\top = \mat{U}_k$ for $\mat{A}_k$ \Comment{via triangular solve}    
           \State $[\mat{Q}_k,\mat{R}_k] = \Call{QR}{\mat{A}_k}$ \Comment{Update QR}   
         \EndFor

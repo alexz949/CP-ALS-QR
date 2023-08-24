@@ -4,12 +4,12 @@
     \Function{$\{\M{A}_{k}\}=$ CP-ALS-QR-Exp}{$\T{X},r$}
       \For{$k = 1, \dots, d$}
         \State Initialize $\mat{A}_k$
-        \State $[\mat{Q}_k,\mat{R}_k] = \Call{QR}{\mat{A}_k}$ \Comment{compute QR}
+        \State $[\mat{Q}_k,\mat{R}_k] = \Call{QR}{\mat{A}_k}$ \Comment{compute QR} \label{l:qr_factor_q}
       \EndFor
       \While{not converged}
         \For{$k = 1, \dots, d$}
           \State $\T{Y} =  \T{X} \times_1 \mat{Q}_1^\top \dots \times_{k-1} \mat{Q}_{k-1}^\top \times_{k+1} \mat{Q}_{k+1}^\top \dots \times_d \mat{Q}_d^\top$ \label{l:EXP-TTM} \Comment{Multi-TTM} 
-          \State $[\mat{Q}_0,\mat{R}_0] = \Call{QR}{\mat{R}_d \odot \cdots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \cdots \odot \mat{R}_1}$ \Comment{compute explicit QR}
+          \State $[\mat{Q}_0,\mat{R}_0] = \Call{QR}{\mat{R}_d \odot \cdots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \cdots \odot \mat{R}_1}$ \Comment{compute explicit QR} \label{l:EXP-QR-R}
           \State $\mat{U}_k = \mat{Y}_{(k)}\mat{Q}_0$ \label{l:apply} \Comment{via matrix multiplication} 
           \State Solve $\mat{A}_k\mat{R}_0^\top = \mat{U}_k$ for $\mat{A}_k$ \Comment{via triangular solve}
           \State $[\mat{Q}_k,\mat{R}_k] = \Call{QR}{\mat{A}_k}$ \Comment{update QR}     

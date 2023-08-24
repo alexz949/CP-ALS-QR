@@ -5,13 +5,13 @@
       \For{$k = 1, \dots, d$}
         \State Initialize $\mat{A}_k$
         \State $\mat{G}_k = \mat{A}_k^\top\mat{A}_k$ \Comment{compute Gram}
-        \State $\mat{C}_k = \mat{B}_k^\top\mat{A}_k$ \Comment{compute cross product}
+        \State $\mat{C}_k = \mat{B}_k^\top\mat{A}_k$ \Comment{compute cross product} \label{l:round-ne-cross}
        \EndFor
     
     \While{not converged}
     \For{$k = 1, \dots, d$}
       \State $\mat{H}_k = \mat{G}_d \hada \cdots \mat{G}_{k+1} \hada \mat{G}_{k-1} \cdots \hada \mat{G}_1$ \Comment{compute $\mat{Z}_k^\top \mat{Z}_k$} 
-      \State $\mat{D}_k = \mat{C}_d \hada \cdots \mat{C}_{k+1} \hada \mat{C}_{k-1} \cdots\hada \mat{C}_1$ \Comment{compute $\mat{X}_{(k)}\mat{Z}_n}$
+      \State $\mat{D}_k = \mat{B}_k(\mat{C}_d \hada \cdots \mat{C}_{k+1} \hada \mat{C}_{k-1} \cdots\hada \mat{C}_1)$ \Comment{compute $\mat{X}_{(k)}\mat{Z}_n}$ \label{l:round-ne-rhs}
       \State Solve $\mat{A}_k \mat{H}_k = \mat{D}_{k}$ for $\mat{A}_k$ \Comment{via Cholesky} \label{l:NE-K-solve}
       \State $\mat{G}_k = \mat{A}_k^\top\mat{A}_k$ \Comment{update Gram}   \label{l:NE-K-Gram}
       \State $\mat{C}_k = \mat{B}_k^\top\mat{A}_k$ \Comment{update cross product}   \label{l:NE-K-cross}
