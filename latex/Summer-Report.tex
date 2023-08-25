@@ -355,7 +355,7 @@ $$O((d-2)r^2\bar{n} + r^{d+1} + \hat{n}^dr + \bar{n}r^d)$$
 \subsubsection{Kruskal Input}
 If we have a Kruskal tensor input, the computation of right hand side will be more efficient by applying cross product for $\mat{Q}_k^\top\mat{B}_k$
 \begin{equation}
-  \mat{Y}_{(k)}\mat{Q}_0= \mat{B}_k(\mat{Q}_d^\top\mat{B}_d \odot \cdots \odot \mat{Q}_{k+1}^\top\mat{B}_{k+1} \odot \mat{Q}_{k-1}^\top\mat{B}_{k-1} \odot \cdots \odot \mat{Q}_1^\top\mat{B}_1)\mat{Q}_0 \nonumber
+  \mat{Y}_{(k)}\mat{Q}_0= \mat{B}_k(\mat{Q}_d^\top\mat{B}_d \odot \cdots \odot \mat{Q}_{k+1}^\top\mat{B}_{k+1} \odot \mat{Q}_{k-1}^\top\mat{B}_{k-1} \odot \cdots \odot \mat{Q}_1^\top\mat{B}_1)^\top\mat{Q}_0 \nonumber
 \end{equation}
 We can treat $\mat{Q}_0$ as a matricized tensor and we can compute this as MTTKRP and a small matrix multiplication.
 
@@ -410,15 +410,15 @@ Applying $\mat{Q}$ into $\mat{X}_k$.
 This gives us
 \begin{align}
   \mat{Y}_k &= (\mat{B}_{k}(\mat{B}_{d} \odot \dots \odot \mat{B}_{k+1} \odot \mat{B}_{k-1}  \odot \dots \odot \mat{B}_{1})^\top)(\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1) \nonumber \\
-  &= \mat{B}_k(\mat{Q}_d^\top\mat{B}_d \odot \cdots \odot \mat{Q}_{k+1}^\top\mat{B}_{k+1} \odot \mat{Q}_{k-1}^\top\mat{B}_{k-1} \odot \cdots \odot \mat{Q}_1^\top\mat{B}_1) \nonumber
+  &= \mat{B}_k(\mat{Q}_d^\top\mat{B}_d \odot \cdots \odot \mat{Q}_{k+1}^\top\mat{B}_{k+1} \odot \mat{Q}_{k-1}^\top\mat{B}_{k-1} \odot \cdots \odot \mat{Q}_1^\top\mat{B}_1)^\top \nonumber
 \end{align}
 On following step, we will apply that set of kronecker $\mat{Q}$ into $\mat{Y}_k$ in similar pairwise way.
 \begin{align}
-  \mat{Y}_k &= \mat{B}_k(\mat{Q}_d^\top\mat{B}_d \odot \cdots \odot \mat{Q}_{k+1}^\top\mat{B}_{k+1} \odot \mat{Q}_{k-1}^\top\mat{B}_{k-1} \odot \cdots \odot \mat{Q}_1^\top\mat{B}_1) \nonumber \\
-      &= \mat{B}_k((\mat{Q}_d^\top\mat{B}_d \odot \mat{Q}_{d-1}^\top\mat{B}_{d-1}) \odot \dots \odot \mat{Q}_{k+1}^\top\mat{B}_{k+1}\odot \mat{Q}_{k-1}^\top\mat{B}_{k-1} \odot \dots \odot \mat{Q}_{1}^\top\mat{B}_{1}) \nonumber      \\
-      \mat{Y}_k\mat{Q}_{A_{d-1}}  &= \mat{B}_k(\mat{Q}_{A_{d-1}}((\mat{Q}_d^\top\mat{B}_d \odot \mat{Q}_{d-1}^\top\mat{B}_{d-1}) \odot \dots \odot \mat{Q}_{k+1}^\top\mat{B}_{k+1}\odot \mat{Q}_{k-1}^\top\mat{B}_{k-1} \odot \dots \odot \mat{Q}_{1}^\top\mat{B}_{1})) \nonumber      \\
+  \mat{Y}_k &= \mat{B}_k(\mat{Q}_d^\top\mat{B}_d \odot \cdots \odot \mat{Q}_{k+1}^\top\mat{B}_{k+1} \odot \mat{Q}_{k-1}^\top\mat{B}_{k-1} \odot \cdots \odot \mat{Q}_1^\top\mat{B}_1)^\top \nonumber \\
+      &= \mat{B}_k((\mat{Q}_d^\top\mat{B}_d \odot \mat{Q}_{d-1}^\top\mat{B}_{d-1}) \odot \dots \odot \mat{Q}_{k+1}^\top\mat{B}_{k+1}\odot \mat{Q}_{k-1}^\top\mat{B}_{k-1} \odot \dots \odot \mat{Q}_{1}^\top\mat{B}_{1})^\top \nonumber      \\
+      \mat{Y}_k\mat{Q}_{A_{d-1}}  &= \mat{B}_k(\mat{Q}_{A_{d-1}}((\mat{Q}_d^\top\mat{B}_d \odot \mat{Q}_{d-1}^\top\mat{B}_{d-1}) \odot \dots \odot \mat{Q}_{k+1}^\top\mat{B}_{k+1}\odot \mat{Q}_{k-1}^\top\mat{B}_{k-1} \odot \dots \odot \mat{Q}_{1}^\top\mat{B}_{1}))^\top \nonumber      \\
       & \vdots \nonumber \\
-    \mat{U}_k  &= \mat{B}_k(\mat{Q}_M^\top\mat{B}_M) \nonumber  
+    \mat{U}_k  &= \mat{B}_k(\mat{Q}_M^\top\mat{B}_M)^\top \nonumber  
 \end{align}
 Notice that we only have to do one matrix multiplication once a time because when use the same property, one matrix times an identity matrix will still be itself.
 We can solve this linear system
