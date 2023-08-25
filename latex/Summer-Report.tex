@@ -350,8 +350,8 @@ and use matricized tensor $\mat{Y}_{(k)}$ times $\mat{Q}_0$.
 The computation of QR for factor matrices in \cref{l:qr_factor_q} takes $(d-2)r^2\bar{n}$. 
 The QR for Khatri-Rao product of $\mat{R}$ in \cref{l:EXP-QR-R} takes $O(r^{d+1})$ overall. 
 The cost for doing Multi-TTM will be $\hat{n}^dr$ and $\mat{U}_k = \mat{Y}_{(k)}\mat{Q}_0$ in \cref{l:apply} will be $\bar{n}r^d$.
-Overall, the sum of cost for CP-ALS-Explicit-QR will be
-$$O((d-2)r^2\bar{n} + r^{d+1} + \hat{n}^dr + \bar{n}r^d)$$
+Overall, the sum of cost along all modes for CP-ALS-Explicit-QR will be
+$$O(d^2r^2\bar{n} + dr^{d+1} + d\hat{n}^dr + d\bar{n}r^d)$$
 \subsubsection{Kruskal Input}
 If we have a Kruskal tensor input, the computation of right hand side will be more efficient by applying cross product for $\mat{Q}_k^\top\mat{B}_k$
 \begin{equation}
@@ -391,18 +391,19 @@ The sample pseudocode is showed in \cref{alg:cp-als-pairwise-qr}
   \input{algo/cp_als_pairwise.tex}
 \end{algorithm}
 \subsubsection{Dense Input}
-\AZ{cost analysis!!!}
 
-After finishing Multi-TTM to get $\T[]{Y}$, we will perform Multi-TTM again and again on $\mat{Q}_{A_d} \otimes \cdots \otimes \mat{I}_d$, $\mat{Q}_{A_{d-1}} \otimes \cdots \otimes \mat{I}_d$ until $\mat{Q}_{A_1}$.
+The time spent on computing pairwise QR on $\mat{R}_d \odot \cdots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \cdots \odot \mat{R}_1$ in \cref{l:pair-factor-QR} will be $(d-2)r^4$.
+Multi-TTM takes the same time as explicit method which is $\hat n^d r$ in \cref{l:pairwise-TTM}.
+
+
+After finishing Multi-TTM to get $\T[]{Y}$, we will perform TTM again and again on $\mat{Q}_{A_d} \otimes \cdots \otimes \mat{I}_d$, $\mat{Q}_{A_{d-1}} \otimes \cdots \otimes \mat{I}_d$ until $\mat{Q}_{A_1}$ in \cref{l:pair-R-TTM}
 In order to match the dimension, we will reshape tensor $\T[]{Y}$ by shrinking its dimension every time before we do TTM for pairwise QR.
-To better implement the algorithm, we also need to do permutation for $\T[]{Y}$.
+To better implement the algorithm, we also need to do permutation for $\T[]{Y}$ in \cref{l:pairwise-permute}
 
-The dominant cost of Pairwise QR is in \cref{l:Pair-TTM} which is $\hat n^d r$. 
-The cost for doing TTM on pairwise Q in \cref{l:pair-R-TTM} will be $\bar{n}(r^d + r^{d-1}+\cdots + r^2)$. 
-The time spent on computing pairwise QR on $\mat{R}_d \odot \cdots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \cdots \odot \mat{R}_1$ will be $(d-2)r^4$.
+The cost for doing TTM on pairwise Q will be $\bar{n}(r^d + r^{d-1}+\cdots + r^2)$. 
 The rest computation holds the same for explicit QR dense case.
 Overall, the sum of all costs will be 
-$$O(r^2\bar n + r^4 + \hat n^d r + \bar n(r^d + \cdots + r^2))$$
+$$O(dr^2\bar n + r^4 + d\hat n^d r + d\bar n(r^d + \cdots + r^2))$$
 \subsubsection{Kruskal Input}
 
 With Kruskal input, we can use the Kruskal structure $\mat{X}_{(k)} = \mat{B}_{k}(\mat{B}_{d} \odot \dots \odot \mat{B}_{k+1} \odot \mat{B}_{k-1}  \odot \dots \odot \mat{B}_{1})^\top$. 
@@ -431,7 +432,7 @@ The algorithm for CP-ALS-Pairwise-QR in Kruskal input will be
   \label{alg:cp-als-pairwise-qr-kruskal}
   \input{algo/cp_als_pairwise_kruskal.tex}
 \end{algorithm}
-The cost for computing QR for factor matrices and pairwise QR \cref{l:pair-QR-R} is the same as dense case.
+The cost for computing QR for factor matrices and pairwise QR in\cref{l:pair-QR-R} is the same as dense case.
 For applying factor Qs, it takes $O((d-1)s\bar{n}r)$.
 For applying pairwise Qs, it takes $O((d-2)r^2\bar{n}^2 + r^3\bar{n}^2)$.
 
@@ -445,11 +446,10 @@ For applying pairwise Qs, it takes $O((d-2)r^2\bar{n}^2 + r^3\bar{n}^2)$.
 \subsection{Complexity}
 \AZ{I don't think current cost analysis is exactly right so I will wait until algorithm part is finished.I don't know whether it is necessary to have two table showing dense and Kruskal case seperately.}
 Given a dense tensor has the properties at the beginning of this section. 
-If we want to do the rank-$r$ CP Decomposition for two different ALS methods, the distribution of time is presented in \cref{tab:its_parts}
+If we want to do the rank-$r$ CP Decomposition for different ALS methods, the distribution of time is presented in \cref{tab:dense_its_part}
 
 
-\begin{table}[!ht]
-  
+\begin{table}[!ht] 
   \centering
   \begin{tabular}{|c|c|c|c|c|c|}
     \hline
@@ -457,15 +457,34 @@ If we want to do the rank-$r$ CP Decomposition for two different ALS methods, th
     \hline
     Component & Cost & Component & Cost & Component & Cost \\
     \hline
-    Computing Gram & $r^2n$&QR on factor matrices & $(d-1)r^2n$ & QR on factor matrices & $(d-1)r^2n$\\
+    MTTKRP &$\hat n^d r$ &Multi-TTM &$\hat n^d r$  & Multi-TTM &$\hat n^d r$  \\
+    Computing Gram & $dr^2$&QR on factor matrices & $(d-1)r^2\bar n$ & QR on factor matrices & $(d-1)r^2\bar n$\\
     N/A& &Computing $\mat{Q}_0$ & $r^{d+1}$& Computing $\tilde{\mat{Q}}\tilde{\mat{R}}$& $(d-2)r^4$\\
-    Apply RHS&  $r^2n$&Apply Qs to RHS & $(d-1)r^2n$ & Apply Qs to RHS& $(d-1)r^2n$ \\
-    N/A & &Applying $\mat{Q}_0$& $r^dn$& Applying $\tilde{\mat{Q}}\tilde{\mat{R}}$& $r^dn$\\
-     \hline
+    N/A & &Applying $\mat{Q}_0$& $r^d\bar n$& Applying $\tilde{\mat{Q}}\tilde{\mat{R}}$& $r^d \bar n$\\
+    \hline
   \end{tabular}
-  \caption{Breakdown of main component when solving LS problem using normal equation, pairwise QR and explicit QR}
-  \label{tab:its_parts}
-  \end{table}
+  \caption{Breakdown of main component when solving LS problem using NE, pairwise QR and explicit QR}
+  \label{tab:dense_its_part}
+\end{table}
+If we already have a Kruskal tensor as input, the distribution of time on different method is showed in \cref{tab:kruskal_its_part}.
+\begin{table}[!ht] 
+  \centering
+  \begin{tabular}{|c|c|c|c|c|c|}
+    \hline
+    \multicolumn{2}{|c|}{\textbf{Normal Equations}} & \multicolumn{2}{|c|}{\textbf{Explicit QR}} & \multicolumn{2}{|c|}{\textbf{Pairwise QR}} \\
+    \hline
+    Component & Cost & Component & Cost & Component & Cost \\
+    \hline
+    Cross Product &$dr^2$ &Cross Product&$(d-1)s\bar n r$  & Cross Product &$(d-1)s\bar n r$  \\
+    Computing Gram & $dr^2$&QR on factor matrices & $(d-1)r^2\bar n$ & QR on factor matrices & $(d-1)r^2\bar n$\\
+    N/A& &Computing $\mat{Q}_0$ & $r^{d+1}$& Computing $\tilde{\mat{Q}}\tilde{\mat{R}}$& $(d-2)r^4$\\
+    N/A & &Applying $\mat{Q}_0$& $r^d\bar n$& Applying $\tilde{\mat{Q}}\tilde{\mat{R}}$& $(d-2)r^2s$\\
+    \hline
+  \end{tabular}
+  \caption{Breakdown of main component given Kruskal tensor input using NE, pairwise QR and explicit QR}
+  \label{tab:kruskal_its_part}
+\end{table}
+
 
   
 
