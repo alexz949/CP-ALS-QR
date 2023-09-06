@@ -301,7 +301,6 @@ If the input tensor $\T{X}=[\![\mat{B}^{(1)}, \dots ,\mat{B}^{(d)}]\!]$ is alrea
  &= \mat{B}_k(\mat{B}_d^\top\mat{A}_d) \hada \cdots \hada (\mat{B}_{k+1}^\top\mat{A}_{k+1}) \hada (\mat{B}_{k-1}^\top\mat{A}_{k-1}) \hada \cdots \hada (\mat{B}_1^\top\mat{A}_1).  
 \end{align*}
 
-\GB{continue here, need to add a new algorithm environment for this case that computes $\mat{C}_k = \mat{B}_{k}^\top\mat{A}_{k}$ after $\mat{A}_k$ gets updated and $\mat{D}_k$ which is the Hadamard of $\mat{C}_\ell's$, then add complexity analysis like I did above with references to the line numbers...}
 With this structure, the algorithm for computing CP decomposition with Kruskal tensor will be  
 \begin{algorithm}[!ht]
   \caption{CP-Round-ALS-NE}
