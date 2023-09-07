@@ -426,6 +426,18 @@ The cost for doing TTM on pairwise Q will be $\bar{n}(r^d + r^{d-1}+\cdots + r^2
 The rest computation holds the same for explicit QR dense case.
 Overall, the sum of all costs will be 
 $$O(dr^2\bar n + r^4 + d\hat n^d r + d\bar n(r^d + \cdots + r^2))$$
+
+\GB{New analysis starts here...}
+
+The cost of the factor matrix QR in \cref{l:cp-als-q-exp:updateQR} is $4n_kr^2+O(r^3)$ in mode $k$.
+The cost of the Multi-TTM in \cref{l:pairwise-TTM} is the same as in \cref{alg:cp-als-qr}: $2\hat{n}^dr+O(\hat{n}^{d-1}r^2 + \cdots + \hat{n}r^d)$.
+The permutation has no arithmetic cost, though in practice it may take significant time due to the high relative cost of memory movement.
+The pairwise QR decompositions together cost $4(d-2)r^4 + O(dr^3)$ for mode $k$, and applying the pairwise orthogonal factors via TTM costs a total of $2n_kr^d+2n_kr^{d-1}+\cdots+2n_kr^3$.
+The triangular solve in \cref{l:cp-als-q-exp:solve} costs $n_kr^2$.
+Thus, the total cost of a full iteration (updating each factor matrix once) of CP-ALS-QR-Imp is
+$$ 2d\hat{n}^d + 2d\bar{n}r^d + 4d^2r^4 + O(d\hat{n}^{d-1}r^2 + d\bar{n}r^{d-1}). $$
+The leading order cost can be reduced by a factor of $O(d)$ via memoization \cite{KR19}.
+
 \subsubsection{Kruskal Input}
 
 With Kruskal input, we can use the Kruskal structure $\mat{X}_{(k)} = \mat{B}_{k}(\mat{B}_{d} \odot \dots \odot \mat{B}_{k+1} \odot \mat{B}_{k-1}  \odot \dots \odot \mat{B}_{1})^\top$. 
@@ -460,10 +472,16 @@ For applying pairwise Qs, it takes $O((d-2)r^2\bar{n}^2 + r^3\bar{n}^2)$.
 
 
 
+\GB{New analysis here...}
 
-
-
-
+For Kruskal input of rank $s$, we first consider the costs of the factor matrix QR decompositions and applying the individual orthogonal factors.
+In mode $k$, the cost of the QR in \cref{l:Pair-K-update} is $4n_kr^2$, and the cost of applying the explicit orthogonal factor to the corresponding input factor matrix is $2n_krs$.
+Performing the pairwise QR decompositions and applying the explicit orthogonal factors occurs in \cref{l:pair-QR-R,l:pair-QR-Rapply}.
+For each subiteration, the cost of the two operations, which are both performed $d-2$ times, is $4dr^4+2dr^3s+O(r^4)$.
+The final multiplication and triangular solve in \cref{l:Pair-K-matmul,l:Pair-K-solve} together cost $2n_krs+n_kr^2$.
+Performing a full iteration and updating each factor matrix once has total cost
+$$ 4d\bar{n}rs + 5d\bar{n}r^2 + 2d^2r^3s + 4d^2r^4 + O(r^4). $$
+The terms involving factors of $d^2$ can likely be reduced by a factor of $d$ via memoization.
 
 \subsection{Complexity}
 \AZ{I don't think current cost analysis is exactly right so I will wait until algorithm part is finished.I don't know whether it is necessary to have two table showing dense and Kruskal case seperately.}
