@@ -309,8 +309,17 @@ With this structure, the algorithm for computing CP decomposition with Kruskal t
   
 \end{algorithm}
 
-The cost when having a Kruskal input is basically the same as dense case. Except for $\mat{X}_{(n)}\mat{Z}_n$ (in \cref{l:round-ne-cross} and \cref{l:round-ne-rhs}) which we only need to do hadamard product requires $O(sn_kr)$ instead of $2\hat{n}^dr$.
+%The cost when having a Kruskal input is basically the same as dense case. Except for $\mat{X}_{(n)}\mat{Z}_n$ (in \cref{l:round-ne-cross} and \cref{l:round-ne-rhs}) which we only need to do hadamard product requires $O(sn_kr)$ instead of $2\hat{n}^dr$.
 
+When the input is a Kruskal tensor of rank $s>r$, the cost is dominated by the computation of the right hand side of the normal equations.
+These costs, incurred in \cref{l:round-ne-rhs,l:NE-K-cross}, are $2n_krs+(d-2)rs$ and $n_krs$ in mode $k$, respectively.
+Computing the coefficient matrix of the normal equations occurs in \cref{l:round-ne-gram,l:NE-K-Gram} and has costs $(d-2)r^2$ and $n_kr^2$ in mode $k$.
+Solving the normal equations in \cref{l:NE-K-solve} costs $2n_kr^2 + O(r^3)$.
+Thus, the sum of an entire CP-Round-ALS-NE iteration (updating all factor matrices once) is given by
+\begin{equation*}
+4d\bar{n}rs + 3d\bar{n}r^2 + O(d^2rs + d^2r^2 + r^3).
+\end{equation*}
+We note that the $O(d^2rs+d^2r^2)$ terms can be reduced to $O(drs+dr^2)$ using memoization. 
 
 
 \subsection{CP-ALS-Explicit-QR}
@@ -342,15 +351,24 @@ Sample pseudocode for CP-ALS-QR is showed in \cref{alg:cp-als-qr}
   \label{alg:cp-als-qr}
   \input{algo/cp_als_qr.tex}
 \end{algorithm}
+
 \subsubsection{Dense Input}
-The difference between dense and Kruskal tensor is the computation of $\mat{Y}_{(k)}$. In dense case, the computation is doing tensor times matrix (TTM) through all modes.
-$$\T[]{Y} = \T[]{X} \times_1 \mat{Q}_1^\top \times \dots \times_{k-1} \mat{Q}_{k-1}^\top \times_{k+1}\mat{Q}_{k+1}^\top \times \dots \times_d \mat{Q}_d^\top$$
-and use matricized tensor $\mat{Y}_{(k)}$ times $\mat{Q}_0$.
-The computation of QR for factor matrices in \cref{l:qr_factor_q} takes $(d-2)r^2\bar{n}$. 
-The QR for Khatri-Rao product of $\mat{R}$ in \cref{l:EXP-QR-R} takes $O(r^{d+1})$ overall. 
-The cost for doing Multi-TTM will be $\hat{n}^dr$ and $\mat{U}_k = \mat{Y}_{(k)}\mat{Q}_0$ in \cref{l:apply} will be $\bar{n}r^d$.
-Overall, the sum of cost along all modes for CP-ALS-Explicit-QR will be
-$$O(d^2r^2\bar{n} + dr^{d+1} + d\hat{n}^dr + d\bar{n}r^d)$$
+%The difference between dense and Kruskal tensor is the computation of $\mat{Y}_{(k)}$. 
+For dense input, the computation of each subiteration is dominated by \cref{l:EXP-TTM}, which is a multiple tensor-times-matrix (Multi-TTM) computation to form $\T{Y}$ with cost
+$2\hat{n}^dr+O(\hat{n}^{d-1}r^2 + \cdots + \hat{n}r^d)$, where we assume the Multi-TTM is performed in order of largest mode to smallest (the largest mode is at least the geometric mean).
+The cost of the QR of the Khatri-Rao product of triangular factors in \cref{l:EXP-QR-R} is $4r^{d+1}+O(r^3)$, where we assume $\mat{Q}_0$ is formed explicitly.
+The cost of multiplying $\mat{Q}_0$ by $\mat{Y}_{(k)}$ in \cref{l:apply} is $2n_kr^d$.
+Solving the triangular system in \cref{l:cp-als-q-exp:solve} costs $n_kr^2$, and computing the QR of the factor matrix in \cref{l:cp-als-q-exp:updateQR} is $4n_kr^2+O(r^3)$, where again we form the orthogonal factor explicitly.
+%
+%$$\T[]{Y} = \T[]{X} \times_1 \mat{Q}_1^\top \times \dots \times_{k-1} \mat{Q}_{k-1}^\top \times_{k+1}\mat{Q}_{k+1}^\top \times \dots \times_d \mat{Q}_d^\top$$
+%and use matricized tensor $\mat{Y}_{(k)}$ times $\mat{Q}_0$.
+%The computation of QR for factor matrices in \cref{l:qr_factor_q} takes $(d-2)r^2\bar{n}$. 
+%The QR for Khatri-Rao product of $\mat{R}$ in \cref{l:EXP-QR-R} takes $O(r^{d+1})$ overall. 
+%The cost for doing Multi-TTM will be $\hat{n}^dr$ and $\mat{U}_k = \mat{Y}_{(k)}\mat{Q}_0$ in \cref{l:apply} will be $\bar{n}r^d$.
+Overall, the cost of updating factor matrices along all modes for CP-ALS-QR-Exp is
+$$2d\hat{n}^dr + O(d\hat{n}^{d-1}r^2 + \cdots + d\hat{n}r^d + d\bar{n}r^d+ dr^{d+1} + d\bar{n}r^2 + dr^3 ).$$
+Note that the leading order term (and several others) can be reduced by a factor of $O(d)$ using memoization \cite{KR19}.
+
 \subsubsection{Kruskal Input}
 If we have a Kruskal tensor input, the computation of right hand side will be more efficient by applying cross product for $\mat{Q}_k^\top\mat{B}_k$
 \begin{equation}
@@ -363,10 +381,15 @@ We can treat $\mat{Q}_0$ as a matricized tensor and we can compute this as MTTKR
   \label{alg:cp-als-qr-k}
   \input{algo/cp_als_qr_kruskal.tex}
 \end{algorithm}
-The cost for this algorithm is also similar to the code in dense case. However, in \cref{l:EXP-K-Apply}, the cost is $O(snr)$.
-and in \cref{l:EXP-mttkrp} the MTTKRP dominates the cost which is $(\hat{n}^dr)$.
 
-
+%The cost for this algorithm is also similar to the code in dense case. However, in \cref{l:EXP-K-Apply}, the cost is $O(snr)$.
+%and in \cref{l:EXP-mttkrp} the MTTKRP dominates the cost which is $(\hat{n}^dr)$.
+In the case of Kruskal input, the costs of \cref{l:cp-round-als-exp-qr,l:cp-round-qr-solve,l:cp-round-qr-updateqr} are identical to the corresponding lines in \cref{alg:cp-als-qr}, with combined cost of $4r^{d+1}+9n_kr^2+O(r^3)$ in mode $k$.
+The cost of \cref{l:EXP-mttkrp}, which we implement as an MTTKRP, is $2r^ds$.
+The cost of the matrix multiplications in \cref{l:exp-finish-rhs,l:EXP-K-update-cross} together is $4n_krs$.
+Thus, the overall cost of CP-Round-ALS-QR-Exp is
+$$ 2dr^ds + 4dr^{d+1} + O(d\bar{n}rs+d\bar{n}r^2 + r^3).$$
+Again, it is possible to reduce the leading order costs by a factor of $O(d)$ via memoization.
 
 \subsection{CP-ALS-Pairwise-QR}
 \subsubsection{Algo}

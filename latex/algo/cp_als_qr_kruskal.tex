@@ -9,11 +9,11 @@
       \EndFor
       \While{not converged}
         \For{$k = 1, \dots, d$}
-          \State $[\mat{Q}_0,\mat{R}_0] = \Call{QR}{\mat{R}_d \odot \cdots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \cdots \odot \mat{R}_1}$ \Comment{compute explicit QR}
-          \State $\mat{D}_k = (\mat{C}_d \odot \cdots \mat{C}_{k+1} \odot \mat{C}_{k-1} \odot \cdots \odot \mat{C}_1)^\top\mat{Q}_0$ \Comment{MTTKRP}
-          \State $\mat{U}_k = \mat{B}_k\mat{D}_k$ \Comment{via matrix multiplication} \label{l:EXP-mttkrp}
-          \State Solve $\mat{A}_k\mat{R}_0^\top = \mat{U}_k$ for $\mat{A}_k$ \Comment{via triangular solve}
-          \State $[\mat{Q}_k,\mat{R}_k] = \Call{QR}{\mat{A}_k}$ \Comment{update QR}   
+          \State $[\mat{Q}_0,\mat{R}_0] = \Call{QR}{\mat{R}_d \odot \cdots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \cdots \odot \mat{R}_1}$ \Comment{compute explicit QR} \label{l:cp-round-als-exp-qr}
+          \State $\mat{D}_k = (\mat{C}_d \odot \cdots \mat{C}_{k+1} \odot \mat{C}_{k-1} \odot \cdots \odot \mat{C}_1)^\top\mat{Q}_0$ \Comment{MTTKRP} \label{l:EXP-mttkrp}
+          \State $\mat{U}_k = \mat{B}_k\mat{D}_k$ \Comment{via matrix multiplication} \label{l:exp-finish-rhs}
+          \State Solve $\mat{A}_k\mat{R}_0^\top = \mat{U}_k$ for $\mat{A}_k$ \Comment{via triangular solve} \label{l:cp-round-qr-solve}
+          \State $[\mat{Q}_k,\mat{R}_k] = \Call{QR}{\mat{A}_k}$ \Comment{update QR} \label{l:cp-round-qr-updateqr}
           \State $\mat{C}_k = \mat{Q}_k^\top\mat{B}_k$  \label{l:EXP-K-update-cross} \Comment{update cross product}  
         \EndFor
       \EndWhile
