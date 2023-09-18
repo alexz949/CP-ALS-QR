@@ -302,8 +302,7 @@ Thus, the sum of an entire CP-ALS-NE iteration (updating all factor matrices onc
 \begin{equation*}
 2d\hat n^dr + O(d\bar n r^2 + d^2r^2 + dr^3).
 \end{equation*}
-We note that the leading order term can be reduced to $4\hat n^d r$ and the $O(d^2r^2)$ term can be reduced to $O(dr^2)$ using memoization \cite{phan2013fast}. \GB{add citation here}.
-
+We note that the leading order term can be reduced to $4\hat n^d r$ and the $O(d^2r^2)$ term can be reduced to $O(dr^2)$ using memoization \cite{phan2013fast}. 
 \subsubsection{Kruskal Input}
 If the input tensor $\T{X}=[\![\mat{B}^{(1)}, \dots ,\mat{B}^{(d)}]\!]$ is already in Kruskal format (see \cref{sec:cp-rounding}), we can compute the MTTKRP more efficiently using the following identity:
 \begin{align*}
@@ -422,11 +421,9 @@ The sample pseudocode is showed in \cref{alg:cp-als-pairwise-qr}
   \label{alg:cp-als-pairwise-qr}
   \input{algo/cp_als_pairwise.tex}
 \end{algorithm}
+
+
 \subsubsection{Dense Input}
-
-
-
-\GB{New analysis starts here...}
 
 The cost of the factor matrix QR in \cref{l:cp-als-q-exp:updateQR} is $4n_kr^2+O(r^3)$ in mode $k$.
 The cost of the Multi-TTM in \cref{l:pairwise-TTM} is the same as in \cref{alg:cp-als-qr}: $2\hat{n}^dr+O(\hat{n}^{d-1}r^2 + \cdots + \hat{n}r^d)$.
@@ -533,19 +530,52 @@ If we already have a Kruskal tensor as input, the distribution of time on differ
 
 
 
-\section{Result}
-To test our new QR-based method, we setup an problem which is sine of sums sin$(x_1+\dots+ x_d)$ approximation problem.
-Usually this sine wave can be represented in $2^{d-1}$ term, for example
-$$\text{sin}(x_1+x_2+x_3) = \text{sin}(x_1)\text{cos}(x_2)\text{cos}(x_3)+\text{cos}(x_1)\text{cos}(x_2)\text{sin}(x_3)$$
-$$+\text{cos}(x_1)\text{sin}(x_2)\text{cos}(x_3) - \text{sin}(x_1)\text{sin}(x_2)\text{sin}(x_3)$$
-In this test, we need to approximate this N-dimensional function in a low rank linear representation instead of a exponential one, which by Beylkin and Mohlenkamp,
-$$\text{sin}\bigl(\sum^d_{j=1}x_j\bigr) = \sum^d_{j=1}\text{sin}(x_j)\prod^d_{k=1,k\neq j}\frac{\text{sin}(x_k - \alpha_k -\alpha_j)}{\text{sin}(\alpha_k - \alpha_j)}$$
-for all choices of  ${\alpha_j}$ such that $\text{sin}(\alpha_k - \alpha_j) \neq 0$ for all $j \neq k$.
+\section{Experimental Results}
 
-We can somehow treat this sine of sum be a N-mode tensor $\T{X} \in \mathbb{R}^{n \times \dots \times n}$, and each term of exponential representation corresponds to a rank $2^{d-1}$ CP decomposition. 
-It is also possible to have a rank $n$ CP decomposition by the linear representation mentioned above. 
-This representation can be ill-conditioned if $\alpha_k \rightarrow \alpha_j$.
-In the actual problem setup, we make $a_k$ and $a_j$ to be evenly spaced between $\frac{\pi}{d}\frac{(d-1)}{100}$. 
+\GB{Okay, these results are a bit of a mess, maybe we need to talk through organization; here are what I think the main ideas we want to illustrate:}
+\begin{enumerate}
+	\item Explicit QR is slow due to QR decomposition and applying explicit Q
+	\begin{itemize}
+		\item Fig 3a (7-way case) shows this with a bar breakdown
+		\item Table reporting overall times from Fig 2 would also illustrate this (right now figure is kind of useless)
+	\end{itemize}
+	\item Pairwise QR is comparable to NE in time
+	\begin{itemize}
+		\item similar to Fig 2, vary $n$ and $d$ combinations with bar plots but leave off Exp QR
+	\end{itemize}
+	\item Pairwise QR is more accurate than NE
+	\begin{itemize}
+		\item vary condition number, report backward and forward error, I think you have data for this?
+	\end{itemize}
+	\item When you plug this into CP-ALS, you get better accuracy and time
+	\begin{itemize}
+		\item Figure 4 illustrates this for $d=7$
+	\end{itemize}
+\end{enumerate}
+\GB{end of outline}
+
+
+To test the accuracy and efficiency of the QR-based method, we use a discretization of sine of sums: $\sin(x_1+\dots+ x_d)$.
+Repeated use of the textbook sine of sums identity for two variables, we obtain a $2^{d-1}$-term separated representation of the function.
+For example, 
+\begin{equation*}
+\begin{split}
+\sin(x_1+x_2+x_3) = \sin(x_1)\cos(x_2)\cos(x_3)+\cos(x_1)\cos(x_2)\sin(x_3) \\
++\cos(x_1)\sin(x_2)\cos(x_3) - \sin(x_1)\sin(x_2)\sin(x_3).
+\end{split}
+\end{equation*}
+\GB{Shouldn't there be two negative terms in this expression?}
+As described in previous work \cite{BM02,MVLB23}, there exists a $d$-term separated representation of the form
+$$\sin\left(\sum^d_{j=1}x_j\right) = \sum^d_{j=1}\sin(x_j)\prod^d_{k=1,k\neq j}\frac{\sin(x_k - \alpha_k -\alpha_j)}{\sin(\alpha_k - \alpha_j)}$$
+for all choices of  ${\alpha_j}$ such that $\sin(\alpha_k - \alpha_j) \neq 0$ for all $j \neq k$.
+Our goal is to compute this much more efficient $d$-term representation using the $2^{d-1}$-term representation numerically using discretized representations of the functions.
+
+
+
+%We can somehow treat this sine of sum be a N-mode tensor $\T{X} \in \mathbb{R}^{n \times \dots \times n}$, and each term of exponential representation corresponds to a rank $2^{d-1}$ CP decomposition. 
+%It is also possible to have a rank $n$ CP decomposition by the linear representation mentioned above. 
+%This representation can be ill-conditioned if $\alpha_k \rightarrow \alpha_j$.
+%In the actual problem setup, we make $a_k$ and $a_j$ to be evenly spaced between $\frac{\pi}{d}\frac{(d-1)}{100}$. 
 
 The goal for this test is to see how the speed and accuracy of different algorithms will change when varying condition number $K$.
 We first created bunch of ktensors given different $d$. The least squares problems here are trying to approximate the last factor matrix in exponential representation. Comparing the relative error between approximated matrix and the factor matrix we formed in linear representation through built function. 
