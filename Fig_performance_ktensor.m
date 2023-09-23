@@ -14,11 +14,6 @@ maxNumCompThreads(1);
 % initialize
 tals = struct; tpinv = struct; tqr = struct; tpw = struct;
 
-
-
-
-
-
 %% 7-way
 % generate tensor
 d = 7;

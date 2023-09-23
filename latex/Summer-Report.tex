@@ -531,6 +531,7 @@ If we already have a Kruskal tensor as input, the distribution of time on differ
 
 
 \section{Experimental Results}
+\subsection*{Explain}
 
 \GB{Okay, these results are a bit of a mess, maybe we need to talk through organization; here are what I think the main ideas we want to illustrate:}
 \begin{enumerate}
@@ -570,7 +571,7 @@ $$\sin\left(\sum^d_{j=1}x_j\right) = \sum^d_{j=1}\sin(x_j)\prod^d_{k=1,k\neq j}\
 for all choices of  ${\alpha_j}$ such that $\sin(\alpha_k - \alpha_j) \neq 0$ for all $j \neq k$.
 Our goal is to compute this much more efficient $d$-term representation using the $2^{d-1}$-term representation numerically using discretized representations of the functions.
 
-
+\subsection*{Single LS problem}
 
 %We can somehow treat this sine of sum be a N-mode tensor $\T{X} \in \mathbb{R}^{n \times \dots \times n}$, and each term of exponential representation corresponds to a rank $2^{d-1}$ CP decomposition. 
 %It is also possible to have a rank $n$ CP decomposition by the linear representation mentioned above. 
@@ -579,25 +580,60 @@ Our goal is to compute this much more efficient $d$-term representation using th
 
 The goal for this test is to see how the speed and accuracy of different algorithms will change when varying condition number $K$.
 We first created bunch of ktensors given different $d$. The least squares problems here are trying to approximate the last factor matrix in exponential representation. Comparing the relative error between approximated matrix and the factor matrix we formed in linear representation through built function. 
-The table and figure for showing speed and accuracy is showed in \cref{fig:LS_problem}.
+The table for showing accuracy is showed in \cref{tab:LS_error}.
 
-\begin{figure}[ht!]
+\begin{table}[!ht] 
+  \centering
+  \begin{tabular}{|c|c|c|c|c|c|}
+    \hline
+    \multicolumn{1}{|c|}{\textbf{d}} & \multicolumn{1}{|c|}{\textbf{n}} & \multicolumn{1}{|c|}{\textbf{K}} & \multicolumn{1}{|c|}{\textbf{NE error}} & \multicolumn{1}{|c|}{\textbf{QR Exp error}} & \multicolumn{1}{|c|}{\textbf{QR Imp error}} \\
+    \hline
+    3 &1000&$10^4$ &  1.27e-08& 1.41e-12& 1.52e-12 \\
+    4 &100 &$10^6$& 7.01e-04& 1.59e-10& 1.55e-10\\
+    5&50 &$10^8$& 0.26& 2.11e-08 & 1.93e-08\\
+    6 & 25&$10^{10}$& 0.19& 2.35e-06 & 2.22e-06\\
+    7 & 15 & $10^{12}$ & 0.47 &0.003 & 2,99e-04\\
+    8 & 10& $10^{14}$ & 0.55 & 0.03 & 0.02\\
+    \hline
+  \end{tabular}
+  \caption{Relative error when solving LS problem using NE, QR Exp, and QR Imp}
+  \label{tab:LS_error}
+\end{table}
+We can observe in \cref{tab:LS_error}. As the size of our input tensor increases, the condition number $K$ for LHS matrices increase.
+The accuracy using NE starts leveling off when $K = 10^8$ but QR techniques hold the error small.
+\AZ{Feels like adding another column showing true error will be nice} 
+
+Figure indicating speed differencs is showed in \cref{fig:LS_problem_log}.
+\begin{figure}[!ht]
   
   \begin{center}
-    \includegraphics*[scale = 0.2]{6dim.jpg}
-    \caption[Figure]{runtime for pairwise QR, normal equation, and explicit QR in different dimensions \label{fig:LS_problem}}
-    \AZ{I need to add a table here}
+    \includegraphics*[scale = 0.35]{fig_log_runtime.jpg}
+    \caption[Figure]{log runtime respect to QR Imp for NE and Exp in different dimensions \label{fig:LS_problem_log}}
+
   \end{center}
     
 \end{figure}
-\AZ{For the table showing accuracy, I have a mat file but I don't know whether I should put that in latex table or through MATLAB}
 
-For speed figure \cref{fig:LS_problem}, we can observe that the time for doing QR on $\mat{R}_N \odot \dots \odot \mat{R}_1$ and applying $\mat{Q}_0$ increases exponentially respect to $d$ for Explicit QR algorithm.
-Whereas the cost for doing pairwise QR and NE only increases linearly respect to $d$.
-We can know that new QR-based method runs much faster than Explicit QR, and just slightly slower than NE because it still has steps for computing and apply QR.
-For accuracy table, 
+For speed figure \cref{fig:LS_problem_log}, the time for doing QR Exp still stands out after taking the log.
+This is because the time for computing QR on $\mat{R}_N \odot \dots \odot \mat{R}_1$ is exponential to $d$.
+The time for doing QR Imp is comparable to NE.
+Even in some sizes it is actually faster than NE.
+In the next breakdown figure, we will later see where the majority time goes.
+Take a closer look at NE and QR Imp techniques, \cref{fig:LS_problem_breakdown} further shows time distributions on NE and QR Imp on different computation components.
 
-Another thing to point out is that when dimension goes up more than 7, the explicit QR's error has a sudden increase which I believe it is because of too large Khatri-Rao product formation.
+\begin{figure}[!ht]
+  
+  \begin{center}
+    \includegraphics*[scale = 0.35]{fig_LS_breakdown.jpg}
+    \caption[Figure]{Breakdown of time distributions for NE and QR Imp\label{fig:LS_problem_breakdown}}
+
+  \end{center}
+    
+\end{figure}
+\AZ{Modification ends here}
+\subsection*{CP-ALS}
+
+
 
 \AZ{This figure needs to be double checked, feels like the time for Gram/QR is still not right.}
 In the next step, we put pairwise QR into CP-ALS which further compare the runtime and accuracy to CP-ALS-NE and CP-ALS-Explicit-QR. 
