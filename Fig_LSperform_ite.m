@@ -1,21 +1,20 @@
-
 clear
-n = [1000,100,50,25,15,10];
+n = [3000,600,200,70,30,10];
 per_data = struct;
-per_data.res = zeros(24,7);
+per_data.res = zeros(24,6);
 
 j = 1;
 tp = 1;
 for d = 3:8
   d
 t_krp = 0;
-t_back = 0;
+t_back_solve = 0;
 t_gram = 0;
-t_comp = 0;
-t_comp_apply = 0;
-t_par = 0;
-t_par_apply = 0;
-t_apply = 0;
+t_factor_QR = 0;
+t_apply_factor_QR = 0;
+t_QR_R = 0;
+t_apply_QR_R = 0;
+t_apply_gram = 0;
 
 
 
@@ -31,52 +30,69 @@ for i = 1 : d-1
 end
 
 %% test for exp QR
-tic
- K = khatrirao(Ty);
- 
- 
- t = toc; t_krp = t_krp + t;
+%% KRP
+
+K = khatrirao(Ty);
+
+
+
+%%QR on Factor matrices
 tic
 QF = cell(d-1,1);
 RF = cell(d-1,1);
 for i = 1 : d-1
     [QF{i},RF{i}] = qr(Ty{i},0);
 end
-t = toc; t_comp = t_comp + t;
+t = toc; t_factor_QR = t_factor_QR + t;
+
+
+%%QR on R
 tic
 Rk = khatrirao(RF);
 [Q0,R0] = qr(Rk,0);
-t = toc; t_par = t_par + t;
+t = toc; t_QR_R = t_QR_R + t;
+
+
 kappa = cond(K);
 XXy = cell(d-1,1);
+
+%%Apply factor QR to RHS
 tic
 for i =  1:d-1
     XXy{i} = QF{i}' * Xy{i};
 end
-t = toc; t_comp_apply = t_comp_apply + t;
-Kx = khatrirao(Xy);
+t = toc; t_apply_factor_QR = t_apply_factor_QR + t;
+Kx = khatrirao(XXy);
+
+
+
+%% Apply R's QR
 tic
 Kx = Q0' * Kx;
-t = toc; t_par_apply = t_par_apply + t;
+t = toc; t_apply_QR_R = t_apply_QR_R + t;
+
+
+%%solve time
 tic
  XXX = R0 \ (Kx * X.U{d}');
  T.U{d} = XXX';
- t = toc; t_back = t_back + t;
+ t = toc; t_back_solve = t_back_solve + t;
  
 %exp_err = norm(full(T) - full(X)) / norm(X)
  
- expt = [t_krp, t_comp,t_comp_apply,t_par,t_par_apply,t_apply,t_back];
+expt = [t_factor_QR,t_QR_R,t_apply_factor_QR,t_apply_QR_R,t_apply_gram,t_back_solve];
 
 t_krp = 0;
-t_back = 0;
+t_back_solve = 0;
 t_gram = 0;
-t_comp = 0;
-t_comp_apply = 0;
-t_par = 0;
-t_par_apply = 0;
-t_apply = 0;
+t_factor_QR = 0;
+t_apply_factor_QR = 0;
+t_QR_R = 0;
+t_apply_QR_R = 0;
+t_apply_gram = 0;
 
 %test for normal equation
+
 %Grams
 tic
 G = Ty{1}'*Ty{1};
@@ -90,27 +106,27 @@ C = Ty{1}'*Xy{1};
 for k=2:length(Xy)
     C = C .* (Ty{k}'*Xy{k});
 end
-t = toc; t_apply = t_apply + t;
+t = toc; t_apply_gram = t_apply_gram + t;
 
 tic
 % XX = (G \ C * X.U{d}')';
 % T.U{d} = XX;
 T.U{d} = X.U{d} * (C' / G);
-t = toc; t_back = t_back + t;
+t = toc; t_back_solve = t_back_solve + t;
 
 %normal_err = norm(full(T) - full(X)) / norm(X)
 
-nort = [t_krp, t_comp,t_comp_apply,t_par,t_par_apply,t_apply,t_back];
+nort = [t_gram,t_QR_R,t_apply_factor_QR,t_apply_QR_R,t_apply_gram,t_back_solve];
 
 
 t_krp = 0;
-t_back = 0;
+t_back_solve = 0;
 t_gram = 0;
-t_comp = 0;
-t_comp_apply = 0;
-t_par = 0;
-t_par_apply = 0;
-t_apply = 0;
+t_factor_QR = 0;
+t_apply_factor_QR = 0;
+t_QR_R = 0;
+t_apply_QR_R = 0;
+t_apply_gram = 0;
 
 
 
@@ -124,21 +140,21 @@ t_apply = 0;
 %condR = cond(Rp)
 
 tic
-XX = (Rp \ D)';
-T.U{d} = XX;
-t = toc; t_back = t_back+t;
+XX = (Rp \ D);
+T.U{d} = XX';
+t = toc; t_back_solve = t_back_solve+t;
 
-t_comp = ttc;
-t_comp_apply = ttp;
-t_par = tttc;
-t_par_apply = tttp;
+t_factor_QR = ttc;
+t_QR_R = ttp;
+t_apply_factor_QR = tttc;
+t_apply_QR_R = tttp;
 %pairwise_err = norm(full(T) - full(X)) / norm(X)
 
-part = [t_krp, t_comp,t_par,t_comp_apply,t_par_apply,t_apply,t_back];
+part = [t_factor_QR,t_QR_R,t_apply_factor_QR,t_apply_QR_R,t_apply_gram,t_back_solve];
 
 
 
-time = [part; nort;expt; 0 0 0 0 0 0 0];
+time = [part; nort;expt; 0 0 0 0 0 0 ];
 
 per_data.res(tp:tp+3,:) = time;
 tp = tp + 4;
@@ -147,19 +163,3 @@ j = j  +1;
 
 end
 save('per_data.mat','per_data');
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -588,12 +588,12 @@ The table for showing accuracy is showed in \cref{tab:LS_error}.
     \hline
     \multicolumn{1}{|c|}{\textbf{d}} & \multicolumn{1}{|c|}{\textbf{n}} & \multicolumn{1}{|c|}{\textbf{K}} & \multicolumn{1}{|c|}{\textbf{NE error}} & \multicolumn{1}{|c|}{\textbf{QR Exp error}} & \multicolumn{1}{|c|}{\textbf{QR Imp error}} \\
     \hline
-    3 &1000&$10^4$ &  1.27e-08& 1.41e-12& 1.52e-12 \\
-    4 &100 &$10^6$& 7.01e-04& 1.59e-10& 1.55e-10\\
-    5&50 &$10^8$& 0.26& 2.11e-08 & 1.93e-08\\
-    6 & 25&$10^{10}$& 0.19& 2.35e-06 & 2.22e-06\\
-    7 & 15 & $10^{12}$ & 0.47 &0.003 & 2,99e-04\\
-    8 & 10& $10^{14}$ & 0.55 & 0.03 & 0.02\\
+    3 &1000&$10^4$ &  $1\times 10^{-8}$& $1\times 10^{-12}$& $1\times10^{-12}$ \\
+    4 &100 &$10^6$& $7\times 10^{-4}$& $1\times 10^{-10}$& $1\times 10^{-10}$\\
+    5&50 &$10^8$& $2\times 10^{-1}$& $2\times 10^{-8}$ & $1\times 10^{-8}$\\
+    6 & 25&$10^{10}$& $1\times 10^{-1}$& $2\times 10^{-6}$ & $2\times 10 ^{-6}$\\
+    7 & 15 & $10^{12}$ & $4 \times 10^{-1} $&$3\times 10^{-3}$ & $2\times 10^{-4}$\\
+    8 & 10& $10^{14}$ & $5\times 10^{-1}$ & $3\times 10^{-2}$ & $2\times 10^{-2}$\\
     \hline
   \end{tabular}
   \caption{Relative error when solving LS problem using NE, QR Exp, and QR Imp}
@@ -603,7 +603,7 @@ We can observe in \cref{tab:LS_error}. As the size of our input tensor increases
 The accuracy using NE starts leveling off when $K = 10^8$ but QR techniques hold the error small.
 \AZ{Feels like adding another column showing true error will be nice} 
 
-Figure indicating speed differencs is showed in \cref{fig:LS_problem_log}.
+Figure indicating speed differences is showed in \cref{fig:LS_problem_log}.
 \begin{figure}[!ht]
   
   \begin{center}
@@ -618,8 +618,7 @@ For speed figure \cref{fig:LS_problem_log}, the time for doing QR Exp still stan
 This is because the time for computing QR on $\mat{R}_N \odot \dots \odot \mat{R}_1$ is exponential to $d$.
 The time for doing QR Imp is comparable to NE.
 Even in some sizes it is actually faster than NE.
-In the next breakdown figure, we will later see where the majority time goes.
-Take a closer look at NE and QR Imp techniques, \cref{fig:LS_problem_breakdown} further shows time distributions on NE and QR Imp on different computation components.
+In the next breakdown figure \cref{fig:LS_problem_breakdown}, we will later see where the majority time goes.
 
 \begin{figure}[!ht]
   
@@ -628,30 +627,34 @@ Take a closer look at NE and QR Imp techniques, \cref{fig:LS_problem_breakdown} 
     \caption[Figure]{Breakdown of time distributions for NE and QR Imp\label{fig:LS_problem_breakdown}}
 
   \end{center}
-    
+  \AZ{This figure needs to be double checked, feels like the time for Gram/QR is still not right.}
 \end{figure}
-\AZ{Modification ends here}
-\subsection*{CP-ALS}
+
+\subsection*{CP results}
 
 
 
-\AZ{This figure needs to be double checked, feels like the time for Gram/QR is still not right.}
-In the next step, we put pairwise QR into CP-ALS which further compare the runtime and accuracy to CP-ALS-NE and CP-ALS-Explicit-QR. 
-There are also some visualizations showed in \cref{fig:runtime} and \cref{fig:error}
+
+
+In the next step, we put QR Imp into CP-ALS which further compare the runtime and accuracy to CP-Round-ALS-NE and CP-Round-ALS-QR-Exp. 
+This is known that cost of QR Exp is exponential to $d$, which will take longer than the rest when solving a LS problem.
+This case is further amplified when doing CP-ALS with more computation needed.
 \begin{figure}[ht!]
   \begin{center}
     
     \includegraphics[scale = 0.15]{7runtime.jpg}
     \caption[Figure]{runtime for NE, pairwise QR and Explicit QR in different dimensions \label{fig:runtime}}
+    \AZ{Depends on how to count QR}
   \end{center}
 \end{figure}
 
 
+As showed in \cref{fig:runtime}, we created a 7-way sine of sums ktensor and varied its dimentions $n$ to see how each approach cost changes.
+On the right, it shows that the execution time for QR Exp always has a large cost despite varying dimensions $n$. 
+Both NE and QR Imp approaches are more efficient.
+On the left side, we took off QR Exp to closer look at cost for NE and QR Imp. The cost for QR Imp is comparable to NE and it is even faster than NE when dimension is 2000. 
+This can be more clearly seen on the right figure of \cref{fig:error}.
 
-
-As showed in \cref*{fig:runtime}, for a 7-way sine of sum rank-7 ktensor, the execution time for CP-ALS-Explicit-QR always has a large cost despite varying dimensions. 
-Both ALS-NE and ALS-Pairwise-QR technique are more efficient.
-For pairwise QR, it is even faster than ALS using normal equation when dimension is 2000. This can be more clearly seen in \cref{fig:error}.
 In order to further compare the accuracy and time for NE and Pairwise QR algorithm, we put them into a larger dimensions scales from $n = 8$ to $20000$ in \cref{fig:error}.
 
 \begin{figure}[ht!]

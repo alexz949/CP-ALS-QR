@@ -1,11 +1,11 @@
 clear
 load('per_data.mat')
 sum_mat = zeros(1,24);
-%%
+
 for i = 1:24
     sum_mat(i) = sum(per_data.res(i,:));
 end
-sum_mat'
+
 sum_mat(1:3) = sum_mat(1:3)/ sum_mat(1);
 sum_mat(5:7) = sum_mat(5:7)/ sum_mat(5);
 sum_mat(9:11) = sum_mat(9:11)/ sum_mat(9);
@@ -13,9 +13,10 @@ sum_mat(13:15) = sum_mat(13:15)/ sum_mat(13);
 sum_mat(17:19) = sum_mat(17:19)/ sum_mat(17);
 sum_mat(21:23) = sum_mat(21:23)/ sum_mat(21);
 
+sum_mat'
 %normalize and take log
 log_sum_mat = log(sum_mat +1);
-
+log_sum_mat'
 speed_mat = zeros(1,24);
 
 
@@ -25,7 +26,7 @@ speed_mat(9:11) = log_sum_mat(9:11)/ log_sum_mat(9);
 speed_mat(13:15) = log_sum_mat(13:15)/ log_sum_mat(13);
 speed_mat(17:19) = log_sum_mat(17:19)/ log_sum_mat(17);
 speed_mat(21:23) = log_sum_mat(21:23)/ log_sum_mat(21);
-
+%%
 
 figure,
 a = gca;

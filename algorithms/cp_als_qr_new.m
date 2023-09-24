@@ -122,12 +122,13 @@ Qs = cell(N,1); %%% The Kronecker product of these tells us part of the Q of the
 Rs = cell(N,1); %%% The Khatri-Rao product of these tells us the rest of Q and the R of the Khatri-Rao product. %%%
 
 %%% Compute economy-sized QR decomposition. %%%
+tic;
 for i = 1:N
     if ~isempty(U{i})
         [Qs{i}, Rs{i}] = qr(U{i},0); 
-        
     end
 end
+test = toc;
 %%% TTM on all modes but the first one
 extra = 0;
 tic;
@@ -264,7 +265,7 @@ for iter = 1:maxiters
         break;
     end     
     
-    times(iter,:) = [t_ttm+extra, t_qrf, t_kr, t_q0, t_back, t_lamb, t_err];
+    times(iter,:) = [t_ttm+extra, t_qrf+test, t_kr, t_q0, t_back, t_lamb, t_err];
 end   
 
 

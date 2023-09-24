@@ -20,7 +20,7 @@ d = 7;
 
 
 r = 7;
-n = [500,1000,2000];
+n = [500,1000,2500];
 maxiter = 10;
 tol = 1e-10;
 
@@ -67,7 +67,7 @@ end
 %% prep data
 sdata7 = [];
 for i = 1:3
-    sdata7 = [sdata7; nals7(i,:);nqr7(i,:); npw7(i,:); zeros(1,5)];
+    sdata7 = [sdata7; nals7(i,:); npw7(i,:);nqr7(i,:); zeros(1,5)];
 end
 
 
@@ -76,9 +76,9 @@ end
 eMat = zeros(9,5);
 j = 1;
 for i = 1:12
-    if(i ~= 2)
-        if(i~=6)
-            if(i~=10)
+    if(i ~= 3)
+        if(i~=7)
+            if(i~=11)
                 eMat(j,:) = sdata7(i,:);
                 j = j+1;
             end
@@ -94,38 +94,42 @@ sgtitle('Average runtime for 7-way tensor with different QR-ALS methods')
 subplot(1,2,1)
 
 bar(sdata7,'stacked')
-ax = gca;
-ax.FontSize = 16;
+a = gca;
+
 xlabel('dimensions','FontSize',18)
 ylabel('runtime (secs)','FontSize',18)
 %ylim([0 430])
 xticks([0:12])
-xticklabels({'','NE','Exp QR','Pairwise QR','','NE','EXP QR','Pairwise QR','','NE','EXP QR','Pairwise QR'})
+xticklabels({'','NE','QR Imp','QR Exp','','NE','QR Imp','QR Exp','','NE','QR Imp','QR Exp'})
 % text(2.5,55,num2str(round(ratios.N5(1),1)),'fontsize',14)
 % text(7.5,80,num2str(round(ratios.N5(2),1)),'fontsize',14)
 % text(12.5,305,num2str(round(ratios.N5(3),1)),'fontsize',14)
-v = -0.0005;
-text(1,v,'500','fontsize',18)
-text(5,v,'1000','fontsize',18)
-text(10,v,'2000','fontsize',18)
+a.XRuler.TickLabelGapOffset = 15;   
+a.YRuler.TickLabelGapOffset = 15;
+v = -0.005;
+text(1,v,'500','fontsize',16)
+text(5,v,'1000','fontsize',16)
+text(10,v,'2000','fontsize',16)
 
 
 subplot(1,2,2)
 bar(eMat,'stacked')
-ax = gca;
-ax.FontSize = 16;
+a = gca;
+
 xlabel('dimensions','FontSize',18)
 ylabel('runtime (secs)','FontSize',18)
 %ylim([0 430])
 
 xticks([0:9])
-xticklabels({'','NE','Pairwise QR','','NE','Pairwise QR','','NE','Pairwise QR'})
+xticklabels({'','NE','QR Imp','','NE','QR Imp','','NE','QR Imp'})
+a.XRuler.TickLabelGapOffset = 15;   
+a.YRuler.TickLabelGapOffset = 15;
 % text(2.5,55,num2str(round(ratios.N5(1),1)),'fontsize',14)
 % text(7.5,80,num2str(round(ratios.N5(2),1)),'fontsize',14)
 % text(12.5,305,num2str(round(ratios.N5(3),1)),'fontsize',14)
-v = -0.0005;
-text(1,v,'500','fontsize',18)
-text(4,v,'1000','fontsize',18)
-text(7,v,'2000','fontsize',18)
+v = -0.0002;
+text(1,v,'500','fontsize',16)
+text(4,v,'1000','fontsize',16)
+text(7,v,'2000','fontsize',16)
 lgd = legend('MTTKRP/TTM','Gram/QR','Compute QR on R','Apply QR on R','Other','fontsize',16)
 fontsize(lgd,10,'points');
