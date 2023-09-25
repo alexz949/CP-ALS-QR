@@ -496,7 +496,7 @@ If we want to do the rank-$r$ CP Decomposition for different ALS methods, the di
     N/A & &Apply $\mat{Q}_0$& $2d\bar n r^d$& Apply $\tilde{\mat{Q}}\tilde{\mat{R}}$& $2d\bar n r^d$\\
     \hline
   \end{tabular}
-  \caption{Breakdown of main component when solving LS problem using NE, explicit QR, implicit QR along all modes}
+  \caption{Breakdown of main component when using NE, explicit QR, implicit QR along all modes}
   \label{tab:dense_its_part}
 \end{table}
 
@@ -641,21 +641,34 @@ This is known that cost of QR Exp is exponential to $d$, which will take longer 
 This case is further amplified when doing CP-ALS with more computation needed.
 \begin{figure}[ht!]
   \begin{center}
-    
-    \includegraphics[scale = 0.15]{7runtime.jpg}
-    \caption[Figure]{runtime for NE, pairwise QR and Explicit QR in different dimensions \label{fig:runtime}}
-    \AZ{Depends on how to count QR}
+    \includegraphics[scale = 0.2]{7runtime.jpg}
+    \caption[Figure]{runtime for NE, QR Imp and QR Exp in different dimensions in each subinteration \label{fig:runtime}}
   \end{center}
 \end{figure}
 
 
-As showed in \cref{fig:runtime}, we created a 7-way sine of sums ktensor and varied its dimentions $n$ to see how each approach cost changes.
-On the right, it shows that the execution time for QR Exp always has a large cost despite varying dimensions $n$. 
-Both NE and QR Imp approaches are more efficient.
-On the left side, we took off QR Exp to closer look at cost for NE and QR Imp. The cost for QR Imp is comparable to NE and it is even faster than NE when dimension is 2000. 
-This can be more clearly seen on the right figure of \cref{fig:error}.
+As showed in \cref{fig:runtime}, we created 3-way, 5-way, and 7-way ktensors to show time distributions for each component.
+We also varied its dimentions $n$ to see how each approach cost changes.
+On the top right, a 3-way ktensor shows that the execution time for QR Imp actually cost more than rest two.
+This is because applying pairwise QR takes $d^2r^4$ which is more than the exponential part in QR Exp which is only $dr^{3+1}$.
+For 5-way and 7-way ktensor, cost for QR Exp starts increaing exponentially.
+Once $d$ is large, both NE and QR Imp approaches are more efficient.
 
-In order to further compare the accuracy and time for NE and Pairwise QR algorithm, we put them into a larger dimensions scales from $n = 8$ to $20000$ in \cref{fig:error}.
+
+\begin{figure}[ht!]
+  \begin{center}
+    \includegraphics[scale = 0.3]{7breakdown.jpg}
+    \caption[Figure]{runtime for NE, QR Imp for a 7-way tensor \label{fig:7breakdown}}
+    \AZ{Depends on how to count QR}
+  \end{center}
+\end{figure}
+
+In \cref{fig:7breakdown} we took off QR Exp for a 7-way tensor to closer look at cost for NE and QR Imp.  
+The cost for QR Imp is comparable to NE and it is even faster than NE when dimension is 2000. 
+
+
+
+In order to further compare the accuracy and time for NE and Pairwise QR algorithm, we put them into a larger dimensions scales from $n = 8$ to $20000$ in same 7-way ktensor in \cref{fig:error}.
 
 \begin{figure}[ht!]
   \begin{center}

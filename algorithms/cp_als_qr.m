@@ -122,7 +122,7 @@ Qs = cell(N,1); %%% The Kronecker product of these tells us part of the Q of the
 Rs = cell(N,1); %%% The Khatri-Rao product of these tells us the rest of Q and the R of the Khatri-Rao product. %%%
 
 %%% Compute economy-sized QR decomposition. %%%
-qrf = 0;
+
 tic;
 for i = 1:N
     if ~isempty(U{i})

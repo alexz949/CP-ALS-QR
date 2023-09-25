@@ -6,7 +6,7 @@ maxNumCompThreads(1);
 tals = struct; tpinv = struct; tqr = struct; tsvd = struct;
 d = 7;
 r = 7;
-maxdim = 2000;
+maxdim = 20000;
 n = [8:20:maxdim];
 
 maxiter = 10;
@@ -59,7 +59,7 @@ plot(n(1:10:end),qr_new_time(1:10:end),n(1:10:end),als_time(1:10:end))
 title("Execution Time, d = 7")
 xlabel("dimensions (n)")
 ylabel("runtime (sec)")
-legend("CP-ALS-QR", "CP-ALS")
+legend("QR Imp", "NE")
 
 
 

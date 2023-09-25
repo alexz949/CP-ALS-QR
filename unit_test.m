@@ -1,10 +1,10 @@
 clear
-d = 6;
-n = 10;
+d = 7;
+n = 16;
 
 T = sinsums(d,n);
-    X = sinsum_full(d,n);
-    true_err = norm(full(T) - full(X)) / norm(X);
+X = sinsum_full(d,n);
+    true_err = norm(full(T) - full(X)) / norm(X)
     
     % generate random ktensor fac tors
     Ty = cell(d-1,1);
