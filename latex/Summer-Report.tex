@@ -596,7 +596,7 @@ The table for showing accuracy is showed in \cref{tab:LS_error}.
     8 & 10& $10^{14}$ & $5\times 10^{-1}$ & $3\times 10^{-2}$ & $2\times 10^{-2}$\\
     \hline
   \end{tabular}
-  \caption{Relative error when solving LS problem using NE, QR Exp, and QR Imp}
+  \caption{Relative error when solving LS problem using NE, QR Exp, and QR Imp \GB{let's use \texttt{1.23e-4} formatting for $\kappa$ and errors; let's try to present both forward and backward error for each method}}
   \label{tab:LS_error}
 \end{table}
 We can observe in \cref{tab:LS_error}. As the size of our input tensor increases, the condition number $K$ for LHS matrices increase.
@@ -608,7 +608,7 @@ Figure indicating speed differences is showed in \cref{fig:LS_problem_log}.
   
   \begin{center}
     \includegraphics*[scale = 0.35]{fig_log_runtime.jpg}
-    \caption[Figure]{log runtime respect to QR Imp for NE and Exp in different dimensions \label{fig:LS_problem_log}}
+    \caption[Figure]{log runtime respect to QR Imp for NE and Exp in different dimensions \GB{so I guess we don't need both log axis and relative times; what we could do is go back to linear axis but show time breakdowns, leaving everything relative to QR Imp (then we can see that $Q_0$ kills QR Exp)}\label{fig:LS_problem_log}}
 
   \end{center}
     
@@ -624,7 +624,7 @@ In the next breakdown figure \cref{fig:LS_problem_breakdown}, we will later see 
   
   \begin{center}
     \includegraphics*[scale = 0.35]{fig_LS_breakdown.jpg}
-    \caption[Figure]{Breakdown of time distributions for NE and QR Imp\label{fig:LS_problem_breakdown}}
+    \caption[Figure]{Breakdown of time distributions for NE and QR Imp \GB{I want to consider making $n$ fixed as you scale up $d$; this should be no problem for timing, everything should increase linearly with $d$; I think backsolve is disproportionately large small $n$, and I think it's because Matlab is resorting to SVD (because of the ill-conditioning)} \label{fig:LS_problem_breakdown}}
 
   \end{center}
   \AZ{This figure needs to be double checked, feels like the time for Gram/QR is still not right.}
@@ -642,7 +642,7 @@ This case is further amplified when doing CP-ALS with more computation needed.
 \begin{figure}[ht!]
   \begin{center}
     \includegraphics[scale = 0.2]{7runtime.jpg}
-    \caption[Figure]{runtime for NE, QR Imp and QR Exp in different dimensions in each subinteration \label{fig:runtime}}
+    \caption[Figure]{runtime for NE, QR Imp and QR Exp in different dimensions in each subinteration \GB{I'd like to understand better why NE becomes fastest here (it wasn't true in the single LS case)} \label{fig:runtime}}
   \end{center}
 \end{figure}
 
