@@ -556,6 +556,8 @@ If we already have a Kruskal tensor as input, the distribution of time on differ
 \GB{end of outline}
 
 
+\subsection{Sine of Sums Tensor}
+
 To test the accuracy and efficiency of the QR-based method, we use a discretization of sine of sums: $\sin(x_1+\dots+ x_d)$.
 Repeated use of the textbook sine of sums identity for two variables, we obtain a $2^{d-1}$-term separated representation of the function.
 For example, 
@@ -571,7 +573,7 @@ $$\sin\left(\sum^d_{j=1}x_j\right) = \sum^d_{j=1}\sin(x_j)\prod^d_{k=1,k\neq j}\
 for all choices of  ${\alpha_j}$ such that $\sin(\alpha_k - \alpha_j) \neq 0$ for all $j \neq k$.
 Our goal is to compute this much more efficient $d$-term representation using the $2^{d-1}$-term representation numerically using discretized representations of the functions.
 
-\subsection*{Single LS problem}
+\subsection{Single Least Squares Problem}
 
 %We can somehow treat this sine of sum be a N-mode tensor $\T{X} \in \mathbb{R}^{n \times \dots \times n}$, and each term of exponential representation corresponds to a rank $2^{d-1}$ CP decomposition. 
 %It is also possible to have a rank $n$ CP decomposition by the linear representation mentioned above. 
@@ -603,12 +605,30 @@ We can observe in \cref{tab:LS_error}. As the size of our input tensor increases
 The accuracy using NE starts leveling off when $K = 10^8$ but QR techniques hold the error small.
 \AZ{Feels like adding another column showing true error will be nice} 
 
+\begin{table}[!ht] 
+  \centering
+  \begin{tabular}{|c|c|c|c|c|c|c|}
+    \hline
+    $d$ & $n$ & $|\alpha_j-\alpha_{j+1}|$ & $\kappa$ & NE Fwd Err & QR Exp Fwd Err & QR PW Fwd Err \\
+    \hline
+    3 & 100 & \texttt{1e0} & & & & \\
+    3 & 100 & \texttt{1e-1} & & & & \\
+    3 & 100 & \texttt{1e-2} & & & & \\
+    5 & 50 & \texttt{1e0} & & & & \\
+    5 & 50 & \texttt{1e-1} & & & & \\
+    5 & 50 & \texttt{1e-2} & & & & \\
+    \hline
+  \end{tabular}
+  \caption{\GB{to be added...}}
+  \label{tab:LS_err}
+\end{table}
+
 Figure indicating speed differences is showed in \cref{fig:LS_problem_log}.
 \begin{figure}[!ht]
   
   \begin{center}
     \includegraphics*[scale = 0.35]{fig_log_runtime.jpg}
-    \caption[Figure]{log runtime respect to QR Imp for NE and Exp in different dimensions \GB{so I guess we don't need both log axis and relative times; what we could do is go back to linear axis but show time breakdowns, leaving everything relative to QR Imp (then we can see that $Q_0$ kills QR Exp)}\label{fig:LS_problem_log}}
+    \caption[Figure]{log runtime respect to QR Imp for NE and Exp in different dimensions \GB{no need to make time relative, just take the log (base 10 or base 2), and report the slowdown number with respect to QR Imp at the top of each bar, try to make each QR Imp take around a second so they are comparable across dimensions, also run 3-5 times and take median time}\label{fig:LS_problem_log}}
 
   \end{center}
     
@@ -630,11 +650,7 @@ In the next breakdown figure \cref{fig:LS_problem_breakdown}, we will later see 
   \AZ{This figure needs to be double checked, feels like the time for Gram/QR is still not right.}
 \end{figure}
 
-\subsection*{CP results}
-
-
-
-
+\subsection{CP-ALS}
 
 In the next step, we put QR Imp into CP-ALS which further compare the runtime and accuracy to CP-Round-ALS-NE and CP-Round-ALS-QR-Exp. 
 This is known that cost of QR Exp is exponential to $d$, which will take longer than the rest when solving a LS problem.
