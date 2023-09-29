@@ -1,15 +1,18 @@
-function T = sinsums(d,n)
+function T = sinsums(d,n,scale)
 % create rank d ktensor representation of sin of sums tensor with d modes
 % d: number of modes of the tensor, end rank
 % n: dimension of tensor
 % T: ktensor
 
+if nargin < 3
+    scale = 1;
+end
 
 lambda = ones(d,1);
 
 x = linspace(0,2*pi,n)';
-a = linspace(0,pi/d*(d-1)/100,d);
-diff =  pi / d;
+a = linspace(0,pi/d*(d-1)/scale,d);
+diff = a(2) - a(1)
 
 offs = cell(d,d);
 
