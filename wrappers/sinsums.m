@@ -12,7 +12,7 @@ lambda = ones(d,1);
 
 x = linspace(0,2*pi,n)';
 a = linspace(0,pi/d*(d-1)/scale,d);
-diff = a(2) - a(1)
+diff = a(2) - a(1);
 
 offs = cell(d,d);
 

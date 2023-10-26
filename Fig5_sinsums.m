@@ -21,7 +21,7 @@ rng(3)
 % form sin of sums tensor
 T = sinsums(d,n);
 X = sinsum_full(d,n);
-true_err = norm(full(T) - full(X)) / norm(X)
+true_err = norm(full(T) - full(X)) / norm(X);
 
 
 test = [1:maxiter];
@@ -51,10 +51,10 @@ figure,
 
 semilogy(1:out_als1.iters,out_als1.relerr,'linewidth',2), hold on
 semilogy(1:out_imp1.iters,out_imp1.relerr,':','linewidth',2)
-semilogy(1:maxiter,test,'--','linewidth',2)
+%semilogy(1:maxiter,test,'--','linewidth',2)
 
 
-legend('NE','QR Imp','True Error')
+legend('NE','QR Imp')
 xlabel('iteration number')
 ylabel('relative error')
 title('Relative Error,d=7') 

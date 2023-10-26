@@ -24,7 +24,7 @@ end
 figure,
 a=gca;
 bar([bd_mat(1:3,:); bd_mat(4:6,:); bd_mat(7:9,:);bd_mat(10:12,:);bd_mat(13:15,:);bd_mat(16:18,:)],'stacked');
-
+title('breakdown runtime by removing QR Exp,n=2000')
 ylabel('runtime (sec)')
 
 xlabel('size')
@@ -33,12 +33,12 @@ xticklabels({'','QR Imp','NE','','QR Imp','NE','','QR Imp','NE','','QR Imp','NE'
 a.XRuler.TickLabelGapOffset = 15;   
 a.YRuler.TickLabelGapOffset = 15;
 v = -0.00005;
-text(1,v,'d=3,n=3000','fontsize',10)
-text(4,v,'d=4,n=600','fontsize',10)
-text(7,v,'d=5,n=200','fontsize',10)
-text(10,v,'d=6,n=70','fontsize',10)
-text(13,v,'d=7,n=30','fontsize',10)
-text(16,v,'d=8,n=10','fontsize',10)
+text(1,v,'d=3','fontsize',10)
+text(4,v,'d=4','fontsize',10)
+text(7,v,'d=5','fontsize',10)
+text(10,v,'d=6','fontsize',10)
+text(13,v,'d=7','fontsize',10)
+text(16,v,'d=8','fontsize',10)
 
 legend('Gram/QR','QR on R','Qtb','apply QR on R','Atb','Back solve','fontsize',16)
 
