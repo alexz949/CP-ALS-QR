@@ -78,8 +78,7 @@ tic
  
 %exp_err = norm(full(T) - full(X)) / norm(X)
  
-expt = [t_factor_QR,t_QR_R,t_apply_factor_QR,t_apply_QR_R,t_apply_gram,t_back_solve];
-
+expt = [t_apply_factor_QR,t_factor_QR,t_apply_QR_R,t_QR_R,t_back_solve];
 time = expt;
 
 

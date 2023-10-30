@@ -1,12 +1,4 @@
-%% Fig2_performance  
-%
-% Generates Fig 2 from
-%   'CP Decomposition for Tensors via Alternating 
-%    Least Squares with QR Decomposition'
-%       - Minster, Viviano, Liu, Ballard
-%
-% tests performance of CP-ALS, CP-ALS-PINV, CP-ALS-QR, & CP-ALS-QR-SVD
-% on 3,4,5-way random tensors
+
 
 clear
 maxNumCompThreads(1);
@@ -277,8 +269,8 @@ end
 figure,
 bar(eMat,'stacked')
 a = gca;
-
-xlabel('dimensions','FontSize',18)
+title('Runtime for NE and QR Imp for ktensor d=7')
+xlabel('dimensions (n)','FontSize',18)
 ylabel('runtime (secs)','FontSize',18)
 %ylim([0 430])
 
@@ -290,8 +282,9 @@ a.YRuler.TickLabelGapOffset = 15;
 % text(7.5,80,num2str(round(ratios.N5(2),1)),'fontsize',14)
 % text(12.5,305,num2str(round(ratios.N5(3),1)),'fontsize',14)
 v = -0.0002;
-text(1,v,'500','fontsize',16)
-text(4,v,'1000','fontsize',16)
-text(7,v,'2000','fontsize',16)
-legend('MTTKRP/TTM','Gram/QR','Compute QR on R','Apply QR on R','Other','fontsize',16);
+text(1.25,v,'500','fontsize',16)
+text(4.25,v,'1000','fontsize',16)
+text(7.25,v,'2000','fontsize',16)
+legend('MTTKRP/TTM','Gram/QR','Pairwise QR','Apply Pairwise QR','Other','fontsize',16)
 
+set(gca,'fontsize',16);

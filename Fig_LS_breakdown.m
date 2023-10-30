@@ -1,7 +1,7 @@
 clear
 load('per_data.mat')
 n = [3000,600,200,70,30,10];
-bd_mat = zeros(18,6);
+bd_mat = zeros(18,5);
 j = 1;
 for i = 1:24
     if i ~= 3
@@ -24,10 +24,10 @@ end
 figure,
 a=gca;
 bar([bd_mat(1:3,:); bd_mat(4:6,:); bd_mat(7:9,:);bd_mat(10:12,:);bd_mat(13:15,:);bd_mat(16:18,:)],'stacked');
-title('breakdown runtime by removing QR Exp,n=2000')
+title('breakdown runtime when n=2000')
 ylabel('runtime (sec)')
 
-xlabel('size')
+xlabel('Number of Modes')
 xticks([0:18]);
 xticklabels({'','QR Imp','NE','','QR Imp','NE','','QR Imp','NE','','QR Imp','NE','','QR Imp','NE','','QR Imp','NE'});
 a.XRuler.TickLabelGapOffset = 15;   
@@ -40,7 +40,8 @@ text(10,v,'d=6','fontsize',10)
 text(13,v,'d=7','fontsize',10)
 text(16,v,'d=8','fontsize',10)
 
-legend('Gram/QR','QR on R','Qtb','apply QR on R','Atb','Back solve','fontsize',16)
+legend('$Q^\top$B/$A^\top$B','QR/Gram','Pairwise Apply QR','Pairwise QR','Back solve/NE solve','Interpreter','latex')
 
+set(gca,'fontsize',16);
 
 

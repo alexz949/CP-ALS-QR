@@ -265,7 +265,7 @@ for iter = 1:maxiters
         break;
     end     
     
-    times(iter,:) = [t_ttm+extra, t_qrf+test, t_kr, t_q0, t_back, t_lamb, t_err];
+    times(iter,:) = [t_ttm, t_qrf, t_kr, t_q0, t_back, t_lamb, t_err];
 end   
 
 

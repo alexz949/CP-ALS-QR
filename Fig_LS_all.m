@@ -30,7 +30,7 @@ sum_mat = zeros(1,24);
 % remove the last bar column to see max d = 7
 figure,
 a = gca;
-bar([per_data.res(1:4,:); per_data.res(5:8,:); per_data.res(9:12,:); per_data.res(13:16,:); per_data.res(17:20,:)],'stacked');
+bar([per_data.res(1:4,:); per_data.res(5:8,:); per_data.res(9:12,:); per_data.res(13:16,:); per_data.res(17:20,:); per_data.res(21:24,:)],'stacked');
 %bar(log_sum_mat)
 title('Runtime in each d-way tensor with n=2000')
 ylabel('Raw Runtime')
@@ -77,13 +77,17 @@ end
 figure,
 ax = gca;
 
-semilogy(x,y1,x,y2,x,y3)
-title("Raw Runtime line plot varying d and keeping n = 2000")
+semilogy(x,y1,':','linewidth',2), hold on
+semilogy(x,y2,'--','linewidth',2)
+semilogy(x,y3,'-.','linewidth',2)
+
+title("Raw Runtime line plot by keeping n = 2000")
 
 ylabel("Total time")
-xlabel("d-way")
+xlabel("Number of Modes")
 set(gca, 'XTick', 3:8)
-legend("QR Imp", "NE","QR Exp");
+legend("QR Imp", "NE","QR Exp")
+set(gca,'fontsize',16);
 
 
 
