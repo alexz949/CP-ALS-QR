@@ -30,7 +30,7 @@ sum_mat = zeros(1,24);
 % remove the last bar column to see max d = 7
 figure,
 a = gca;
-bar([per_data.res(1:4,:); per_data.res(5:8,:); per_data.res(9:12,:); per_data.res(13:16,:); per_data.res(17:20,:);per_data.res(21:24,:)],'stacked');
+bar([per_data.res(1:4,:); per_data.res(5:8,:); per_data.res(9:12,:); per_data.res(13:16,:); per_data.res(17:20,:)],'stacked');
 %bar(log_sum_mat)
 title('Runtime in each d-way tensor with n=2000')
 ylabel('Raw Runtime')

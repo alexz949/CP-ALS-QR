@@ -584,23 +584,23 @@ The goal for this test is to see how the speed and accuracy of different algorit
 We first created bunch of ktensors given different $d$. The least squares problems here are trying to approximate the last factor matrix in exponential representation. Comparing the relative error between approximated matrix and the factor matrix we formed in linear representation through built function. 
 The table for showing backward error is showed in \cref{tab:LS_error}.
 
-\begin{table}[!ht] 
-  \centering
-  \begin{tabular}{|c|c|c|c|c|c|}
-    \hline
-    \multicolumn{1}{|c|}{\textbf{d}} & \multicolumn{1}{|c|}{\textbf{n}} & \multicolumn{1}{|c|}{\textbf{K}} & \multicolumn{1}{|c|}{\textbf{NE error}} & \multicolumn{1}{|c|}{\textbf{QR Exp error}} & \multicolumn{1}{|c|}{\textbf{QR Imp error}} \\
-    \hline
-    3 &1000& \texttt{1e5} & \texttt{1.28e-08} & \texttt{1.41e-12} & \texttt{1.53e-12} \\
-    4 &100 & \texttt{5e7} & \texttt{7.11e-04} & \texttt{1.59e-10} & \texttt{1.55e-10} \\
-    5 & 50 & \texttt{4e9} & \texttt{2.68e-01} & \texttt{2.11e-08} & \texttt{1.93e-08} \\
-    6 & 25 & \texttt{4e11}& \texttt{1.91e-01} & \texttt{2.35e-06} & \texttt{2.22e-06} \\
-    7 & 15 & \texttt{3e13}& \texttt{4.78e-01} & \texttt{3.27e-03} & \texttt{2.99e-04} \\
-    8 & 10 & \texttt{2e15}& \texttt{5.54e-01} & \texttt{3.00e-02} & \texttt{2.40e-02} \\
-    \hline
-  \end{tabular}
-  \caption{Relative error when solving LS problem using NE, QR Exp, and QR Imp \GB{let's use \texttt{1.23e-4} formatting for $\kappa$ and errors; let's try to present both forward and backward error for each method}}
-  \label{tab:LS_error}
-\end{table}
+%\begin{table}[!ht] 
+%  \centering
+%  \begin{tabular}{|c|c|c|c|c|c|}
+%    \hline
+%    \multicolumn{1}{|c|}{\textbf{d}} & \multicolumn{1}{|c|}{\textbf{n}} & \multicolumn{1}{|c|}{\textbf{K}} & \multicolumn{1}{|c|}{\textbf{NE error}} & \multicolumn{1}{|c|}{\textbf{QR Exp error}} & \multicolumn{1}{|c|}{\textbf{QR Imp error}} \\
+%    \hline
+%    3 &1000& \texttt{1e5} & \texttt{1.28e-08} & \texttt{1.41e-12} & \texttt{1.53e-12} \\
+%    4 &100 & \texttt{5e7} & \texttt{7.11e-04} & \texttt{1.59e-10} & \texttt{1.55e-10} \\
+%    5 & 50 & \texttt{4e9} & \texttt{2.68e-01} & \texttt{2.11e-08} & \texttt{1.93e-08} \\
+%    6 & 25 & \texttt{4e11}& \texttt{1.91e-01} & \texttt{2.35e-06} & \texttt{2.22e-06} \\
+%    7 & 15 & \texttt{3e13}& \texttt{4.78e-01} & \texttt{3.27e-03} & \texttt{2.99e-04} \\
+%    8 & 10 & \texttt{2e15}& \texttt{5.54e-01} & \texttt{3.00e-02} & \texttt{2.40e-02} \\
+%    \hline
+%  \end{tabular}
+%  \caption{Relative error when solving LS problem using NE, QR Exp, and QR Imp \GB{let's use \texttt{1.23e-4} formatting for $\kappa$ and errors; let's try to present both forward and backward error for each method}}
+%  \label{tab:LS_error}
+%\end{table}
 We can observe in \cref{tab:LS_error}. As the size of our input tensor increases, the condition number $K$ for LHS matrices increase.
 The accuracy using NE starts leveling off when $K = 4e9$ but QR techniques hold the error small.
 
@@ -614,12 +614,13 @@ We believed that this will change condition number which also lead to changes in
     \hline
     $d$ & $n$ & $|\alpha_j-\alpha_{j+1}|$ & $\kappa$ & NE Fwd Err & QR Exp Fwd Err & QR PW Fwd Err \\
     \hline
-    3 &100 & \texttt{1e0}  & \texttt{1.51e0}  & \texttt{3.64e-16} & \texttt{1.44e-15} & \texttt{5.07e-16} \\
-    3 &100 & \texttt{1e-1} & \texttt{5.02e2}  & \texttt{6.12e-14} & \texttt{3.70e-15} & \texttt{5.74e-16} \\
+    3 & 50 & \texttt{1e0}  & \texttt{1.51e0}  & \texttt{3.64e-16} & \texttt{1.44e-15} & \texttt{5.07e-16} \\
+    3 & 50 & \texttt{1e-1} & \texttt{5.02e2}  & \texttt{6.12e-14} & \texttt{3.70e-15} & \texttt{5.74e-16} \\
     5 & 50 & \texttt{1e-1} & \texttt{7.38e3}  & \texttt{9.80e-11} & \texttt{9.70e-15} & \texttt{1.85e-15}\\
-    3 &100 & \texttt{1e-2} & \texttt{4.77e5}  & \texttt{1.32e-08} & \texttt{5.40e-13} & \texttt{8.99e-15} \\
+    3 & 50 & \texttt{1e-2} & \texttt{4.77e5}  & \texttt{1.32e-08} & \texttt{5.40e-13} & \texttt{8.99e-15} \\
     5 & 50 & \texttt{1e-2} & \texttt{3.71e8}  & \texttt{3.51e-01} & \texttt{4.87e-12} & \texttt{1.27e-14}\\
-    5 & 50 & \texttt{1e-3} & \texttt{3.64e13} & \texttt{1.00e00}  & \texttt{9.74e-09} & \texttt{1.94e-09}\\
+    3 & 450 & \texttt{1e-4} & \texttt{4.77e11} & \texttt{8.89e-01} & \texttt{8.43e-09} & \texttt{1.31e-12} \\
+    5 & 50 & \texttt{1e-3} & \texttt{3.64e13} & \texttt{1.00e00}  & \texttt{9.74e-07} & \texttt{1.94e-09}\\
     \hline
   \end{tabular}
   \caption{Forward Error when varying $|\alpha_j-\alpha_{j+1}|$ for NE, QR Imp, and QR Exp}
@@ -627,15 +628,7 @@ We believed that this will change condition number which also lead to changes in
 \end{table}
 
 Figure indicating speed differences is showed in \cref{fig:LS_problem_log}.
-\begin{figure}[!ht]
-  
-  \begin{center}
-    \includegraphics*[scale = 0.35]{fig_log_runtime.jpg}
-    \caption[Figure]{log runtime respect to QR Imp for NE and Exp in different dimensions \GB{no need to make time relative, just take the log (base 10 or base 2), and report the slowdown number with respect to QR Imp at the top of each bar, try to make each QR Imp take around a second so they are comparable across dimensions, also run 3-5 times and take median time}\label{fig:LS_problem_log}}
 
-  \end{center}
-    
-\end{figure}
 
 For speed figure \cref{fig:LS_problem_log}, the time for doing QR Exp still stands out after taking the log.
 This is because the time for computing QR on $\mat{R}_N \odot \dots \odot \mat{R}_1$ is exponential to $d$.
@@ -643,15 +636,7 @@ The time for doing QR Imp is comparable to NE.
 Even in some sizes it is actually faster than NE.
 In the next breakdown figure \cref{fig:LS_problem_breakdown}, we will later see where the majority time goes.
 
-\begin{figure}[!ht]
-  
-  \begin{center}
-    \includegraphics*[scale = 0.35]{fig_LS_breakdown.jpg}
-    \caption[Figure]{Breakdown of time distributions for NE and QR Imp \GB{I want to consider making $n$ fixed as you scale up $d$; this should be no problem for timing, everything should increase linearly with $d$; I think backsolve is disproportionately large small $n$, and I think it's because Matlab is resorting to SVD (because of the ill-conditioning)} \label{fig:LS_problem_breakdown}}
 
-  \end{center}
-  \AZ{This figure needs to be double checked, feels like the time for Gram/QR is still not right.}
-\end{figure}
 
 \subsection{CP-ALS}
 
