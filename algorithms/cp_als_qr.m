@@ -129,7 +129,8 @@ for i = 1:N
         [Qs{i}, Rs{i}] = qr(U{i},0); 
     end
 end
-qrf = toc;
+Y = ttm(X,Qs,-1,'t');
+
    
 for iter = 1:maxiters
     t_ttm = 0; % TTM
@@ -153,7 +154,7 @@ for iter = 1:maxiters
         tic;  [Q0,R0] = qr(M,0); t = toc; t_kr = t_kr + t;
 
         %%% TTM on all modes but mode n. %%%
-        tic; Y = ttm(X,Qs,-n,'t'); t = toc; t_ttm = t_ttm + t;
+        
         
         %%% Now multiply by Q0 on the right. %%%
         
@@ -170,10 +171,12 @@ for iter = 1:maxiters
             end
             
             %%% Apply Q0
-            tic; Z = Y.U{n} * (khatrirao(K{[1:n-1,n+1:N]},'r')' * Q0); t = toc; t_q0 = t_q0 + t;
-
+            tic; Z =(Q0' * khatrirao(K{[1:n-1,n+1:N]})); t = toc; t_q0 = t_q0 + t;
+            
+            Z = Z * X.U{n}';
+           
             %%% Calculate updated factor matrix by backsolving with R0' and Z. %%%
-            tic; U{n} = double(Z) / R0'; t = toc; t_back = t_back + t;
+            tic; U{n} = double(Z)' / R0'; t = toc; t_back = t_back + t;
             
         else
             %%% For any other tensor: %%%
@@ -198,6 +201,11 @@ for iter = 1:maxiters
         
         %%% Recompute QR factorization for updated factor matrix. %%%
         tic; [Qs{n}, Rs{n}] = qr(U{n},0); t = toc; t_qrf = t + t_qrf;
+        
+        
+        if isa(X,'ktensor')             
+            tic; Y.U{n} = Qs{n}' * X.U{n}; t = toc; t_ttm = t_ttm + t;
+        end
     end
 
     %%% Changes for cp_als_qr end here. %%%

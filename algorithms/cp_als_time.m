@@ -134,12 +134,13 @@ else
             UtU(:,:,n) = U{n}'*U{n};
         end
     end
-    t_gram = toc;  % Grams of factor matrices
+    first_gram = toc;  % Grams of factor matrices
     
     for iter = 1:maxiters
         
         % initialize timings
         t_mt = 0; % MTTKRP
+        t_gram = 0;
         t_back = 0; % Backsolving
         t_lamb = 0; % Normalizng
         t_err = 0; % Error

@@ -12,7 +12,7 @@ d = 7;
 
 
 r = 7;
-n = [500,1000,2500];
+n = [10000,15000,30000];
 maxiter = 10;
 tol = 1e-10;
 
@@ -33,8 +33,9 @@ for i = 1:length(n)
     end
     
     % compute CP
-    [Mqr7,~,outqr7] = cp_als_qr(T,r,'init',Uinit,'maxiters',maxiter,'tol',tol,'printitn',1,'errmethod','fast');
     [Msvd7,~,outpw7] = cp_als_qr_new(T,r,'init',Uinit,'maxiters',maxiter,'tol',tol,'printitn',1,'errmethod','fast');
+
+    [Mqr7,~,outqr7] = cp_als_qr(T,r,'init',Uinit,'maxiters',maxiter,'tol',tol,'printitn',1,'errmethod','fast');
     [Mals7,~,outals7] = cp_als_time(T,r,'init',Uinit,'maxiters',maxiter,'tol',tol,'printitn',1,'errmethod','fast');
 
      % compute average iteration time
@@ -62,7 +63,7 @@ d = 3;
 
 
 r = 3;
-n = [500,1000,2500];
+n = [10000,15000,30000];
 maxiter = 10;
 tol = 1e-10;
 
@@ -109,7 +110,7 @@ d = 5;
 
 
 r = 5;
-n = [500,1000,2500];
+n = [10000,15000,30000];
 maxiter = 10;
 tol = 1e-10;
 
@@ -196,9 +197,9 @@ xticklabels({'','QR Imp','NE','QR Exp','','QR Imp','NE','QR Exp','','QR Imp','NE
 a.XRuler.TickLabelGapOffset = 15;   
 a.YRuler.TickLabelGapOffset = 15;
 v = -0.005;
-text(1,v,'500','fontsize',16)
-text(5,v,'1000','fontsize',16)
-text(10,v,'2000','fontsize',16)
+text(1,v,'10000','fontsize',16)
+text(5,v,'15000','fontsize',16)
+text(10,v,'30000','fontsize',16)
 
 
 
@@ -222,9 +223,9 @@ xticklabels({'','QR Imp','NE','QR Exp','','QR Imp','NE','QR Exp','','QR Imp','NE
 a.XRuler.TickLabelGapOffset = 15;   
 a.YRuler.TickLabelGapOffset = 15;
 v = -0.00005;
-text(1,v,'500','fontsize',16)
-text(5,v,'1000','fontsize',16)
-text(10,v,'2000','fontsize',16)
+text(1,v,'10000','fontsize',16)
+text(5,v,'15000','fontsize',16)
+text(10,v,'30000','fontsize',16)
 
 subplot(2,2,2)
 
@@ -246,9 +247,9 @@ xticklabels({'','QR Imp','NE','QR Exp','','QR Imp','NE','QR Exp','','QR Imp','NE
 a.XRuler.TickLabelGapOffset = 15;   
 a.YRuler.TickLabelGapOffset = 15;
 v = -0.00005;
-text(1,v,'500','fontsize',16)
-text(5,v,'1000','fontsize',16)
-text(10,v,'2000','fontsize',16)
+text(1,v,'10000','fontsize',16)
+text(5,v,'15000','fontsize',16)
+text(10,v,'30000','fontsize',16)
 legend('MTTKRP/TTM','Gram/QR','Compute QR on R','Apply QR on R','Other','fontsize',16);
 
 %%

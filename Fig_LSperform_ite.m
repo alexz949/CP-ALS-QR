@@ -12,7 +12,7 @@ for it = 1:maxiter
 tp = 1;
 
 for d = 3:8
-  d;
+  d
   
 t_krp = 0;
 t_back_solve = 0;

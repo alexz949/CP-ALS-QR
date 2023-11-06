@@ -1,4 +1,4 @@
-function [P,Uinit,output] = cp_als_qr_new(X,R,varargin)
+ function [P,Uinit,output] = cp_als_qr_new(X,R,varargin)
 %CP_ALS_QR Compute a CP decomposition of any type of tensor.
 %
 %   M = CP_ALS(X,R) computes an estimate of the best rank-R
@@ -183,7 +183,7 @@ for iter = 1:maxiters
             
             %%% Apply Q0 %%%
             tic; Z = tenmat(Y,n) * Q0; t = toc; t_q0 = t_q0 + t;
-
+            
             %%% Calculate updated factor matrix by backsolving with R0' and Z. %%%
             tic; U{n} = double(Z) / R0'; t = toc; t_back = t_back + t;
 
@@ -203,6 +203,7 @@ for iter = 1:maxiters
         %%% Recompute QR factorization for updated factor matrix. %%%
         tic; [Qs{n}, Rs{n}] = qr(U{n},0); t = toc; t_qrf = t_qrf+t;
         %%% Update TTM on mode n
+        
         if isa(X,'ktensor')             
             tic; Y.U{n} = Qs{n}' * X.U{n}; t = toc; t_ttm = t_ttm + t;
         end
