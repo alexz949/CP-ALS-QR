@@ -221,10 +221,7 @@ end
 
 
 %% Clean up final result
-% Arrange the final tensor so that the columns are normalized.
-P = arrange(P);
-% Fix the signs
-P = fixsigns(P);
+
 
 if printitn>0
     if normX == 0
@@ -234,6 +231,7 @@ if printitn>0
             case 'fast'
                 iprod = sum(sum(P.U{dimorder(end)} .* U_mttkrp) .* lambda');
                 normresidual = sqrt(abs( normX^2 + norm(P)^2 - 2 * iprod) );
+                
             case 'full'
                 normresidual = norm(full(X) - full(P));
             case 'lowmem'
@@ -244,6 +242,11 @@ if printitn>0
     end
   fprintf(' Final f = %e \n', fit);
 end
+
+% Arrange the final tensor so that the columns are normalized.
+P = arrange(P);
+% Fix the signs
+P = fixsigns(P);
 
 output = struct;
 output.params = params.Results;

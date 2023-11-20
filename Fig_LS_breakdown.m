@@ -32,16 +32,25 @@ xticks([0:18]);
 xticklabels({'','QR Imp','NE','','QR Imp','NE','','QR Imp','NE','','QR Imp','NE','','QR Imp','NE','','QR Imp','NE'});
 a.XRuler.TickLabelGapOffset = 15;   
 a.YRuler.TickLabelGapOffset = 15;
-v = -0.00005;
-text(1,v,'d=3','fontsize',10)
-text(4,v,'d=4','fontsize',10)
-text(7,v,'d=5','fontsize',10)
-text(10,v,'d=6','fontsize',10)
-text(13,v,'d=7','fontsize',10)
-text(16,v,'d=8','fontsize',10)
+v = -0.0003;
+text(1,v,'d=3','fontsize',12)
+text(4,v,'d=4','fontsize',12)
+text(7,v,'d=5','fontsize',12)
+text(10,v,'d=6','fontsize',12)
+text(13,v,'d=7','fontsize',12)
+text(16,v,'d=8','fontsize',12)
 
-legend('$Q^\top$B/$A^\top$B','QR/Gram','Pairwise Apply QR','Pairwise QR','Back solve/NE solve','Interpreter','latex')
 
-set(gca,'fontsize',16);
+
+l = legend('$Q^\top$B/$A^\top$B','QR/Gram','Pairwise Apply QR','Pairwise QR','Back solve/NE solve','Interpreter','latex');
+l.Direction = 'reverse';
+l.Location = 'northwest'
+set(gca,'fontsize',14);
+set(gcf,'Units','inches');
+screenposition = get(gcf,'Position');
+set(gcf,...
+    'PaperPosition',[0 0 screenposition(3:4)],...
+    'PaperSize',[screenposition(3:4)]);
+saveas(gcf,'breakdown_p.pdf')
 
 

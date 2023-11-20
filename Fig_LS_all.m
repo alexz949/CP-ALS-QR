@@ -26,31 +26,32 @@ sum_mat = zeros(1,24);
 % speed_mat(13:15) = log_sum_mat(13:15)/ log_sum_mat(13);
 % speed_mat(17:19) = log_sum_mat(17:19)/ log_sum_mat(17);
 % speed_mat(21:23) = log_sum_mat(21:23)/ log_sum_mat(21);
-%%
-% remove the last bar column to see max d = 7
-figure,
-a = gca;
-bar([per_data.res(1:4,:); per_data.res(5:8,:); per_data.res(9:12,:); per_data.res(13:16,:); per_data.res(17:20,:); per_data.res(21:24,:)],'stacked');
-%bar(log_sum_mat)
-title('Runtime in each d-way tensor with n=2000')
-ylabel('Raw Runtime')
+% %%
+% % remove the last bar column to see max d = 7
+% figure,
+% a = gca;
+% bar([per_data.res(1:4,:); per_data.res(5:8,:); per_data.res(9:12,:); per_data.res(13:16,:); per_data.res(17:20,:); per_data.res(21:24,:)],'stacked');
+% %bar(log_sum_mat)
+% title('Runtime in each d-way tensor with n=2000')
+% ylabel('Raw Runtime')
+% 
+% xlabel('Size')
+% xticks([0:24]);
+% xticklabels({'','QR Imp','NE','QR Exp','','QR Imp','NE','QR Exp','','QR Imp','NE','QR Exp','','QR Imp','NE','QR Exp','','QR Imp','NE','QR Exp','','QR Imp','NE','QR Exp'});
+% a.XRuler.TickLabelGapOffset = 15;   
+% a.YRuler.TickLabelGapOffset = 15;
+% %text(1:length(log_sum_mat),log_sum_mat,num2str(speed_mat'),'vert','bottom','horiz','center')
+% 
+% v = -0.1;
+% text(1.5,v,'d=3','fontsize',10)
+% text(5.5,v,'d=4','fontsize',10)
+% text(9.5,v,'d=5','fontsize',10)
+% text(13.5,v,'d=6','fontsize',10)
+% text(17.5,v,'d=7','fontsize',10)
+% text(21.5,v,'d=8','fontsize',10)
+% 
+% l = legend('Gram/QR','QR on R','Qtb','apply QR on R','Atb','Back','fontsize',16);
 
-xlabel('Size')
-xticks([0:24]);
-xticklabels({'','QR Imp','NE','QR Exp','','QR Imp','NE','QR Exp','','QR Imp','NE','QR Exp','','QR Imp','NE','QR Exp','','QR Imp','NE','QR Exp','','QR Imp','NE','QR Exp'});
-a.XRuler.TickLabelGapOffset = 15;   
-a.YRuler.TickLabelGapOffset = 15;
-%text(1:length(log_sum_mat),log_sum_mat,num2str(speed_mat'),'vert','bottom','horiz','center')
-
-v = -0.1;
-text(1.5,v,'d=3','fontsize',10)
-text(5.5,v,'d=4','fontsize',10)
-text(9.5,v,'d=5','fontsize',10)
-text(13.5,v,'d=6','fontsize',10)
-text(17.5,v,'d=7','fontsize',10)
-text(21.5,v,'d=8','fontsize',10)
-
-legend('Gram/QR','QR on R','Qtb','apply QR on R','Atb','Back','fontsize',16);
 %%
 
 
@@ -77,17 +78,26 @@ end
 figure,
 ax = gca;
 
-semilogy(x,y1,':','linewidth',2), hold on
-semilogy(x,y2,'--','linewidth',2)
-semilogy(x,y3,'-.','linewidth',2)
-
+o = semilogy(x,y1,':','linewidth',2), hold on
+p = semilogy(x,y2,'--','linewidth',2)
+q = semilogy(x,y3,'-.','linewidth',2)
+p.Marker = "o"
+o.Marker = "o"
+q.Marker = "o"
 title("Raw Runtime line plot by keeping n = 2000")
 
 ylabel("Total time")
 xlabel("Number of Modes")
 set(gca, 'XTick', 3:8)
-legend("QR Imp", "NE","QR Exp")
+l = legend("QR Imp", "NE","QR Exp")
+l.Location = 'northwest'
 set(gca,'fontsize',16);
+set(gcf,'Units','inches');
+screenposition = get(gcf,'Position');
+set(gcf,...
+    'PaperPosition',[0 0 screenposition(3:4)],...
+    'PaperSize',[screenposition(3:4)]);
+saveas(gcf,'lineplot_p.pdf')
 
 
 

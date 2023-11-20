@@ -1,4 +1,4 @@
- function [P,Uinit,output] = cp_als_qr_new(X,R,varargin)
+ = function [P,Uinit,output] = cp_als_qr_new(X,R,varargin)
 %CP_ALS_QR Compute a CP decomposition of any type of tensor.
 %
 %   M = CP_ALS(X,R) computes an estimate of the best rank-R
@@ -223,15 +223,18 @@ for iter = 1:maxiters
     else
        switch errmethod
             case 'fast'
+                
                 % fast inner product calculation
-                Rscaled = R0.*lambda';
-                prod = U{dimorder(end)}*Rscaled';
-                iprod = Z(:)'*prod(:); 
+                Rscaled = R0.*lambda'; 
+          
+                prod = Rscaled * U{dimorder(end)}';
+                iprod = Z(:)'*prod(:);
 
                 % fast norm(P) calculation: < Lambda R0^T R0 Lambda, Rs{N}^T Rs{N} >
                 RscaledGram = Rscaled'*Rscaled;
                 RnGram = Rs{dimorder(end)}'*Rs{dimorder(end)};
                 normPsq = RscaledGram(:)'*RnGram(:);
+                
                 
                 normresidual = sqrt( abs(normX^2 + normPsq - 2 * iprod) );
             case 'full'
@@ -284,14 +287,18 @@ if printitn>0
     else
         switch errmethod
             case 'fast'
-                Rscaled = lambda.*R0';
-                prod = U{dimorder(end)}*Rscaled;
+                % fast inner product calculation
+                Rscaled = R0.*lambda'; 
+          
+                prod = Rscaled * U{dimorder(end)}';
                 iprod = Z(:)'*prod(:);
 
                 % fast norm(P) calculation: < Lambda R0^T R0 Lambda, Rs{N}^T Rs{N} >
-                RscaledGram = Rscaled*Rscaled';
+                RscaledGram = Rscaled'*Rscaled;
                 RnGram = Rs{dimorder(end)}'*Rs{dimorder(end)};
                 normPsq = RscaledGram(:)'*RnGram(:);
+                
+                
                 normresidual = sqrt( abs(normX^2 + normPsq - 2 * iprod) );
             case 'full'
                 normresidual = norm(full(X) - full(P));
