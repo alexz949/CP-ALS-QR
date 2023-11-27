@@ -70,14 +70,17 @@
 
 \maketitle
 \section{Introduction}
-The CANDECOMP/PARAFAC or canonical polyadic (CP) decomposition for multidimensional data, or tensors, is a popular tool for analyzing and interpreting latent patterns that may be present in multidimensional data. 
-Basically CP decomposition of a tensor refers to its expression as a sum of $r$ rank-one components and each of them is a vector outer product.
-One of the most popular methods used to compute a CP decomposition is the alternating least squares (CP-ALS) approach, which solves a series of linear least squares problems. 
-Usually to solve these linear least squares problems, normal equations are used for CP-ALS. 
-This approach may be sensitive for ill-conditioned inputs. 
-Based on this idea, there are already a more stable approach which is solving the linear least squares problems  using QR decomposition conducted by Minster in \cite{minster2021cp} instead.
-However, one drawback for current more stable approach is that computing QR decomposition is exponential in the number of modes of input tensor.
-In this paper, we proposed a new modified QR decomposition, which exploits the CP-format tensor, reducing the costs to only polynomial to the number of modes.
+The CANDECOMP/PARAFAC or canonical polyadic (CP) decomposition for tensors is a popular tool for analyzing and interpreting latent patterns that may be present in multidimensional data. 
+A rank-$r$ CP decomposition of a $d$-way tensor is a sum of $r$ rank-one components, each of which is a $d$-way vector outer product.
+One of the most popular methods used to compute a CP decomposition is the alternating least squares (CP-ALS) algorithm, which solves a series of linear least squares problems. 
+The normal equations are typically used to solve these linear least squares problems within CP-ALS because of the structure of the coefficient matrix \cite{kolda2009tensor}. 
+However, this approach is sensitive to roundoff error in the case of ill-conditioned coefficient matrices. 
+Minster et al. \cite{minster2021cp} propose a more numerically stable approach using QR decomposition that also exploits the structure of the coefficient matrices within the linear least squares problems.
+One drawback of the more stable approach is that the computational cost is exponential in the number of modes of the tensor.
+This cost is often not the bottleneck when computing CP decompositions of dense tensors.
+However, in the context of CP Rounding, or computing a lower-rank CP decomposition of an input already in CP format, the exponential cost is infeasible for large problems.
+In this paper, we propose a new method based on the QR decomposition that is just as numerically stable and reduces the costs from exponential to linear in the number of modes $d$.
+\GB{First paragraph was great, tells the story at the right level of detail.  I made a pass and adjusted things a bit, but pretty minor.  In general, use present tense}
 
 For ALS approach in CP decomposition, we are trying to solve least square problem with multiple right hand sides.
 Given the mathematical form of this least square problem $\min_X \| \mat{A}\mat{X} - \mat{B}\|_{F}$, where $\mat{B}$ is a matrix instead of a vector.
@@ -671,6 +674,9 @@ QR Imp is more stable compared to normal equation approach.
 
 
 \section{Conclusion and Future Work}
+
+\GB{This is a reasonable summary of the paper, but you're right that it repeats the introduction.  I think it would help to break it into two paragraphs: the first is a quicker summary of the idea, maybe referencing the explicit difference in computational cost (as you already touch on) and the second focusing on the time and stability improvements in the experiments with harder numbers (we observe up to X orders of magnitude reduction in error for a problem of condition number 1eY; we see a Zx speedup for ALS compared to the existing normal equations approach in the tensor toolbox).  For future work, we can say that based on these results, we plan to implement the algorithm in existing libraries like Tensor Toolbox.  We can also say that efficient QR decomposition of Khatri-Rao products has other applications, including for computing leverage scores (we can cite this paper \cite{bharadwaj2023fast}).}
+
 We implemented a new version of CP-ALS algorithm with QR decomposition given the CP-format tensor to reduce the exponential time to polynomial time and keep its stability.
 The idea of algorithm is to avoid forming any full size Khatri-Rao product for doing CP decomposition. 
 Differ than previous QR-based method, we reduce the exponential time for forming full Khatri-Rao product of $\mat{R}$s from QR decomposition of factor matrices by doing QR with two consecutive $\mat{R}$s at a time. 
@@ -686,6 +692,8 @@ Our Qr-based method still works well in ill-conditioned case. \AZ{This is simila
 
 \section{Appendix}
 \subsection{Reflection}
+
+
 After doing this project in this summer, I really got a sense about how interesting doing research is.
 At the beginning of this research, I and professor Ballard first tried another coefficient matrices technique for a few weeks. 
 It didn't work well which made me kind of frustrated. 
@@ -705,6 +713,8 @@ However this doesn't mean that I will always do research.
 Right now, I just feel kind of tired because sticking with one thing for 10 more weeks definitely will wipe some excitements from people.
 Right now I really want the new semester starts so that I can learn new stuff and take a break from research.
 Speaking of this, my future personal goal is try to find a balance between studying and relax, or researching and studying.
+
+
 \bibliographystyle{plain}
 
 
