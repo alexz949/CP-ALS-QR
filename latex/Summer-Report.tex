@@ -82,10 +82,10 @@ However, in the context of CP Rounding, or computing a lower-rank CP decompositi
 In this paper, we propose a new method based on the QR decomposition that is just as numerically stable and reduces the costs from exponential to linear in the number of modes $d$.
 \GB{First paragraph was great, tells the story at the right level of detail.  I made a pass and adjusted things a bit, but pretty minor.  In general, use present tense}
 
-For ALS approach in CP decomposition, we are trying to solve least square problem with multiple right hand sides.
+For ALS approach in CP decomposition, we try to solve least square problem with multiple right hand sides.
 Given the mathematical form of this least square problem $\min_X \| \mat{A}\mat{X} - \mat{B}\|_{F}$, where $\mat{B}$ is a matrix instead of a vector.
 The normal equation approach computes the gram $\mat{A}^\top\mat{A}$ and solve the equation $\mat{A}^\top\mat{A}\mat{X} = \mat{A}^\top\mat{B}$.
-The QR-based method compute QR decomposition for $\mat{A} = \mat{Q}\mat{R}$, and solve the equation $\mat{R}\mat{X} = \mat{Q}^\top\mat{B}$.
+The QR-based method computes QR decomposition for $\mat{A} = \mat{Q}\mat{R}$, and solves the equation $\mat{R}\mat{X} = \mat{Q}^\top\mat{B}$.
 QR-based method is more stable because the condition number of this linear system will not increase.
 With the new modified QR decomposition for CP-format tensor, the dominant computation will be $\mat{A}^\top\mat{B}$ and $\mat{Q}^\top\mat{B}$ given multiple right hand sides.
 We could then see the new modified QR method is more numerically stable and also faster than normal equation.
@@ -93,25 +93,16 @@ We could then see the new modified QR method is more numerically stable and also
 Following by more descriptions of CP-ALS problem and CP-Rounding in \cref{sec:cp-als}, when solving least square problem with CP-format tensor as input, both $\mat{A}$ and $\mat{B}$ are Khatri-Rao product of factor matrices.
 We can use the Khatri-Rao product property to fast compute $\mat{A}^\top\mat{B}$ for normal equation and $\mat{Q}^\top\mat{B}$ for QR decomposition.
 The benchmark for CP-ALS with CP-format input is QR decomposition on $\mat{A}$. In previous approach, it first performs QR decomposition with each factor matrices in $\mat{A}$, and then perform the second QR decomposition with the Khatri-Rao product of $\mat{R}$s derived from QR on factor matrices.
-The second QR decomposition is exponential to number of modes because of the formation of Khatri-Rao product explicitly. 
-This also increases the cost for doing $\mat{Q}^\top\mat{B}$ in the second times.
+The second QR decomposition is exponential to number of modes because of the explicit formation of Khatri-Rao product. 
+This also increases the cost for doing $\mat{Q}^\top\mat{B}$.
 With our approach, we choose to take Khatri-Rao product of $\mat{R}$s only two at a time and perform QR decomposition respectively. 
-This strict the time for doing QR to only $r^4$, where $r$ is the size of upper triangular matrix $R$. 
+This strict the time for doing QR to only $r^4$.
 The derivation of this new QR-based method and the comparisons among three mentioned methods are included in \cref{sec:algo}.
 
-We also included our performance results by creating an approximation problem through Sine of Sums representation in \cref{sec:result}.
+We also include our performance results by creating an approximation problem through Sine of Sums representation in \cref{sec:result}.
 This approximation problem has been proposed in \cite{BM02} that with the choice of specific parameters, it can be an ill-conditioned problem.
-We believed it will demonstrate enough difference on accuracy and time on normal equation and QR-based method.  
- 
-
-%For my summer research project, I basically follows the QR apprach but trying to 
-%improve the efficiency for QR decomposition when assuming the input tensor is in Kruskal structure,
-%that is, a tensor stored as factor matrices and corresponding weights. By exploiting this structure, 
-%we improve the computation efficiency by not forming Multi-TTM tensor.
-%The problem left is when doing CP-ALS, QR-based methods is exponential in $N$, the number of modes.
-%The normal equations approach is linear in $N$ for Kruskal tensor. During the summer I tried
-%to revise and implement former QR method which archieved better stability than normal equations
-%but computation time increases linearly with respect to $N$.
+With all the data we have, our new modified QR-based algorithm reaches 14x speedup than previous QR method for 7-way input tensor.
+Our new algorithm is also 4x faster than normal equation approach if the input tensor is 9-way.
 
 
 
@@ -446,7 +437,7 @@ Thus, the total cost of a full iteration (updating each factor matrix once) of C
 $$ 2d\hat{n}^d + 2d\bar{n}r^d + 4d^2r^4 + O(d\hat{n}^{d-1}r^2 + d\bar{n}r^{d-1}). $$
 The leading order cost can be reduced by a factor of $O(d)$ via memoization \cite{KR19}.
 
-\subsubsection{Kruskal Input}
+\subsubsection{Kruskal Input} \label{sec:QR-PW-k}
 
 With Kruskal input, we can use the Kruskal structure $\mat{X}_{(k)} = \mat{B}_{k}(\mat{B}_{d} \odot \dots \odot \mat{B}_{k+1} \odot \mat{B}_{k-1}  \odot \dots \odot \mat{B}_{1})^\top$. 
 Applying $\mat{Q}$ into $\mat{X}_k$. 
@@ -677,18 +668,29 @@ QR Imp is more stable compared to normal equation approach.
 
 \GB{This is a reasonable summary of the paper, but you're right that it repeats the introduction.  I think it would help to break it into two paragraphs: the first is a quicker summary of the idea, maybe referencing the explicit difference in computational cost (as you already touch on) and the second focusing on the time and stability improvements in the experiments with harder numbers (we observe up to X orders of magnitude reduction in error for a problem of condition number 1eY; we see a Zx speedup for ALS compared to the existing normal equations approach in the tensor toolbox).  For future work, we can say that based on these results, we plan to implement the algorithm in existing libraries like Tensor Toolbox.  We can also say that efficient QR decomposition of Khatri-Rao products has other applications, including for computing leverage scores (we can cite this paper \cite{bharadwaj2023fast}).}
 
+
 We implemented a new version of CP-ALS algorithm with QR decomposition given the CP-format tensor to reduce the exponential time to polynomial time and keep its stability.
 The idea of algorithm is to avoid forming any full size Khatri-Rao product for doing CP decomposition. 
-Differ than previous QR-based method, we reduce the exponential time for forming full Khatri-Rao product of $\mat{R}$s from QR decomposition of factor matrices by doing QR with two consecutive $\mat{R}$s at a time. 
-The pseudo-code and complexity analysis indicates that with CP-format input, the time for doing QR can be reduced into $r^4$ where $r$ is the rank of input tensor.
-We also included the test of performance of our new version of QR-based method.
-In single least square problem with multiple right hand side, we observed the runtime for our new QR Imp is around the same as normal equation approach.
-But the accuracy is better with ill-condition input.
-With real tensor input, we observed with larger dimension, the standard CP-ALS approach is actually slower because of the redundant computation in MTTKRP step.
-The tradition CP-ALS approach sometimes cannot approximate the correct CP tensor when the number of modes is too high.
-Our Qr-based method still works well in ill-conditioned case. \AZ{This is similar to Introduction}\\
-\\
-\AZ{I should have one paragraph for futrue work but I'm not familiar with the explanation so I leave it blank.}
+We chose to take two $\mat{R}$s at a time, formed Khatri-Rao product, and computed QR decomposition.
+More detail is included in \cref{sec:QR-PW-k}.
+Our analysis inferred the dominant cost in this computation is applying orthogonal factor into the corresponding factor matrices and triangular solves, which is $O(d \bar n rs)$ for a full iteration.
+The cost for doing QR decomposition has complexity of $O(dr^4)$. Compared to the previous QR approach, its dominant cost comes from the MTTKRP which is $O(r^ds)$.
+The cost for doing that explicit QR decomposition is $O(dr^{d+1})$.
+We saw these improvements in both single least square problem and CP-ALS.
+
+In linear least squares problem, as we increased the condition number of the input factor matrices, the forward error for NE approach increased a lot.
+In the last case where the condition number is around $3e14$, we observed the error for NE is 9 order of magnitude greater than our QR method.
+The error for new QR method was even slightly better than explicit QR.
+For the speedup plot, we saw that the time for our QR is about 100 times faster when the number of modes is 8.
+It is also comparable to normal equation approach given extra QR decomposition computation.
+For optimizing CP problem, our revised QR method reached 14x speedup than previous QR method for 7-way tensor.
+This time, our QR approach even reached 4x speedup compared to Tensor Toolbox approach for 9-way tensor.
+We also got better relative errors and more stable results when input tensor is a 10-way ktensor.
+In some trials, standard Tensor Toolbox approach cannot achieve the optimal representation but our QR method could still control the error around $1e-10$.
+
+There are also some future steps to do. One thing is implementing this QR-based method to Tensor Toolbox, providing an another more accurate CP-ALS approach.
+It is also possible to implement dimension tree to reduce the factor of $d$ to constant when computing QR decompositions.
+This efficient pairwise QR decomposition for Khatri-Rao product can also improve the cost and probably accuracy for computing leverage scores mentioned in \cite{bharadwaj2023fast}.
 
 \section{Appendix}
 \subsection{Reflection}
