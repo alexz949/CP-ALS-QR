@@ -56,6 +56,8 @@
 \newcommand{\Ve}[3][]{\bm{#1{\mathbf{\MakeLowercase{#2}}}}({#3})}		% vector entry
 \newcommand{\T}[2][]{#1{\mathbf{\cal{#2}}}} 						% tensor
 \newcommand{\Te}[3][]{#1{\mathbf{\cal{#2}}}({#3})}	
+\newcommand{\kr}{\odot}
+\newcommand{\kron}{\otimes}
 \DeclareMathOperator*{\hada}{\scalebox{1.5}{$\ast$}}
 \let\ds\displaystyle
 
@@ -77,10 +79,23 @@ The normal equations are typically used to solve these linear least squares prob
 However, this approach is sensitive to roundoff error in the case of ill-conditioned coefficient matrices. 
 Minster et al. \cite{minster2021cp} propose a more numerically stable approach using QR decomposition that also exploits the structure of the coefficient matrices within the linear least squares problems.
 One drawback of the more stable approach is that the computational cost is exponential in the number of modes of the tensor.
-This cost is often not the bottleneck when computing CP decompositions of dense tensors.
-However, in the context of CP Rounding, or computing a lower-rank CP decomposition of an input already in CP format, the exponential cost is infeasible for large problems.
+This cost is often not the bottleneck when computing CP decompositions of input tensors in dense format.
+However, in the context of CP Rounding, or computing a lower-rank CP decomposition of an input already in CP format, the exponential cost becomes the overwhelming bottleneck and renders the algorithm infeasible for large problems.
 In this paper, we propose a new method based on the QR decomposition that is just as numerically stable and reduces the costs from exponential to linear in the number of modes $d$.
-\GB{First paragraph was great, tells the story at the right level of detail.  I made a pass and adjusted things a bit, but pretty minor.  In general, use present tense}
+
+
+As we describe in \cref{sec:background}, in the context of CP-ALS, the coefficient matrix of each linear least squares problem is a Khatri-Rao product of matrices, which is a column-wise Kronecker product.
+In order to efficiently compute a QR decomposition of a matrix with this structure, we perform a sequence of QR decompositions of smaller matrices.
+We illustrate the key idea with an example.
+Considering a Khatri-Rao product of three matrices, we exploit the following identities, where each computed QR decomposition is denoted using underbraces:
+
+\begin{align}
+\M{A} &= \underbrace{\M{A}_1}_{{\M{Q}_1\M{R}_1}} \kr \underbrace{\M{A}_2}_{{\M{Q}_2\M{R}_2}} \kr \underbrace{\M{A}_3}_{{\M{Q}_3\M{R}_3}} \\
+&= (\M{Q}_1 \kron \M{Q}_2 \kron \M{Q}_3) (\underbrace{\M{R}_1 \kr \M{R}_2}_{\M[\hat]{Q}_{12} \M[\hat]{R}_{12}} \kr \M{R}_3) \\
+&= (\M{Q}_1 \kron \M{Q}_2 \kron \M{Q}_3) (\M[\hat]{Q}_{12} \kron \M{I}) (\underbrace{\M[\hat]{R}_{12} \kr \M{R}_3}_{\M[\hat]{Q}_{123} \M{R}}). 
+\end{align}
+
+\GB{now let's explain these main steps, explain where we differ from previous approach, and I think we can remove/incorporate the following two paragraphs...}
 
 For ALS approach in CP decomposition, we try to solve least square problem with multiple right hand sides.
 Given the mathematical form of this least square problem $\min_X \| \mat{A}\mat{X} - \mat{B}\|_{F}$, where $\mat{B}$ is a matrix instead of a vector.
@@ -106,7 +121,9 @@ Our new algorithm is also 4x faster than normal equation approach if the input t
 
 
 
-\section{Background} \
+\section{Background} 
+\label{sec:background}
+
 \subsection{CP Decomposition}
 Given a $d$-way tensor $\T{X} \in \mathbb{R}^{n_1\times n_2\times \dots \times n_d}$, its
 CP decomposition $\T{K}$ of rank $r \in \mathbb{N}$ can be represented as 
