@@ -90,34 +90,33 @@ We illustrate the key idea with an example.
 Considering a Khatri-Rao product of three matrices, we exploit the following identities, where each computed QR decomposition is denoted using underbraces:
 
 \begin{align}
-\M{A} &= \underbrace{\M{A}_1}_{{\M{Q}_1\M{R}_1}} \kr \underbrace{\M{A}_2}_{{\M{Q}_2\M{R}_2}} \kr \underbrace{\M{A}_3}_{{\M{Q}_3\M{R}_3}} \\
-&= (\M{Q}_1 \kron \M{Q}_2 \kron \M{Q}_3) (\underbrace{\M{R}_1 \kr \M{R}_2}_{\M[\hat]{Q}_{12} \M[\hat]{R}_{12}} \kr \M{R}_3) \\
-&= (\M{Q}_1 \kron \M{Q}_2 \kron \M{Q}_3) (\M[\hat]{Q}_{12} \kron \M{I}) (\underbrace{\M[\hat]{R}_{12} \kr \M{R}_3}_{\M[\hat]{Q}_{123} \M{R}}). 
+  \label{eq:qr} \M{A} &= \underbrace{\M{A}_1}_{{\M{Q}_1\M{R}_1}} \kr \underbrace{\M{A}_2}_{{\M{Q}_2\M{R}_2}} \kr \underbrace{\M{A}_3}_{{\M{Q}_3\M{R}_3}} \\ 
+ \label{eq:re}&= (\M{Q}_1 \kron \M{Q}_2 \kron \M{Q}_3) (\underbrace{\M{R}_1 \kr \M{R}_2}_{\M[\hat]{Q}_{12} \M[\hat]{R}_{12}} \kr \M{R}_3) \\
+ \label{eq:pw}&= (\M{Q}_1 \kron \M{Q}_2 \kron \M{Q}_3) (\M[\hat]{Q}_{12} \kron \M{I}) (\underbrace{\M[\hat]{R}_{12} \kr \M{R}_3}_{\M[\hat]{Q}_{123} \M{R}}). 
 \end{align}
 
 \GB{now let's explain these main steps, explain where we differ from previous approach, and I think we can remove/incorporate the following two paragraphs...}
-
-For ALS approach in CP decomposition, we try to solve least square problem with multiple right hand sides.
-Given the mathematical form of this least square problem $\min_X \| \mat{A}\mat{X} - \mat{B}\|_{F}$, where $\mat{B}$ is a matrix instead of a vector.
-The normal equation approach computes the gram $\mat{A}^\top\mat{A}$ and solve the equation $\mat{A}^\top\mat{A}\mat{X} = \mat{A}^\top\mat{B}$.
-The QR-based method computes QR decomposition for $\mat{A} = \mat{Q}\mat{R}$, and solves the equation $\mat{R}\mat{X} = \mat{Q}^\top\mat{B}$.
-QR-based method is more stable because the condition number of this linear system will not increase.
-With the new modified QR decomposition for CP-format tensor, the dominant computation will be $\mat{A}^\top\mat{B}$ and $\mat{Q}^\top\mat{B}$ given multiple right hand sides.
-We could then see the new modified QR method is more numerically stable and also faster than normal equation.
+In \cref{eq:qr}, we first take the QR decomposition for each factor matrix. 
+Then exploiting special property of Khatri-Rao product that reordering it into a product of the kronecker orthogonal matrices product and the Khatri-Rao product of some upper-triangular matrices in \cref{eq:re}
+In previous approach proposed in \cite{minster2021cp}, one large QR decomposition for Khatri-Rao product of triangular matrices is performed.
+This cost is exponential to $d$ because of the computation of Khatri-Rao product.
+In our new QR-based method, we choose to compute Khatri-Rao product of triangular matrices only two at a time.
+We also perform the QR decomposition simultaneously as showed in \cref{eq:re} and \cref{eq:pw}.
+This reduce the cost of whole process to $O(dr^4)$, which is linear respect to $d$.
 
 Following by more descriptions of CP-ALS problem and CP-Rounding in \cref{sec:cp-als}, when solving least square problem with CP-format tensor as input, both $\mat{A}$ and $\mat{B}$ are Khatri-Rao product of factor matrices.
 We can use the Khatri-Rao product property to fast compute $\mat{A}^\top\mat{B}$ for normal equation and $\mat{Q}^\top\mat{B}$ for QR decomposition.
-The benchmark for CP-ALS with CP-format input is QR decomposition on $\mat{A}$. In previous approach, it first performs QR decomposition with each factor matrices in $\mat{A}$, and then perform the second QR decomposition with the Khatri-Rao product of $\mat{R}$s derived from QR on factor matrices.
-The second QR decomposition is exponential to number of modes because of the explicit formation of Khatri-Rao product. 
-This also increases the cost for doing $\mat{Q}^\top\mat{B}$.
-With our approach, we choose to take Khatri-Rao product of $\mat{R}$s only two at a time and perform QR decomposition respectively. 
-This strict the time for doing QR to only $r^4$.
+In previous QR approach, the majority of time goes to the exponential computation of Khatri-Rao product.
+With our new approach, because this time the computation is only linear to $d$, the bottleneck of cost is $\M{Q}^\top\mat{B}$.
+Given this linear least square problem with multiply right hand sides, as the dimensions of input tensor is large enough, the cost for our QR method is comparable to normal equation.
+The stability analysis is also included in \cref{sec:background}, which we can see that QR approach is more stable than normal equation.
 The derivation of this new QR-based method and the comparisons among three mentioned methods are included in \cref{sec:algo}.
 
 We also include our performance results by creating an approximation problem through Sine of Sums representation in \cref{sec:result}.
 This approximation problem has been proposed in \cite{BM02} that with the choice of specific parameters, it can be an ill-conditioned problem.
 With all the data we have, our new modified QR-based algorithm reaches 14x speedup than previous QR method for 7-way input tensor.
 Our new algorithm is also 4x faster than normal equation approach if the input tensor is 9-way.
+The 10-way test case indicates the relative error for our QR method is around 10 to 6 magnitude smaller than normal equation.
 
 
 
