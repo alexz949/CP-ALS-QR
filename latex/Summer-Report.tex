@@ -1,6 +1,6 @@
 \documentclass{article}
-\title{CP Rounding }
-\author{Alex Zhang}
+\title{Efficient CP Rounding using Alternating Least Squares with QR Decomposition}
+\author{Alex Zhang, Grey Ballard, and Jan Van Lent}
 \date{July 2023}
 \textwidth=16.00cm 
 \textheight=26.00cm 
@@ -71,6 +71,9 @@
 
 
 \maketitle
+
+\GB{Need to go back through and be consistent between CP format and Kruskal format, I think I prefer CP format}
+
 \section{Introduction}
 The CANDECOMP/PARAFAC or canonical polyadic (CP) decomposition for tensors is a popular tool for analyzing and interpreting latent patterns that may be present in multidimensional data. 
 A rank-$r$ CP decomposition of a $d$-way tensor is a sum of $r$ rank-one components, each of which is a $d$-way vector outer product.
@@ -80,7 +83,7 @@ However, this approach is sensitive to roundoff error in the case of ill-conditi
 Minster et al. \cite{MVLB23} propose a more numerically stable approach using QR decomposition that also exploits the structure of the coefficient matrices within the linear least squares problems.
 One drawback of their more stable approach is that the computational cost is exponential in the number of modes of the tensor.
 This cost is often not the bottleneck when computing CP decompositions of input tensors in dense format.
-However, in the context of CP Rounding, or computing a lower-rank CP decomposition of an input already in CP format, the exponential cost becomes the overwhelming bottleneck and renders the algorithm infeasible for large problems.
+However, in the context of CP-Rounding, or computing a lower-rank CP decomposition of an input already in CP format, the exponential cost becomes the overwhelming bottleneck and renders the algorithm infeasible for large problems.
 In this paper, we propose a new method based on the QR decomposition that is just as numerically stable and reduces the costs from exponential to linear in the number of modes $d$.
 
 
@@ -103,7 +106,7 @@ Instead, we propose using a pairwise approach.
 In \cref{eq:re} we form an explicit Khatri-Rao product of the first two triangular factors, compute a QR decomposition, and then factor out the orthonormal factor, leaving a Khatri-Rao product with one fewer factor matrix.
 In \cref{eq:qr}, we form an explicit Khatri-Rao product of the remaining two triangular factors and compute a final QR decomposition.
 This achieves a QR decomposition of the matrix $\M{A}$ where the orthonormal factor is a product of implicitly represented orthonormal matrices.
-We exploit the implicit structure when applying its transpose to the target matrix of the least squares problem, as the target matrix has similar structure in the context of CP Rounding 
+We exploit the implicit structure when applying its transpose to the target matrix of the least squares problem, as the target matrix has similar structure in the context of CP-Rounding 
 The cost of the pairwise approach is linear in the number of factors; full details are given in \cref{sec:alg:pwqr}.
  
 \Cref{sec:result} presents experimental results to validate the complexity analysis and numerical stability properties of our proposed algorithm.
@@ -135,7 +138,7 @@ for all $(i_1,i_2,\dots, i_d) \in [n_1] \otimes [n_2] \otimes [n_3] \otimes \dot
 \end{figure}
 We can represent $\T[]{K}$ in shorthand CP notation as $\T{K} = [\![\V{\lambda};\mat{A}_1,\mat{A}_2, \dots,\mat{A}_d ]\!]$. 
 There exists ambiguity in the weighting of the columns of the factor matrices and $\V{\lambda}$ vector.
-For simplicity of presentation, we drop the weight vector $\V{\lambda}$ throughout this report and use the representation
+For simplicity of presentation, we drop the weight vector $\V{\lambda}$ throughout and use the representation
 $$\T{K} = [\![\mat{A}_1,\mat{A}_2, \dots,\mat{A}_d ]\!].$$
 
 A tensor unfolding is a reshaping of the tensor elements into a matrix; mode-wise unfoldings map tensor fibers of a particular mode to columns of a matrix.
@@ -164,6 +167,8 @@ The NE specify a (square) linear system of equations and are derived from settin
 The NE can be solved via Cholesky factorization of $\mat{A}^\top\mat{A}$ and triangular solves.
 The cost of NE depends on the size of $\mat{A}$ and $\mat{B}$. 
 For $\mat{A} \in \mathbb{R}^{m \times n}$ and $\mat{B} \in \mathbb{R}^{p \times m}$, the arithmetic complexity of each step of the NE approach is given in \cref{tab:NE-time}.
+\GB{Combine Tables 1 and 2 to be like Table 3 and update references to them}
+
 \begin{table}[!ht]
   \centering
   \begin{tabular}{|c|c|}
@@ -172,7 +177,7 @@ For $\mat{A} \in \mathbb{R}^{m \times n}$ and $\mat{B} \in \mathbb{R}^{p \times 
     \hline
     Compute Gram & $mn^2$ \\
     Compute $\mat{B}\mat{A}$ & $2mnp$\\
-    Cholesky factorization & $1/3n^3$ \\
+    Cholesky factorization & $1/3 \, n^3$ \\
     Back solves & $2pn^2$ \\
     \hline
   \end{tabular}
@@ -180,14 +185,14 @@ For $\mat{A} \in \mathbb{R}^{m \times n}$ and $\mat{B} \in \mathbb{R}^{p \times 
   \label{tab:NE-time}
 \end{table}
 
-In the QR decomposition approach, we first compute the compact QR decomposition $\mat{A} = \mat{Q}\mat{R}$ (so that $\mat{Q}\in \mathbb{R}^{m \times n}$)and then solve the  triangular system
+In the QR decomposition approach, we first compute the compact QR decomposition $\mat{A} = \mat{Q}\mat{R}$ (so that $\mat{Q}\in \mathbb{R}^{m \times n}$) and then solve the  triangular system
 \begin{align}
 \label{eq:QR}  
 \mat{X} \mat{R}^\top = \mat{B}\mat{Q}.
 \end{align}
 The time complexity of each step of this approach is given in \cref{tab:QR-time}.
 Note that the cost of the QR decomposition assumes that Householder QR is used in the factorization and that the $\mat{Q}$ matrix is formed explicitly.
-If $p$ is smaller than $n$, then it is more efficient to leave $\mat{Q}$ in implicit Householder form, reducing the cost of QR to $2mn^2-2/3n^3$.
+If $p$ is smaller than $n$, then it is more efficient to leave $\mat{Q}$ in implicit Householder form, reducing the cost of QR to $2mn^2-2/3 \,n^3$.
 In this case, we apply $\mat{Q}$ to $\mat{B}$ using Householder transformations, which increases the cost of computing $\mat{B}\mat{Q}$ to $4mnp$. 
 %\begin{align}
 %  &arg\min_{\mat{X}}||\mat{B} - \mat{X}\mat{A}^\top||_{F}^2 \\
@@ -203,7 +208,7 @@ In this case, we apply $\mat{Q}$ to $\mat{B}$ using Householder transformations,
     \hline
     Components & Number of flops\\
     \hline
-    Compute QR & $4mn^2 - 4/3n^3$ \\
+    Compute QR & $4mn^2 - 4/3 \, n^3$ \\
     Compute $\mat{B}\mat{Q}$ & $2mnp$\\
     N/A & \\
     Back solves & $pn^2$ \\
@@ -227,14 +232,14 @@ However, if we use the NE approach, then by \cite[Eq. (19.3)]{trefethen1997numer
 \begin{equation}
   \frac{||\V[\tilde]{x} - \V{x}||}{||\V{x}||} = O \biggl(\kappa^2 \epsilon_{\text{mach}}\biggr).
 \end{equation}
-Because of the numerical sensitivity introduced by using the NE approach, the QR approach is much more accurate when $\kappa$ is large (e.g., on the order of $\epsilon_{\text{mach}}^{-1/2}$ or larger).
+Because of the numerical sensitivity introduced by using the NE approach, the QR approach is much more accurate when $\kappa$ is large (e.g., on the order of $\epsilon_{\text{mach}}^{-1/2}$ or larger) and $\theta$ is small.
 
 
 \subsection{CP-ALS} \label{sec:cp-als}
 
 \subsubsection{CP Optimization Problem}
 
-When computing a rank-$r$ CP approximation $\T{K}$ for a N-way tensor $\T{X}$, we seek to minimize $\| \T{X} - \T{K} \|$, where the tensor norm generalizes the vector 2-norm or the matrix Frobenius norm.
+When computing a rank-$r$ CP approximation $\T{K}$ for a $d$-way tensor $\T{X}$, we seek to minimize $\| \T{X} - \T{K} \|$, where the tensor norm generalizes the vector 2-norm or the matrix Frobenius norm.
 Expressed using \cref{eq:CP}, we have  
 $$\min_{\mat{A}_1,\mat{A}_2, \dots,\mat{A}_d} \| \T{X} - \T{K} \|^2 = \min_{\mat{A}_1,\mat{A}_2, \dots,\mat{A}_d} \sum_{i_1=1}^{n_1} \cdots \sum_{i_d=1}^{n_d} \left(\T{X}(i_1,i_2,\dots, i_d) - \sum^{r}_{j=1} \mat{A_1}(i_1,j)\mat{A_2}(i_2,j) \dots \mat{A_d}(i_d,j) \right)^2. $$
 However, this is a nonlinear, nonconvex optimization problem and no closed form solution exists. 
@@ -256,13 +261,12 @@ In updating the $n$th factor matrix, we expose the linear least squares problem 
 \end{align}
 where $\mat{Z}_k=\mat{A}_N \odot \dots \odot \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \dots \odot \mat{A}_1$.
 Note that the coefficient matrix $\mat{Z}_k^\top$ appears on the right of the variable matrix, matching the generic formulation in \cref{eq:LS}.
-
 All of the algorithms we consider in this report are based on CP-ALS, but they differ in how they solve the linear least squares subproblems specified in \cref{eq:cp-als-sub}.
 
 \subsubsection{CP-Rounding}
 \label{sec:cp-rounding}
 
-For some applications, we wish to compute a CP decomposition of a matrix that is already in CP format.
+In many applications, we wish to compute a CP decomposition of a tensor that is already in CP format.
 That is, we wish to compute a lower-rank representation of the input tensor, sometimes referred to a CP-Rounding.
 If $\T{X} \in \mathbb{R}^{n_1 \times \dots \times n_d}$ is a CP-format tensor with rank $s$, it can be written as 
 $$\T{X}(i_1,i_2,\dots, i_d) = \sum^{s}_{j=1} \mat{B}_1(i_1,j)\mat{B}_2(i_2,j) \dots \mat{B}_d(i_d,j)$$
@@ -280,17 +284,19 @@ where $\mat{Y}_k = \mat{B}_N \odot \dots \odot \mat{B}_{k+1} \odot \mat{B}_{k-1}
 This structure can be exploited in different ways depending on how the least squares problem is solved.
 
 
-\section{Algorithm} \label{sec:algo}
+\section{Algorithms} 
+\label{sec:algo}
 
-\GB{need to specify notation/dimensions/etc for cost analyses; let's use $n_1 \times \cdots \times n_d$ as tensor dimension, $\bar n$ is the average dimension so that $d\bar n = \sum_k n_k$ and $\hat n$ is the geometric mean so that $\hat n^d = \prod_k n_k$}
-The following explanation and tensor notation are assumed having a tensor in$\in \mathbb{R}^{n_1 \times \cdots \times n_d}$.
-We define average dimension for that tensor to be $\bar n$ and its geometric mean to be $\hat n$.
-$r$ in this section refers to the rank of CP decomposition, and $s$ means the rank for input CP tensor.
+We now present three versions of the CP-ALS algorithm and compare their complexities.
+\Cref{sec:alg:ne} presents the standard approach based on the normal equations, \cref{sec:alg:expqr} presents an existing approach that uses QR decomposition, and our proposed algorithm is detailed in \cref{sec:alg:pwqr}.
+We consider general $d$-way tensors with dimensions $n_1 \times \cdots \times n_d$, and we use $r$ to denote the rank of the CP approximation.
+In the case of CP-format input, we use $s$ to denote the input rank.
+For complexity analysis, we use notation for arithmetic average ($\bar n$) as well as geometric mean ($\hat n$) of the tensor dimensions, which means the number of dense input tensor entries is $\hat n^d$ and the number of entries in the CP decomposition is $d\bar n r$.
 
 \subsection{CP-ALS-NE}
 \label{sec:alg:ne}
 
-The key to the CP-ALS-NE algorithm is that we will use the normal equations (NE) method to solve the linear least squares problem given by \cref{eq:cp-als-sub} in each mode.
+We use CP-ALS-NE to refer to the standard CP-ALS algorithm that uses the normal equations to solve the linear least squares problem given by \cref{eq:cp-als-sub} in each mode.
 The normal equations for this problem are given by
 \begin{equation}
   \label{eq:CP-NE}
@@ -301,8 +307,9 @@ The coefficient matrix $\mat{Z}_k^\top\mat{Z}_k$ can be computed as a Hadamard p
 \mat{Z}_k^\top\mat{Z}_k %= (\mat{A}_N \odot \dots \odot \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \dots \odot \mat{A}_1)^\top(\mat{A}_N \odot \dots \odot \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \dots \odot \mat{A}_1) 
 = \mat{A}_d^\top \mat{A}_d \hada \cdots \hada \mat{A}_{k+1}^\top\mat{A}_{k+1} \hada \mat{A}_{k-1}^\top\mat{A}_{k-1} \hada \cdots \hada \mat{A}_{1}^\top\mat{A}_{1}.
 \end{equation*}
-The right hand side matrix $\mat{X}_{(k)}\mat{Z}_k$ can be computed as a matricized tensor times Khatri-Rao product (MTTKRP).
-We refer to this standard approach as CP-ALS-NE. Pseudocode for CP-ALS-NE is given in \cref{alg:cp-als-ne}.
+The right hand side matrix $\mat{X}_{(k)}\mat{Z}_k$ is computed as a matricized tensor times Khatri-Rao product (MTTKRP).
+Pseudocode for CP-ALS-NE is given in \cref{alg:cp-als-ne}.
+
 \begin{algorithm}[!ht]
   \caption{CP-ALS-NE}
   \label{alg:cp-als-ne}
@@ -318,6 +325,7 @@ Thus, the sum of an entire CP-ALS-NE iteration (updating all factor matrices onc
 2d\hat n^dr + O(d\bar n r^2 + d^2r^2 + dr^3).
 \end{equation*}
 We note that the leading order term can be reduced to $4\hat n^d r$ and the $O(d^2r^2)$ term can be reduced to $O(dr^2)$ using memoization \cite{phan2013fast}. 
+
 \subsubsection{Kruskal Input}
 If the input tensor $\T{X}=[\![\mat{B}^{(1)}, \dots ,\mat{B}^{(d)}]\!]$ is already in Kruskal format (see \cref{sec:cp-rounding}), we can compute the MTTKRP more efficiently using the following identity:
 \begin{align*}
@@ -325,15 +333,12 @@ If the input tensor $\T{X}=[\![\mat{B}^{(1)}, \dots ,\mat{B}^{(d)}]\!]$ is alrea
  &= \mat{B}_k(\mat{B}_d^\top\mat{A}_d) \hada \cdots \hada (\mat{B}_{k+1}^\top\mat{A}_{k+1}) \hada (\mat{B}_{k-1}^\top\mat{A}_{k-1}) \hada \cdots \hada (\mat{B}_1^\top\mat{A}_1).  
 \end{align*}
 
-With this structure, the algorithm for computing CP decomposition with Kruskal tensor will be  
 \begin{algorithm}[!ht]
   \caption{CP-Round-ALS-NE}
   \label{alg:cp-als-ne-k}
-  \input{algo/cp_als_ne_kruskal.tex}
-  
+  \input{algo/cp_als_ne_kruskal.tex} 
 \end{algorithm}
 
-%The cost when having a Kruskal input is basically the same as dense case. Except for $\mat{X}_{(n)}\mat{Z}_n$ (in \cref{l:round-ne-cross} and \cref{l:round-ne-rhs}) which we only need to do hadamard product requires $O(sn_kr)$ instead of $2\hat{n}^dr$.
 
 When the input is a Kruskal tensor of rank $s>r$, the cost is dominated by the computation of the right hand side of the normal equations.
 These costs, incurred in \cref{l:round-ne-rhs,l:NE-K-cross}, are $2n_krs+(d-2)rs$ and $n_krs$ in mode $k$, respectively.
@@ -343,35 +348,33 @@ Thus, the sum of an entire CP-Round-ALS-NE iteration (updating all factor matric
 \begin{equation*}
 4d\bar{n}rs + 3d\bar{n}r^2 + O(d^2rs + d^2r^2 + r^3).
 \end{equation*}
-We note that the $O(d^2rs+d^2r^2)$ terms can be reduced to $O(drs+dr^2)$ using memoization. 
+We note that the $O(d^2rs+d^2r^2)$ terms can be reduced to $O(drs+dr^2)$ using memoization.
+We also note that in the current implementation of this algorithm in the Tensor Toolbox \cite{TensorToolbox}, the $\mat{C}_k$ matrices are recomputed $d-1$ times per iteration. 
 
 
 \subsection{CP-ALS-Explicit-QR}
 \label{sec:alg:expqr}
 
-For CP-ALS-QR approach, it is similar to CP-ALS-NE, but this time more stable QR decomposition is used for solving least square problem instead of NE.
-For mode-n least squares problem,
-$$\min_{\mat{\hat{A}}_k}||\mat{X}_{(k)} - {\mat{\hat{A}}_k}\mat{Z}^\top_k ||$$
-We will first perform QR on each factor matrix in $\mat{Z}_k$, which 
-\begin{align}
-  \mat{Z}_k &= \mat{A}_d \odot \dots \odot \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \dots \odot \mat{A}_1 \nonumber \\
-  &= (\mat{Q}_d\mat{R}_d) \odot \dots \odot (\mat{Q}_{k+1}\mat{R}_{k+1}) \odot (\mat{Q}_{k-1}\mat{R}_{k-1}) \odot \dots \odot (\mat{Q}_1\mat{R}_1) \nonumber \\
-  &= (\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1)(\mat{R}_d \odot \dots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \dots \odot \mat{R}_1)\nonumber  
-\end{align}
-After that we will perform QR again on $\mat{Q}_0\mat{R}_0= (\mat{R}_d \odot \dots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \dots \odot \mat{R}_1)$, so $\mat{Z}_k$ will be
-$$\mat{Z}_k = (\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1)\mat{Q}_0\mat{R}_0$$
-The triangular system for QR in this case will be 
-\begin{equation}
-  \hat{\mat{A}}_k\mat{R}_0^\top = \mat{X}_{(k)}(\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1)\mat{Q}_0 
-  \label{eq:CP-EXP-QR}
-\end{equation}
-For solving least square problem, we will first apply kronecker product of Qs $\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1$ into $\mat{X}_{(k)}$
-$$\mat{Y}_{(k)} = \mat{X}_{(k)}(\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1)$$
-Then use backslash to solve the linear system
-\begin{equation}
-  \hat{\mat{A}}_k = \mat{R}_0^\top \text{\textbackslash} \mat{Y}_{(k)}\mat{Q}_0
-\end{equation}
-Sample pseudocode for CP-ALS-QR is showed in \cref{alg:cp-als-qr}
+The approach proposed by Minster et al. \cite{MVLB23}, which we refer to as CP-ALS-Explicit-QR, uses the more stable QR decomposition for solving least square problem instead of the normal equations.
+Consider the least squares problem in mode $k$ given by \cref{eq:cp-als-sub}.
+The algorithm first performs QR on each factor matrix in $\mat{Z}_k$, which yields
+\begin{align*}
+  \mat{Z}_k &= \mat{A}_d \odot \dots \odot \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \dots \odot \mat{A}_1 \\
+  &= (\mat{Q}_d\mat{R}_d) \odot \dots \odot (\mat{Q}_{k+1}\mat{R}_{k+1}) \odot (\mat{Q}_{k-1}\mat{R}_{k-1}) \odot \dots \odot (\mat{Q}_1\mat{R}_1)  \\
+  &= (\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1)(\mat{R}_d \odot \dots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \dots \odot \mat{R}_1).  
+\end{align*}
+Then it performs QR again on the Khatri-Rao product of triangular factors, obtaining $\mat{Q}_0\mat{R}_0= (\mat{R}_d \odot \dots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \dots \odot \mat{R}_1)$, so that $\mat{Z}_k = (\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1)\mat{Q}_0\mat{R}_0$.
+%The triangular system for QR in this case will be 
+%\begin{equation}
+ % \hat{\mat{A}}_k\mat{R}_0^\top = \mat{X}_{(k)}(\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1)\mat{Q}_0 
+%  \label{eq:CP-EXP-QR}
+%\end{equation}
+To solve the least square problem, we first apply the Kronecker product of orthonormal factors $\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1$ into $\mat{X}_{(k)}$:
+$$\mat{Y}_{(k)} = \mat{X}_{(k)}(\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1),$$
+which is equivalent to $\T{Y}=\T{X} \times_1 \mat{Q}_1^{\top} \cdots \times_{k-1} \mat{Q}_{k-1}^{\top}\times_{k+1} \mat{Q}_{k+1}^{\top} \cdot \times_{d} \mat{Q}_{d}^{\top}$, a Multi-TTM computation.
+Then we apply the $\mat{Q}_0$ to $\mat{Y}_{(k)}$ from the right and solve the linear system via back substitution.
+Pseudocode for CP-ALS-QR is shown in \cref{alg:cp-als-qr}.
+
 \begin{algorithm}
   \caption{CP-ALS-QR-Exp}
   \label{alg:cp-als-qr}
@@ -396,7 +399,10 @@ $$2d\hat{n}^dr + O(d\hat{n}^{d-1}r^2 + \cdots + d\hat{n}r^d + d\bar{n}r^d+ dr^{d
 Note that the leading order term (and several others) can be reduced by a factor of $O(d)$ using memoization \cite{KR19}.
 
 \subsubsection{Kruskal Input}
-If we have a Kruskal tensor input, the computation of right hand side will be more efficient by applying cross product for $\mat{Q}_k^\top\mat{B}_k$
+
+\GB{I will continue to edit starting from here...}
+
+If we have a Kruskal tensor input, the right hand side is computed more cheaply by applying cross products for $\mat{Q}_k^\top\mat{B}_k$
 \begin{equation}
   \mat{Y}_{(k)}\mat{Q}_0= \mat{B}_k(\mat{Q}_d^\top\mat{B}_d \odot \cdots \odot \mat{Q}_{k+1}^\top\mat{B}_{k+1} \odot \mat{Q}_{k-1}^\top\mat{B}_{k-1} \odot \cdots \odot \mat{Q}_1^\top\mat{B}_1)^\top\mat{Q}_0 \nonumber
 \end{equation}
