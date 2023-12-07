@@ -1,5 +1,5 @@
 \documentclass{article}
-\title{CP-ALS-QR report}
+\title{CP Rounding }
 \author{Alex Zhang}
 \date{July 2023}
 \textwidth=16.00cm 
@@ -77,48 +77,43 @@ A rank-$r$ CP decomposition of a $d$-way tensor is a sum of $r$ rank-one compone
 One of the most popular methods used to compute a CP decomposition is the alternating least squares (CP-ALS) algorithm, which solves a series of linear least squares problems. 
 The normal equations are typically used to solve these linear least squares problems within CP-ALS because of the structure of the coefficient matrix \cite{kolda2009tensor}. 
 However, this approach is sensitive to roundoff error in the case of ill-conditioned coefficient matrices. 
-Minster et al. \cite{minster2021cp} propose a more numerically stable approach using QR decomposition that also exploits the structure of the coefficient matrices within the linear least squares problems.
-One drawback of the more stable approach is that the computational cost is exponential in the number of modes of the tensor.
+Minster et al. \cite{MVLB23} propose a more numerically stable approach using QR decomposition that also exploits the structure of the coefficient matrices within the linear least squares problems.
+One drawback of their more stable approach is that the computational cost is exponential in the number of modes of the tensor.
 This cost is often not the bottleneck when computing CP decompositions of input tensors in dense format.
 However, in the context of CP Rounding, or computing a lower-rank CP decomposition of an input already in CP format, the exponential cost becomes the overwhelming bottleneck and renders the algorithm infeasible for large problems.
 In this paper, we propose a new method based on the QR decomposition that is just as numerically stable and reduces the costs from exponential to linear in the number of modes $d$.
 
 
 As we describe in \cref{sec:background}, in the context of CP-ALS, the coefficient matrix of each linear least squares problem is a Khatri-Rao product of matrices, which is a column-wise Kronecker product.
+The normal equations for this linear least squares problem can exploit this Khatri-Rao structure (see \cref{sec:alg:ne} for more details).
 In order to efficiently compute a QR decomposition of a matrix with this structure, we perform a sequence of QR decompositions of smaller matrices.
 We illustrate the key idea with an example.
 Considering a Khatri-Rao product of three matrices, we exploit the following identities, where each computed QR decomposition is denoted using underbraces:
 
 \begin{align}
-  \label{eq:qr} \M{A} &= \underbrace{\M{A}_1}_{{\M{Q}_1\M{R}_1}} \kr \underbrace{\M{A}_2}_{{\M{Q}_2\M{R}_2}} \kr \underbrace{\M{A}_3}_{{\M{Q}_3\M{R}_3}} \\ 
- \label{eq:re}&= (\M{Q}_1 \kron \M{Q}_2 \kron \M{Q}_3) (\underbrace{\M{R}_1 \kr \M{R}_2}_{\M[\hat]{Q}_{12} \M[\hat]{R}_{12}} \kr \M{R}_3) \\
- \label{eq:pw}&= (\M{Q}_1 \kron \M{Q}_2 \kron \M{Q}_3) (\M[\hat]{Q}_{12} \kron \M{I}) (\underbrace{\M[\hat]{R}_{12} \kr \M{R}_3}_{\M[\hat]{Q}_{123} \M{R}}). 
+\M{A} &= \underbrace{\M{A}_1}_{{\M{Q}_1\M{R}_1}} \kr \underbrace{\M{A}_2}_{{\M{Q}_2\M{R}_2}} \kr \underbrace{\M{A}_3}_{{\M{Q}_3\M{R}_3}}   \label{eq:qr} \\ 
+&= (\M{Q}_1 \kron \M{Q}_2 \kron \M{Q}_3) (\underbrace{\M{R}_1 \kr \M{R}_2}_{\M[\hat]{Q}_{12} \M[\hat]{R}_{12}} \kr \M{R}_3)  \label{eq:re} \\
+&= (\M{Q}_1 \kron \M{Q}_2 \kron \M{Q}_3) (\M[\hat]{Q}_{12} \kron \M{I}) (\underbrace{\M[\hat]{R}_{12} \kr \M{R}_3}_{\M[\hat]{Q}_{123} \M{R}}).  \label{eq:pw} 
 \end{align}
 
-\GB{now let's explain these main steps, explain where we differ from previous approach, and I think we can remove/incorporate the following two paragraphs...}
-In \cref{eq:qr}, we first take the QR decomposition for each factor matrix. 
-Then exploiting special property of Khatri-Rao product that reordering it into a product of the kronecker orthogonal matrices product and the Khatri-Rao product of some upper-triangular matrices in \cref{eq:re}
-In previous approach proposed in \cite{minster2021cp}, one large QR decomposition for Khatri-Rao product of triangular matrices is performed.
-This cost is exponential to $d$ because of the computation of Khatri-Rao product.
-In our new QR-based method, we choose to compute Khatri-Rao product of triangular matrices only two at a time.
-We also perform the QR decomposition simultaneously as showed in \cref{eq:re} and \cref{eq:pw}.
-This reduce the cost of whole process to $O(dr^4)$, which is linear respect to $d$.
-
-Following by more descriptions of CP-ALS problem and CP-Rounding in \cref{sec:cp-als}, when solving least square problem with CP-format tensor as input, both $\mat{A}$ and $\mat{B}$ are Khatri-Rao product of factor matrices.
-We can use the Khatri-Rao product property to fast compute $\mat{A}^\top\mat{B}$ for normal equation and $\mat{Q}^\top\mat{B}$ for QR decomposition.
-In previous QR approach, the majority of time goes to the exponential computation of Khatri-Rao product.
-With our new approach, because this time the computation is only linear to $d$, the bottleneck of cost is $\M{Q}^\top\mat{B}$.
-Given this linear least square problem with multiply right hand sides, as the dimensions of input tensor is large enough, the cost for our QR method is comparable to normal equation.
-The stability analysis is also included in \cref{sec:background}, which we can see that QR approach is more stable than normal equation.
-The derivation of this new QR-based method and the comparisons among three mentioned methods are included in \cref{sec:algo}.
-
-We also include our performance results by creating an approximation problem through Sine of Sums representation in \cref{sec:result}.
-This approximation problem has been proposed in \cite{BM02} that with the choice of specific parameters, it can be an ill-conditioned problem.
-With all the data we have, our new modified QR-based algorithm reaches 14x speedup than previous QR method for 7-way input tensor.
-Our new algorithm is also 4x faster than normal equation approach if the input tensor is 9-way.
-The 10-way test case indicates the relative error for our QR method is around 10 to 6 magnitude smaller than normal equation.
-
-
+Following \cite{MVLB23}, we start with a (compact) QR decomposition of each individual factor in \cref{eq:qr}, as the Kronecker product of the orthonormal factors can be factored out of the Khatri-Rao product as shown in \cref{eq:re}.
+Note that the Khatri-Rao product of triangular matrices is not triangular, so we do not yet have a QR decomposition of $\M{A}$.
+As we detail in \cref{sec:alg:expqr}, the previous approach forms the explicit Khatri-Rao product of all triangular factors and performs a large QR decomposition with cost that is exponential in the number of factors.
+Instead, we propose using a pairwise approach.
+In \cref{eq:re} we form an explicit Khatri-Rao product of the first two triangular factors, compute a QR decomposition, and then factor out the orthonormal factor, leaving a Khatri-Rao product with one fewer factor matrix.
+In \cref{eq:qr}, we form an explicit Khatri-Rao product of the remaining two triangular factors and compute a final QR decomposition.
+This achieves a QR decomposition of the matrix $\M{A}$ where the orthonormal factor is a product of implicitly represented orthonormal matrices.
+We exploit the implicit structure when applying its transpose to the target matrix of the least squares problem, as the target matrix has similar structure in the context of CP Rounding 
+The cost of the pairwise approach is linear in the number of factors; full details are given in \cref{sec:alg:pwqr}.
+ 
+\Cref{sec:result} presents experimental results to validate the complexity analysis and numerical stability properties of our proposed algorithm.
+We compare our proposed algorithm with the normal equations method and with the previously proposed QR-based algorithm to show that it is as computationally efficient as the normal equations and as numerically stable as the QR-based algorithm.
+We use a sine-of-sums tensor \cite{BM02} to illustrate the differences among the algorithms, as the example yields ill-conditioned least squares problems that expose the numerical instability of the normal equations and can be scaled to large numbers of modes.
+Our results show a $14\times$ speedup over the previous QR-based algorithm on a single linear least squares solve for a problem with 7 Khatri-Rao factors.
+We also show that our implementation of CP-ALS using QR is actually faster than the implementation of CP-ALS in the MATLAB Tensor Toolbox \cite{TensorToolbox}, which is based on the normal equations, because our implementation uses memoization to avoid recomputation of temporary quantities.
+We observe up to a $4\times$ speedup over the normal equations based CP-ALS on a 9-way tensor.
+For the sine-of-sums tensors, we show that the normal equations approach breaks down completely in the presence of ill-conditioning, while our method maintains small relative errors.
+We summarize our conclusions in \cref{sec:conclusion} and discuss future directions based on the proposed method.
 
 \section{Background} 
 \label{sec:background}
@@ -291,8 +286,9 @@ This structure can be exploited in different ways depending on how the least squ
 The following explanation and tensor notation are assumed having a tensor in$\in \mathbb{R}^{n_1 \times \cdots \times n_d}$.
 We define average dimension for that tensor to be $\bar n$ and its geometric mean to be $\hat n$.
 $r$ in this section refers to the rank of CP decomposition, and $s$ means the rank for input CP tensor.
-\subsection{CP-ALS-NE}
 
+\subsection{CP-ALS-NE}
+\label{sec:alg:ne}
 
 The key to the CP-ALS-NE algorithm is that we will use the normal equations (NE) method to solve the linear least squares problem given by \cref{eq:cp-als-sub} in each mode.
 The normal equations for this problem are given by
@@ -351,6 +347,8 @@ We note that the $O(d^2rs+d^2r^2)$ terms can be reduced to $O(drs+dr^2)$ using m
 
 
 \subsection{CP-ALS-Explicit-QR}
+\label{sec:alg:expqr}
+
 For CP-ALS-QR approach, it is similar to CP-ALS-NE, but this time more stable QR decomposition is used for solving least square problem instead of NE.
 For mode-n least squares problem,
 $$\min_{\mat{\hat{A}}_k}||\mat{X}_{(k)} - {\mat{\hat{A}}_k}\mat{Z}^\top_k ||$$
@@ -420,6 +418,8 @@ $$ 2dr^ds + 4dr^{d+1} + O(d\bar{n}rs+d\bar{n}r^2 + r^3).$$
 Again, it is possible to reduce the leading order costs by a factor of $O(d)$ via memoization.
 
 \subsection{CP-ALS-Pairwise-QR}
+\label{sec:alg:pwqr}
+
 \subsubsection{Algo}
 There is also a new QR-based method instead of computing QR on $(\mat{R}_d \odot \dots \odot \mat{R}_1)$, it compute QR for Khatri-Rao product of two matrices $\mat{R_n} \odot \mat{R}_{n-1}$.
 It avoids the formation of $\mat{Q}_0\mat{R}_0$ which its cost is exponential respect to the size of input tensor.
@@ -545,7 +545,8 @@ If we already have a Kruskal tensor as input, the distribution of time on differ
 
 
 
-\section{Experimental Results} \label{sec:result}
+\section{Experimental Results} 
+\label{sec:result}
 
 
 \subsection{Sine of Sums Tensor}
@@ -680,7 +681,8 @@ QR Imp is more stable compared to normal equation approach.
 
 
 
-\section{Conclusion and Future Work}
+\section{Conclusion}
+\label{sec:conclusion}
 
 \GB{This is a reasonable summary of the paper, but you're right that it repeats the introduction.  I think it would help to break it into two paragraphs: the first is a quicker summary of the idea, maybe referencing the explicit difference in computational cost (as you already touch on) and the second focusing on the time and stability improvements in the experiments with harder numbers (we observe up to X orders of magnitude reduction in error for a problem of condition number 1eY; we see a Zx speedup for ALS compared to the existing normal equations approach in the tensor toolbox).  For future work, we can say that based on these results, we plan to implement the algorithm in existing libraries like Tensor Toolbox.  We can also say that efficient QR decomposition of Khatri-Rao products has other applications, including for computing leverage scores (we can cite this paper \cite{bharadwaj2023fast}).}
 
