@@ -12,7 +12,7 @@
 \textheight=610pt
 \usepackage{graphicx}
 \usepackage{lineno,hyperref}
-\usepackage{amsmath,amssymb,enumerate,graphicx,pifont,color,tikz,yfonts,scalerel,changepage,algorithm,algpseudocode}
+\usepackage{amsmath,amssymb,amsthm,enumerate,graphicx,pifont,color,tikz,yfonts,scalerel,changepage,algorithm,algpseudocode}
 \usepackage{bookmark}
 \usepackage{diagbox}
 \usepackage{caption,subcaption}
@@ -38,6 +38,8 @@
   basicstyle=\ttfamily,
   mathescape
 }
+
+\newtheorem{property}{Property}
 
 \newcommand{\bmat}[1]{\begin{bmatrix} #1 \end{bmatrix}}
 \newcommand{\mat}[1]{\mathbf{#1}}
@@ -145,6 +147,13 @@ A tensor unfolding is a reshaping of the tensor elements into a matrix; mode-wis
 In the case of CP-format tensors like $\T{K}$, the $k$th mode-wise unfolding can be expressed in terms of the factor matrices:
 $$\mat{K}_{(k)} = \mat{A}_k (\mat{A}_N \odot \dots \odot \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \dots \odot \mat{A}_1)^\top,$$
 where $\odot$ denotes the Khatri-Rao product.
+
+We use the following useful property of Khatri-Rao products:
+\begin{property}
+\label{prop:krnkrp}
+Given matrices $\mat{A},\mat{B},\mat{C},\mat{D}$ with compatible dimensions, 
+$$\mat{A}\mat{B} \odot \mat{C}\mat{D} = (\mat{A} \otimes \mat{C}) (\mat{B} \odot \mat{D}).$$
+\end{property}
 
 \subsection{Linear Least Squares Problem}
 \label{sec:LS}
@@ -293,7 +302,7 @@ We consider general $d$-way tensors with dimensions $n_1 \times \cdots \times n_
 In the case of CP-format input, we use $s$ to denote the input rank.
 For complexity analysis, we use notation for arithmetic average ($\bar n$) as well as geometric mean ($\hat n$) of the tensor dimensions, which means the number of dense input tensor entries is $\hat n^d$ and the number of entries in the CP decomposition is $d\bar n r$.
 
-\subsection{CP-ALS-NE}
+\subsection{CP-ALS using Normal Equations}
 \label{sec:alg:ne}
 
 We use CP-ALS-NE to refer to the standard CP-ALS algorithm that uses the normal equations to solve the linear least squares problem given by \cref{eq:cp-als-sub} in each mode.
@@ -326,7 +335,8 @@ Thus, the sum of an entire CP-ALS-NE iteration (updating all factor matrices onc
 \end{equation*}
 We note that the leading order term can be reduced to $4\hat n^d r$ and the $O(d^2r^2)$ term can be reduced to $O(dr^2)$ using memoization \cite{phan2013fast}. 
 
-\subsubsection{Kruskal Input}
+\subsubsection{CP Format Input}
+
 If the input tensor $\T{X}=[\![\mat{B}^{(1)}, \dots ,\mat{B}^{(d)}]\!]$ is already in Kruskal format (see \cref{sec:cp-rounding}), we can compute the MTTKRP more efficiently using the following identity:
 \begin{align*}
   \mat{X}_{(k)}\mat{Z}_k &= \mat{B}_k(\mat{B}_d \odot \dots \odot \mat{B}_{k+1} \odot \mat{B}_{k-1} \odot \dots \odot \mat{B}_1)^\top(\mat{A}_d \odot \cdots \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \cdots \odot \mat{A}_1) \\
@@ -352,12 +362,12 @@ We note that the $O(d^2rs+d^2r^2)$ terms can be reduced to $O(drs+dr^2)$ using m
 We also note that in the current implementation of this algorithm in the Tensor Toolbox \cite{TensorToolbox}, the $\mat{C}_k$ matrices are recomputed $d-1$ times per iteration. 
 
 
-\subsection{CP-ALS-Explicit-QR}
+\subsection{CP-ALS using Explicit QR}
 \label{sec:alg:expqr}
 
 The approach proposed by Minster et al. \cite{MVLB23}, which we refer to as CP-ALS-Explicit-QR, uses the more stable QR decomposition for solving least square problem instead of the normal equations.
 Consider the least squares problem in mode $k$ given by \cref{eq:cp-als-sub}.
-The algorithm first performs QR on each factor matrix in $\mat{Z}_k$, which yields
+The algorithm first performs QR on each factor matrix in $\mat{Z}_k$, which by \cref{prop:krnkrp} yields
 \begin{align*}
   \mat{Z}_k &= \mat{A}_d \odot \dots \odot \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \dots \odot \mat{A}_1 \\
   &= (\mat{Q}_d\mat{R}_d) \odot \dots \odot (\mat{Q}_{k+1}\mat{R}_{k+1}) \odot (\mat{Q}_{k-1}\mat{R}_{k-1}) \odot \dots \odot (\mat{Q}_1\mat{R}_1)  \\
@@ -398,15 +408,15 @@ Overall, the cost of updating factor matrices along all modes for CP-ALS-QR-Exp 
 $$2d\hat{n}^dr + O(d\hat{n}^{d-1}r^2 + \cdots + d\hat{n}r^d + d\bar{n}r^d+ dr^{d+1} + d\bar{n}r^2 + dr^3 ).$$
 Note that the leading order term (and several others) can be reduced by a factor of $O(d)$ using memoization \cite{KR19}.
 
-\subsubsection{Kruskal Input}
+\subsubsection{CP Format Input}
 
-\GB{I will continue to edit starting from here...}
-
-If we have a Kruskal tensor input, the right hand side is computed more cheaply by applying cross products for $\mat{Q}_k^\top\mat{B}_k$
-\begin{equation}
-  \mat{Y}_{(k)}\mat{Q}_0= \mat{B}_k(\mat{Q}_d^\top\mat{B}_d \odot \cdots \odot \mat{Q}_{k+1}^\top\mat{B}_{k+1} \odot \mat{Q}_{k-1}^\top\mat{B}_{k-1} \odot \cdots \odot \mat{Q}_1^\top\mat{B}_1)^\top\mat{Q}_0 \nonumber
-\end{equation}
-We can treat $\mat{Q}_0$ as a matricized tensor and we can compute this as MTTKRP and a small matrix multiplication.
+In the case of a CP format tensor input, the right hand side is computed more cheaply by applying \cref{prop:krnkrp} in reverse:
+\begin{equation*}
+ \mat{X}_{(k)}(\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1) = 
+ \mat{B}_k(\mat{Q}_d^\top\mat{B}_d \odot \cdots \odot \mat{Q}_{k+1}^\top\mat{B}_{k+1} \odot \mat{Q}_{k-1}^\top\mat{B}_{k-1} \odot \cdots \odot \mat{Q}_1^\top\mat{B}_1)^\top.
+\end{equation*}
+The next step of applying $\mat{Q}_0$ to the Khatri-Rao product of cross-products $\{\mat{Q}_k^\top\mat{B}_k\}$ is performed using the MTTKRP computational kernel, and the final computation to compute the right hand side is a small multiplication with $\mat{B}_k$.
+The algorithm is given in \cref{alg:cp-als-qr-k}.
 
 \begin{algorithm}[!ht]
   \caption{CP-Round-ALS-QR-Exp}
@@ -423,10 +433,11 @@ Thus, the overall cost of CP-Round-ALS-QR-Exp is
 $$ 2dr^ds + 4dr^{d+1} + O(d\bar{n}rs+d\bar{n}r^2 + r^3).$$
 Again, it is possible to reduce the leading order costs by a factor of $O(d)$ via memoization.
 
-\subsection{CP-ALS-Pairwise-QR}
+\subsection{CP-ALS using Pairwise QR}
 \label{sec:alg:pwqr}
 
-\subsubsection{Algo}
+\GB{I will continue to edit starting from here...}
+
 There is also a new QR-based method instead of computing QR on $(\mat{R}_d \odot \dots \odot \mat{R}_1)$, it compute QR for Khatri-Rao product of two matrices $\mat{R_n} \odot \mat{R}_{n-1}$.
 It avoids the formation of $\mat{Q}_0\mat{R}_0$ which its cost is exponential respect to the size of input tensor.
 Doing QR on factor matrices is the same.
@@ -459,7 +470,8 @@ Thus, the total cost of a full iteration (updating each factor matrix once) of C
 $$ 2d\hat{n}^d + 2d\bar{n}r^d + 4d^2r^4 + O(d\hat{n}^{d-1}r^2 + d\bar{n}r^{d-1}). $$
 The leading order cost can be reduced by a factor of $O(d)$ via memoization \cite{KR19}.
 
-\subsubsection{Kruskal Input} \label{sec:QR-PW-k}
+\subsubsection{CP Format Input} 
+\label{sec:QR-PW-k}
 
 With Kruskal input, we can use the Kruskal structure $\mat{X}_{(k)} = \mat{B}_{k}(\mat{B}_{d} \odot \dots \odot \mat{B}_{k+1} \odot \mat{B}_{k-1}  \odot \dots \odot \mat{B}_{1})^\top$. 
 Applying $\mat{Q}$ into $\mat{X}_k$. 
