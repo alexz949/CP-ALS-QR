@@ -383,7 +383,6 @@ To solve the least square problem, we first apply the Kronecker product of ortho
 $$\mat{Y}_{(k)} = \mat{X}_{(k)}(\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1),$$
 which is equivalent to $\T{Y}=\T{X} \times_1 \mat{Q}_1^{\top} \cdots \times_{k-1} \mat{Q}_{k-1}^{\top}\times_{k+1} \mat{Q}_{k+1}^{\top} \cdot \times_{d} \mat{Q}_{d}^{\top}$, a Multi-TTM computation.
 Then we apply the $\mat{Q}_0$ to $\mat{Y}_{(k)}$ from the right and solve the linear system via back substitution.
-Pseudocode for CP-ALS-QR is shown in \cref{alg:cp-als-qr}.
 
 \begin{algorithm}
   \caption{CP-ALS-QR-Exp}
@@ -392,7 +391,8 @@ Pseudocode for CP-ALS-QR is shown in \cref{alg:cp-als-qr}.
 \end{algorithm}
 
 \subsubsection{Dense Input}
-%The difference between dense and Kruskal tensor is the computation of $\mat{Y}_{(k)}$. 
+
+Pseudocode for CP-ALS-QR for dense input is shown in \cref{alg:cp-als-qr}.
 For dense input, the computation of each subiteration is dominated by \cref{l:EXP-TTM}, which is a multiple tensor-times-matrix (Multi-TTM) computation to form $\T{Y}$ with cost
 $2\hat{n}^dr+O(\hat{n}^{d-1}r^2 + \cdots + \hat{n}r^d)$, where we assume the Multi-TTM is performed in order of largest mode to smallest (the largest mode is at least the geometric mean).
 The cost of the QR of the Khatri-Rao product of triangular factors in \cref{l:EXP-QR-R} is $4r^{d+1}+O(r^3)$, where we assume $\mat{Q}_0$ is formed explicitly.
@@ -436,30 +436,32 @@ Again, it is possible to reduce the leading order costs by a factor of $O(d)$ vi
 \subsection{CP-ALS using Pairwise QR}
 \label{sec:alg:pwqr}
 
-\GB{I will continue to edit starting from here...}
 
-There is also a new QR-based method instead of computing QR on $(\mat{R}_d \odot \dots \odot \mat{R}_1)$, it compute QR for Khatri-Rao product of two matrices $\mat{R_n} \odot \mat{R}_{n-1}$.
-It avoids the formation of $\mat{Q}_0\mat{R}_0$ which its cost is exponential respect to the size of input tensor.
-Doing QR on factor matrices is the same.
-$$\mat{Z}_k = (\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1)(\mat{R}_d \odot \dots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \dots \odot \mat{R}_1)$$
-But this time we will first do QR for $\mat{R}_d \odot \mat{R}_{d-1} = \mat{Q}_{A}\mat{R}_A$ and Khatri-Rao product of $\mat{R}$ will be 
-$$\mat{Q}_{A_{d-1}}\mat{R}_{A_{d-1}} \odot \mat{R}_{d-2} \odot \dots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \dots \odot \mat{R}_1$$
-We will use the same technique in representing $\mat{Z}_k$, which this will transform into 
-$$(\mat{Q}_{A_{d-1}} \otimes \dots \otimes \mat{I}_d \otimes \mat{I}_d \otimes \dots  \otimes  \mat{I}_d)(\mat{R}_{A_{d-1}} \odot \dots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \dots \odot \mat{R}_1)$$
-By continuing doing this pariwise QR decomposition on $\mat{R}$, we eventually will have a bunch of new QR representations like
-$$\mat{V}_d = \underbrace{(\mat{Q}_{A_{d-1}} \otimes \dots  \otimes  \mat{I}_d)}_{d-2}\underbrace{(\mat{Q}_{A_{d-2}} \otimes \dots \otimes \mat{I}_d)}_{d-3} \cdots (\mat{Q}_{A_{2}} \otimes \mat{I}_d) \mat{Q}_{A_{1}}\mat{R}_{A_{1}}$$
-where $\mat{Z}_k$ will be 
-$$\mat{Z}_k = (\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1) (\mat{Q}_{A_{d-1}} \otimes \dots  \otimes  \mat{I}_d)(\mat{Q}_{A_{d-2}} \otimes \dots \otimes \mat{I}_d) \cdots (\mat{Q}_{A_{2}} \otimes \mat{I}_d) \mat{Q}_{A_{1}}\mat{R}_{A_{1}}$$
-We can 
-The sample pseudocode is showed in \cref{alg:cp-als-pairwise-qr} 
+We now describe our proposed CP-ALS algorithm that uses the QR decomposition but avoids the explicit computation of the Khatri-Rao product of all $d-1$ triangular matrices.
+That is, it avoids computing $\mat{Q}_0\mat{R}_0$ as described in \cref{sec:alg:expqr}, which has a cost that is exponential in $d$.
+
+The first phase of the algorithm is the same: we perform QR decompositions on individual factor matrices and exploit \cref{prop:krnkrp}:
+$$\mat{Z}_k = (\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1)(\mat{R}_d \odot \dots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \dots \odot \mat{R}_1).$$
+To compute the QR decomposition of the Khatri-Rao product of triangular factors, we perform a sequence of pairwise reductions.
+Starting from the left, we compute a QR decomposition of an explicit Khatri-Rao product of two triangular factors: $\mat{R}_d \odot \mat{R}_{d-1} = \M[\hat]{Q}_{d-1}\M[\hat]{R}_{d-1}$.
+This yields
+$$\M[\hat]{Q}_{d-1}\M[\hat]{R}_{d-1} \odot \mat{R}_{d-2} \odot \dots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \dots \odot \mat{R}_1 = (\M[\hat]{Q}_{d-1} \kron \M{I}_{r^{d-2}})(\M[\hat]{R}_{d-1} \odot \mat{R}_{d-2} \odot \dots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \dots \odot \mat{R}_1),$$
+and we can repeat the pairwise QR decomposition on $\M[\hat]{R}_{d-1} \odot \mat{R}_{d-2}$, and so on (skipping the $k$th factor), each time reducing the number of triangular factors by one.
+After $d-2$ pairwise QR decompositions, we obtain  
+$$\mat{Z}_k = (\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1) (\M[\hat]{Q}_{d-1} \otimes \M{I}_{r^{d-2}})(\M[\hat]{Q}_{d-2} \otimes \mat{I}_{r^{d-3}}) \cdots (\M[\hat]{Q}_{2} \otimes \mat{I}_r) \M[\hat]{Q}_{1}\M{R}.$$
+
+\GB{I will continue to edit starting from here...need to describe multiplying into the RHS (in general)}
+
+
+\subsubsection{Dense Input}
+
+The sample pseudocode of our proposed approach for dense input is shown in \cref{alg:cp-als-pairwise-qr}.
+ 
 \begin{algorithm}
   \caption{CP-ALS-QR-Imp}
   \label{alg:cp-als-pairwise-qr}
   \input{algo/cp_als_pairwise.tex}
 \end{algorithm}
-
-
-\subsubsection{Dense Input}
 
 The cost of the factor matrix QR in \cref{l:cp-als-q-exp:updateQR} is $4n_kr^2+O(r^3)$ in mode $k$.
 The cost of the Multi-TTM in \cref{l:pairwise-TTM} is the same as in \cref{alg:cp-als-qr}: $2\hat{n}^dr+O(\hat{n}^{d-1}r^2 + \cdots + \hat{n}r^d)$.
