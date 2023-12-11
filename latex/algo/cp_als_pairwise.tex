@@ -10,13 +10,13 @@
         \For{$k = 1, \dots, d$}
           \State $\T{Y} =  \T{X} \times_1 \mat{Q}_1^\top \dots \times_{k-1} \mat{Q}_{k-1}^\top \times_{k+1} \mat{Q}_{k+1}^\top \dots \times_d \mat{Q}_d^\top$  \Comment{Multi-TTM} \label{l:pairwise-TTM}
           \State $\T{Y} = \Call{Permute}{\T{Y},[1,\dots,k-1,k+1,\dots,d,k]}$ \Comment{$\T{Y}$ becomes $r\times \cdots \times r \times n_k$} \label{l:pairwise-permute}
-          \State $\mat{R}_0 = \mat{R}_1$
+          \State $\mat{R} = \mat{R}_1$
           \For{$\ell = 2, \dots, d-1$} 
-            \State $[\mat{Q}_0,\mat{R}_0] = \Call{QR}{\mat{R}_\ell \odot \mat{R}_0}$ \Comment{pairwise QR} \label{l:pairwise-QR}
+            \State $[\M[\hat]{Q},\mat{R}] = \Call{QR}{\mat{R}_\ell \odot \mat{R}}$ \Comment{pairwise QR} \label{l:pairwise-QR}
             \State $\T{Y}= \Call{Reshape}{\T{Y},[r^2,r^{d-\ell-1},n_k]}$ \Comment{linearize 1st two remaining modes}
-            \State $\T[]{Y} = \T[]{Y} \times_1 \mat{Q}_0^\top$ \Comment{TTM} \label{l:pair-R-TTM} 
+            \State $\T[]{Y} = \T[]{Y} \times_1 \M[\hat]{Q}^\top$ \Comment{TTM} \label{l:pair-R-TTM} 
           \EndFor   
-          \State Solve $  \mat{A}_k\mat{R}_0^\top = \mat{Y}_{(1)}^\top$ for $\mat{A}_k$ \Comment{via triangular solve} \label{l:pairwise-solve}
+          \State Solve $  \mat{A}_k\mat{R}^\top = \mat{Y}_{(1)}^\top$ for $\mat{A}_k$ \Comment{via triangular solve} \label{l:pairwise-solve}
           \State $[\mat{Q}_k,\mat{R}_k] = \Call{QR}{\mat{A}_k}$ \Comment{update QR}  \label{l:pairwise-factorQR}
         \EndFor
       \EndWhile

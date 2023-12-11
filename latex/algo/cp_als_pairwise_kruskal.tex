@@ -10,11 +10,11 @@
       \While{not converge}
         \For{$k = 1, \dots, d$}
           \IfThenElse{$k \neq 1$}{$a=1$}{$a=2$} \Comment{set starting index}
-          \State $\mat{R}_0 = \mat{R}_a$, $\mat{D}_k = \mat{C}_a$ \Comment{initialize pairwise results}
+          \State $\mat{R} = \mat{R}_a$, $\mat{D}_k = \mat{C}_a$ \Comment{initialize pairwise results}
           \For{$\ell = 1, \dots, d$} 
             \If{$\ell\neq k \textbf{ and }\ell\neq a$}
-              \State $[\mat{Q}_0,\mat{R}_0] = \Call{QR}{\mat{R}_\ell \odot \mat{R}_0}$ \label{l:pair-QR-R} \Comment{pairwise QR}
-              \State $\mat{D}_k = (\mat{C}_\ell \odot \mat{D}_k)^\top\mat{Q}_0$ \label{l:pair-QR-Rapply} \Comment{pairwise apply}
+              \State $[\M[\hat]{Q},\mat{R}] = \Call{QR}{\mat{R}_\ell \odot \mat{R}}$ \label{l:pair-QR-R} \Comment{pairwise QR}
+              \State $\mat{D}_k = (\mat{C}_\ell \odot \mat{D}_k)^\top\M[\hat]{Q}$ \label{l:pair-QR-Rapply} \Comment{pairwise apply}
             \EndIf
           \EndFor
           \State $\mat{U}_k = \mat{B}_k\mat{D}_k$ \label{l:Pair-K-matmul} \Comment{via matrix multiplication}
