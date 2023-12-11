@@ -175,57 +175,39 @@ The NE specify a (square) linear system of equations and are derived from settin
 \end{equation}
 The NE can be solved via Cholesky factorization of $\mat{A}^\top\mat{A}$ and triangular solves.
 The cost of NE depends on the size of $\mat{A}$ and $\mat{B}$. 
-For $\mat{A} \in \mathbb{R}^{m \times n}$ and $\mat{B} \in \mathbb{R}^{p \times m}$, the arithmetic complexity of each step of the NE approach is given in \cref{tab:NE-time}.
+
 \GB{Combine Tables 1 and 2 to be like Table 3 and update references to them}
 
-\begin{table}[!ht]
-  \centering
-  \begin{tabular}{|c|c|}
-    \hline
-    Components & Number of flops\\
-    \hline
-    Compute Gram & $mn^2$ \\
-    Compute $\mat{B}\mat{A}$ & $2mnp$\\
-    Cholesky factorization & $1/3 \, n^3$ \\
-    Back solves & $2pn^2$ \\
-    \hline
-  \end{tabular}
-  \caption{Breakdown of time for using NE to solve \cref{eq:LS} for $\mat{A} \in \mathbb{R}^{m \times n}$ and $\mat{B} \in \mathbb{R}^{p \times m}$}
-  \label{tab:NE-time}
-\end{table}
 
 In the QR decomposition approach, we first compute the compact QR decomposition $\mat{A} = \mat{Q}\mat{R}$ (so that $\mat{Q}\in \mathbb{R}^{m \times n}$) and then solve the  triangular system
 \begin{align}
 \label{eq:QR}  
 \mat{X} \mat{R}^\top = \mat{B}\mat{Q}.
 \end{align}
-The time complexity of each step of this approach is given in \cref{tab:QR-time}.
+For $\mat{A} \in \mathbb{R}^{m \times n}$ and $\mat{B} \in \mathbb{R}^{p \times m}$, the time complexity of each step of Normal Equations and QR decomposition is given in \cref{tab:QR-NE-time}.
 Note that the cost of the QR decomposition assumes that Householder QR is used in the factorization and that the $\mat{Q}$ matrix is formed explicitly.
 If $p$ is smaller than $n$, then it is more efficient to leave $\mat{Q}$ in implicit Householder form, reducing the cost of QR to $2mn^2-2/3 \,n^3$.
 In this case, we apply $\mat{Q}$ to $\mat{B}$ using Householder transformations, which increases the cost of computing $\mat{B}\mat{Q}$ to $4mnp$. 
-%\begin{align}
-%  &arg\min_{\mat{X}}||\mat{B} - \mat{X}\mat{A}^\top||_{F}^2 \\
-%  &= arg \min_{\mat{X}}||\mat{B} - \mat{X}(\mat{Q}\mat{R})^\top||_{F}^2 \\
-%  &= arg \min_{\mat{X}}||\big[\mat{B} - \mat{X}\mat{R}^\top\mat{Q}^\top\big]\big[\mat{Q} \mat{Q}^\bot\big]||_{F}^2 \\
-%  &= arg \min_{\mat{X}}||\big[\mat{B}\mat{Q} - \mat{X}\mat{R}^\top \text{    } \mat{B} \mat{Q}^\bot\big]||_{F}^2 \\
-%  &= arg \min_{\mat{X}}||\mat{B}\mat{Q} - \mat{X}\mat{R}^\top||_{F}^2 + ||\mat{B}\mat{Q}^\bot||_{F}^2
-%\end{align}
+
 
 \begin{table}[!ht]
   \centering
-  \begin{tabular}{|c|c|}
+  \begin{tabular}{|c|c|c|c|}
     \hline
-    Components & Number of flops\\
+    \multicolumn{2}{|c|}{\textbf{Normal Equations}} & \multicolumn{2}{|c|}{\textbf{QR Decomposition}} \\
     \hline
-    Compute QR & $4mn^2 - 4/3 \, n^3$ \\
-    Compute $\mat{B}\mat{Q}$ & $2mnp$\\
-    N/A & \\
-    Back solves & $pn^2$ \\
+    Components & Number of flops & Component & Number of flops\\
+    \hline
+    Compute Gram & $mn^2$ & Compute QR & $4mn^2 - 4/3 \, n^3$\\
+    Compute $\mat{B}\mat{A}$ & $2mnp$ & Compute $\mat{B}\mat{Q}$ & $2mnp$\\
+    Cholesky factorization & $1/3 \, n^3$  & N/A & \\
+    Back solves & $2pn^2$  & Back solves & $pn^2$  \\
     \hline
   \end{tabular}
-  \caption{Breakdown of time for using QR to solve \cref{eq:LS} for $\mat{A} \in \mathbb{R}^{m \times n}$ and $\mat{B} \in \mathbb{R}^{p \times m}$}
-  \label{tab:QR-time}
+  \caption{Breakdown of time for using NE and QR to solve \cref{eq:LS} for $\mat{A} \in \mathbb{R}^{m \times n}$ and $\mat{B} \in \mathbb{R}^{p \times m}$}
+  \label{tab:QR-NE-time}
 \end{table}
+
 
 If $\mat{B}$ has few columns ($p\ll n$), NE is cheaper because of the smaller coefficient in the leading order cost ($mn^2$ vs $2mn^2$). 
 However, when $\mat{B}$ has many columns ($p\gg n$), the largest cost is computing $\mat{B}\mat{A}$ for NE and $\mat{B}\mat{Q}$ for QR factorization, which have leading order cost with the same constant ($2mnp$).
