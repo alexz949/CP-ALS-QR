@@ -1,7 +1,7 @@
 \documentclass{article}
 \title{Efficient CP Rounding using Alternating Least Squares with QR Decomposition}
 \author{Alex Zhang, Grey Ballard, and Jan Van Lent}
-\date{July 2023}
+\date{\today}
 \textwidth=16.00cm 
 \textheight=26.00cm 
 \topmargin=0.00cm
@@ -73,8 +73,6 @@
 
 
 \maketitle
-
-\GB{Need to go back through and be consistent between CP format and Kruskal format, I think I prefer CP format}
 
 \section{Introduction}
 The CANDECOMP/PARAFAC or canonical polyadic (CP) decomposition for tensors is a popular tool for analyzing and interpreting latent patterns that may be present in multidimensional data. 
@@ -176,9 +174,6 @@ The NE specify a (square) linear system of equations and are derived from settin
 The NE can be solved via Cholesky factorization of $\mat{A}^\top\mat{A}$ and triangular solves.
 The cost of NE depends on the size of $\mat{A}$ and $\mat{B}$. 
 
-\GB{Combine Tables 1 and 2 to be like Table 3 and update references to them}
-
-
 In the QR decomposition approach, we first compute the compact QR decomposition $\mat{A} = \mat{Q}\mat{R}$ (so that $\mat{Q}\in \mathbb{R}^{m \times n}$) and then solve the  triangular system
 \begin{align}
 \label{eq:QR}  
@@ -194,9 +189,9 @@ In this case, we apply $\mat{Q}$ to $\mat{B}$ using Householder transformations,
   \centering
   \begin{tabular}{|c|c|c|c|}
     \hline
-    \multicolumn{2}{|c|}{\textbf{Normal Equations}} & \multicolumn{2}{|c|}{\textbf{QR Decomposition}} \\
+    \multicolumn{2}{|c|}{\textbf{Normal Equations}} & \multicolumn{2}{c|}{\textbf{QR Decomposition}} \\
     \hline
-    Components & Number of flops & Component & Number of flops\\
+    Component & Number of flops & Component & Number of flops\\
     \hline
     Compute Gram & $mn^2$ & Compute QR & $4mn^2 - 4/3 \, n^3$\\
     Compute $\mat{B}\mat{A}$ & $2mnp$ & Compute $\mat{B}\mat{Q}$ & $2mnp$\\
@@ -215,12 +210,12 @@ However, when $\mat{B}$ has many columns ($p\gg n$), the largest cost is computi
 Using QR is more numerically stable than NE. 
 Let $\kappa = \sigma_1(\mat{A})/\sigma_n(\mat{A})$ be the standard condition number of $\mat{A}$.
 If we use QR to solve a least squares problem with a single right hand side; i.e. $\min\|\mat{A}\V{x} - \V{b} \|$, then from \cite[Eq. (19.2)]{trefethen1997numerical} the relative forward error satisfies
-\begin{equation}
+\begin{equation}\label{eq:ne-ferr}
   \frac{||\V[\tilde]{x} - \V{x}||}{||\V{x}||} = O \biggl(\biggl(\kappa + \frac{\kappa^2\tan\theta}{\eta}\biggr)\epsilon_{mach}\biggr),
 \end{equation}
 where $\V[\tilde]{x}$ is the computed solution, $\V{x}$ is the exact solution, $\theta$ is the angle between $\mat{A}\V{x}$ and $\V{b}$, and $\eta = \|\mat{A}\|\|\V{x}\|/\|\mat{A}\V{x}\|$.
 However, if we use the NE approach, then by \cite[Eq. (19.3)]{trefethen1997numerical} the forward error guarantee can be much larger: 
-\begin{equation}
+\begin{equation}\label{eq:qr-ferr}
   \frac{||\V[\tilde]{x} - \V{x}||}{||\V{x}||} = O \biggl(\kappa^2 \epsilon_{\text{mach}}\biggr).
 \end{equation}
 Because of the numerical sensitivity introduced by using the NE approach, the QR approach is much more accurate when $\kappa$ is large (e.g., on the order of $\epsilon_{\text{mach}}^{-1/2}$ or larger) and $\theta$ is small.
@@ -257,7 +252,7 @@ All of the algorithms we consider in this report are based on CP-ALS, but they d
 \subsubsection{CP-Rounding}
 \label{sec:cp-rounding}
 
-In many applications, we wish to compute a CP decomposition of a tensor that is already in CP format.
+In many applications, we wish to compute a CP decomposition of a tensor that is already in CP format, sometimes referred to as a Kruskal tensor.
 That is, we wish to compute a lower-rank representation of the input tensor, sometimes referred to a CP-Rounding.
 If $\T{X} \in \mathbb{R}^{n_1 \times \dots \times n_d}$ is a CP-format tensor with rank $s$, it can be written as 
 $$\T{X}(i_1,i_2,\dots, i_d) = \sum^{s}_{j=1} \mat{B}_1(i_1,j)\mat{B}_2(i_2,j) \dots \mat{B}_d(i_d,j)$$
@@ -289,7 +284,7 @@ Summaries of the per-iteration complexity of each algorithm are given in \cref{t
   \centering
   \begin{tabular}{|c|c|c|c|c|c|}
     \hline
-    \multicolumn{2}{|c|}{\textbf{Normal Equations}} & \multicolumn{2}{|c|}{\textbf{Explicit QR}} & \multicolumn{2}{|c|}{\textbf{Pairwise QR}} \\
+    \multicolumn{2}{|c|}{\textbf{Normal Equations}} & \multicolumn{2}{c|}{\textbf{Explicit QR}} & \multicolumn{2}{c|}{\textbf{Pairwise QR}} \\
     \hline
     Component & Cost & Component & Cost & Component & Cost \\
     \hline
@@ -309,7 +304,7 @@ Summaries of the per-iteration complexity of each algorithm are given in \cref{t
   \centering
   \begin{tabular}{|c|c|c|c|c|c|}
     \hline
-    \multicolumn{2}{|c|}{\textbf{Normal Equations}} & \multicolumn{2}{|c|}{\textbf{Explicit QR}} & \multicolumn{2}{|c|}{\textbf{Pairwise QR}} \\
+    \multicolumn{2}{|c|}{\textbf{Normal Equations}} & \multicolumn{2}{c|}{\textbf{Explicit QR}} & \multicolumn{2}{c|}{\textbf{Pairwise QR}} \\
     \hline
     Component & Cost & Component & Cost & Component & Cost \\
     \hline
@@ -360,7 +355,7 @@ We note that the leading order term can be reduced to $4\hat n^d r$ and the $O(d
 
 \subsubsection{CP Format Input}
 
-If the input tensor $\T{X}=[\![\mat{B}^{(1)}, \dots ,\mat{B}^{(d)}]\!]$ is already in Kruskal format (see \cref{sec:cp-rounding}), we can compute the MTTKRP more efficiently using the following identity:
+If the input tensor $\T{X}=[\![\mat{B}^{(1)}, \dots ,\mat{B}^{(d)}]\!]$ is already in CP format (see \cref{sec:cp-rounding}), we can compute the MTTKRP more efficiently using the following identity:
 \begin{align*}
   \mat{X}_{(k)}\mat{Z}_k &= \mat{B}_k(\mat{B}_d \odot \dots \odot \mat{B}_{k+1} \odot \mat{B}_{k-1} \odot \dots \odot \mat{B}_1)^\top(\mat{A}_d \odot \cdots \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \cdots \odot \mat{A}_1) \\
  &= \mat{B}_k((\mat{B}_d^\top\mat{A}_d) \hada \cdots \hada (\mat{B}_{k+1}^\top\mat{A}_{k+1}) \hada (\mat{B}_{k-1}^\top\mat{A}_{k-1}) \hada \cdots \hada (\mat{B}_1^\top\mat{A}_1)).  
@@ -373,7 +368,7 @@ If the input tensor $\T{X}=[\![\mat{B}^{(1)}, \dots ,\mat{B}^{(d)}]\!]$ is alrea
 \end{algorithm}
 
 
-When the input is a Kruskal tensor of rank $s>r$, the cost is dominated by the computation of the right hand side of the normal equations.
+When the input is a CP-format tensor of rank $s>r$, the cost is dominated by the computation of the right hand side of the normal equations.
 These costs, incurred in \cref{l:round-ne-rhs,l:NE-K-cross}, are $2n_krs+(d-2)rs$ and $n_krs$ in mode $k$, respectively.
 Computing the coefficient matrix of the normal equations occurs in \cref{l:round-ne-gram,l:NE-K-Gram} and has costs $(d-2)r^2$ and $n_kr^2$ in mode $k$.
 Solving the normal equations in \cref{l:NE-K-solve} costs $2n_kr^2 + O(r^3)$.
@@ -501,7 +496,7 @@ The leading order cost can be reduced by a factor of $O(d)$ via memoization \cit
 \subsubsection{CP Format Input} 
 \label{sec:QR-PW-k}
 
-With CP format input, we can use the Kruskal structure $\mat{X}_{(k)} = \mat{B}_{k}(\mat{B}_{d} \odot \dots \odot \mat{B}_{k+1} \odot \mat{B}_{k-1}  \odot \dots \odot \mat{B}_{1})^\top$ when applying the orthogonal factor into $\mat{X}_k$. 
+With CP format input, we can use the Khatri-Rao structure $\mat{X}_{(k)} = \mat{B}_{k}(\mat{B}_{d} \odot \dots \odot \mat{B}_{k+1} \odot \mat{B}_{k-1}  \odot \dots \odot \mat{B}_{1})^\top$ when applying the orthogonal factor into $\mat{X}_k$. 
 As described in \cref{sec:expqr:cpinput}, this gives us
 \begin{align*}
   %\mat{Y}_k &= (\mat{B}_{k}(\mat{B}_{d} \odot \dots \odot \mat{B}_{k+1} \odot \mat{B}_{k-1}  \odot \dots \odot \mat{B}_{1})^\top)(\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1) \nonumber \\
@@ -544,7 +539,7 @@ The terms involving factors of $d^2$ can likely be reduced by a factor of $d$ vi
 \subsection{Sine of Sums Tensor}
 
 To test the accuracy and efficiency of the QR-based method, we use a discretization of sine of sums: $\sin(x_1+\dots+ x_d)$.
-Repeated use of the textbook sine of sums identity for two variables, we obtain a $2^{d-1}$-term separated representation of the function.
+Repeated using the textbook sine of sums and cosine of sums identities for two variables, we obtain a $2^{d-1}$-term separated representation of the function.
 For example, 
 \begin{equation*}
 \begin{split}
@@ -552,184 +547,135 @@ For example,
 +\cos(x_1)\sin(x_2)\cos(x_3) - \sin(x_1)\sin(x_2)\sin(x_3).
 \end{split}
 \end{equation*}
-\GB{Shouldn't there be two negative terms in this expression?}
 As described in previous work \cite{BM02,MVLB23}, there exists a $d$-term separated representation of the form
-$$\sin\left(\sum^d_{j=1}x_j\right) = \sum^d_{j=1}\sin(x_j)\prod^d_{k=1,k\neq j}\frac{\sin(x_k - \alpha_k -\alpha_j)}{\sin(\alpha_k - \alpha_j)}$$
+\begin{equation}
+\label{eq:dtermrep}
+\sin\left(\sum^d_{j=1}x_j\right) = \sum^d_{j=1}\sin(x_j)\prod^d_{k=1,k\neq j}\frac{\sin(x_k - \alpha_k -\alpha_j)}{\sin(\alpha_k - \alpha_j)}
+\end{equation}
 for all choices of  ${\alpha_j}$ such that $\sin(\alpha_k - \alpha_j) \neq 0$ for all $j \neq k$.
 Our goal is to compute this much more efficient $d$-term representation using the $2^{d-1}$-term representation numerically using discretized representations of the functions.
+This corresponds to running CP-ALS with CP format input.
 
-\subsection{Single Least Squares Problem}
+\subsection{Algorithm Comparison for Single Least Squares Problem}
 
-%We can somehow treat this sine of sum be a N-mode tensor $\T{X} \in \mathbb{R}^{n \times \dots \times n}$, and each term of exponential representation corresponds to a rank $2^{d-1}$ CP decomposition. 
-%It is also possible to have a rank $n$ CP decomposition by the linear representation mentioned above. 
-%This representation can be ill-conditioned if $\alpha_k \rightarrow \alpha_j$.
-%In the actual problem setup, we make $a_k$ and $a_j$ to be evenly spaced between $\frac{\pi}{d}\frac{(d-1)}{100}$. 
+We first compare the three methods for solving a single least squares problem where the coefficient matrix is a Khatri-Rao product and the right hand side has matching Khatri-Rao structure, as given in \cref{eq:cp-als-sub-ktensor}:
+\begin{align*}
+\min_{\mat{A}_k} & \; \|\mat{B}_{k}\mat{Y}_k^\top-\mat{A}_k\mat{Z}_k^\top\|_F, \text{ where} \\
+\mat{Y}_k &= \mat{B}_N \odot \dots \odot \mat{B}_{k+1} \odot \mat{B}_{k-1} \odot \dots \odot \mat{B}_1 \text{ and} \\
+\mat{Z}_k &= \mat{A}_N \odot \dots \odot \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \dots \odot \mat{A}_1.
+\end{align*}
+Here we set the right hand side factors to be discretizations of the $2^{d-1}$-term representation, using an $n$-point discretization of $[0,2\pi)$.
+This implies that each $\M{B}_j$ has dimension $n \times 2^{d-1}$.
+We set the coefficient matrix $\M{Z}_k$ to be a Khatri-Rao product of matrices corresponding to $n$-point discretizations of the $d$-term representation so that each $\M{A}_j$ has dimension $n\times d$. 
+We choose $\alpha_j$'s to be equally spaced within $[0,2\pi)$.
+Leaving one factor matrix $\M{A}_k$ out of the representation, our goal is to recompute it by solving the least squares problem.
 
-The goal for this test is to see how the speed and accuracy of different algorithms will change when varying condition number $K$.
-We first created bunch of ktensors given different $d$. The least squares problems here are trying to approximate the last factor matrix in exponential representation. Comparing the relative error between approximated matrix and the factor matrix we formed in linear representation through built function. 
-
-Based on the problem setup, we measured the forward error by varying the distance between $\alpha_j$ and $\alpha_{j+1}$.
-We believed that this will change condition number which also lead to changes in accuracy in \cref{tab:LS_err}. 
+\Cref{tab:LS_err} reports the accuracy of the three methods as we vary the condition number as measured by the relative forward error $\|\M{A}_k-\M[\hat]{A}_k\|/\|\M{A}_k\|$, where $\M{A}_k$ is the true solution given by the discretization of \cref{eq:dtermrep} and $\M[\hat]{A}_k$ is the computed solution.
+We adjust the condition number of the coefficient matrix by varying $d$ and the distance between consecutive parameters $\alpha_j$ and $\alpha_j+1$, and we fix the discretization parameter $n=50$.
+We observe that as the distance between consecutive parameters decreases, the condition number of the coefficient matrix increases, and this effect is more pronounced for $d=5$ than $d=3$.
+As the condition number increases, we see that the forward error of all methods increases, as expected.
+However, this loss of accuracy is much worse for the normal equations method, and when the condition number is a large as the reciprocal of the square root of machine precision, it completely breaks down.
+For the QR-based methods, the loss of accuracy is much more graceful, and both methods maintain forward error at or below the square root of machine precision even when the condition number is on the order of \texttt{1e13}.
+This experiment confirms the difference in theoretical guarantees presented in \cref{eq:ne-ferr,eq:qr-ferr}.
+We note that the implicit Pairwise QR method yields slightly more accurate results than the explicit QR method, which we conjecture is due to the computations involving explicit vectors of dimension $n^{d-1}$, which the implicit method avoids.
 
 \begin{table}[ht!] 
   \centering
-  \begin{tabular}{|c|c|c|c|c|c|c|}
+  \begin{tabular}{|c|c|c|c|c|c|}
     \hline
-    $d$ & $n$ & $|\alpha_j-\alpha_{j+1}|$ & $\kappa$ & NE Fwd Err & QR Exp Fwd Err & QR PW Fwd Err \\
+    $d$  & $|\alpha_j-\alpha_{j+1}|$ & $\kappa(\M{Z}_k)$ & NE Err & QR Exp Err & QR Imp Err \\
     \hline
-    3 & 50 & \texttt{1e0}  & \texttt{1.51e0}  & \texttt{3.64e-16} & \texttt{1.44e-15} & \texttt{5.07e-16} \\
-    3 & 50 & \texttt{1e-1} & \texttt{5.02e2}  & \texttt{6.12e-14} & \texttt{3.70e-15} & \texttt{5.74e-16} \\
-    5 & 50 & \texttt{1e-1} & \texttt{7.38e3}  & \texttt{9.80e-11} & \texttt{9.70e-15} & \texttt{1.85e-15}\\
-    3 & 50 & \texttt{1e-2} & \texttt{4.77e5}  & \texttt{1.32e-08} & \texttt{5.40e-13} & \texttt{8.99e-15} \\
-    5 & 50 & \texttt{1e-2} & \texttt{3.71e8}  & \texttt{3.51e-01} & \texttt{4.87e-12} & \texttt{1.27e-14}\\
-    3 & 50 & \texttt{1e-4} & \texttt{4.77e11} & \texttt{8.89e-01} & \texttt{8.43e-09} & \texttt{1.31e-12} \\
-    5 & 50 & \texttt{1e-3} & \texttt{3.64e13} & \texttt{1.00e00}  & \texttt{9.74e-07} & \texttt{1.94e-09}\\
+    3  & \texttt{1e00}  & \texttt{1.51e00}  & \texttt{3.64e-16} & \texttt{1.44e-15} & \texttt{5.07e-16} \\
+    3  & \texttt{1e-1} & \texttt{5.02e02}  & \texttt{6.12e-14} & \texttt{3.70e-15} & \texttt{5.74e-16} \\
+    5  & \texttt{1e-1} & \texttt{7.38e03}  & \texttt{9.80e-11} & \texttt{9.70e-15} & \texttt{1.85e-15}\\
+    3  & \texttt{1e-2} & \texttt{4.77e05}  & \texttt{1.32e-08} & \texttt{5.40e-13} & \texttt{8.99e-15} \\
+    5  & \texttt{1e-2} & \texttt{3.71e08}  & \texttt{3.51e-01} & \texttt{4.87e-12} & \texttt{1.27e-14}\\
+    3  & \texttt{1e-4} & \texttt{4.77e11} & \texttt{8.89e-01} & \texttt{8.43e-09} & \texttt{1.31e-12} \\
+    5  & \texttt{1e-3} & \texttt{3.64e13} & \texttt{1.00e00}  & \texttt{9.74e-07} & \texttt{1.94e-09}\\
     \hline
   \end{tabular}
-  \caption{Forward Error when varying $|\alpha_j-\alpha_{j+1}|$ for NE, QR Imp, and QR Exp}
+  \caption{Comparison of relative forward error when varying $d$ and $|\alpha_j-\alpha_{j+1}|$ for single least squares problem given by sine of sums}
   \label{tab:LS_err}
 \end{table}
-We can observe that as the distance decreases, the condition number increases, and the forward error for NE changes a lot.
 
-Figure indicating speed differences is showed in \cref{fig:LS_problem_line}.
+\Cref{fig:LS_problem_line} reports the total time for solving the single least squares problem varying the number of modes $d$ and fixing the discretization parameter $n=2000$.
+Here we observe the exponential dependence on $d$ of the explicit QR method's complexity: as $d$ increases, the time required to solve the least square problem increases drastically.
+The normal equations method and the implicit QR method, with complexities that are linear in $d$, have running times that increase much more slowly with $d$ and are comparable to each other.
+
 \begin{figure}[ht!]
   \begin{center}
     \includegraphics[scale = 0.7]{lineplot_p.pdf}
-    \caption[Figure]{runtime for NE, QR Imp and QR Exp in different modes \label{fig:LS_problem_line}}
+    \caption[Figure]{Comparison of run time when varying $d$ for NE, QR Imp, and QR Exp ($n=2000$) \GB{Please change the y-axis label to ``Time (secs)" and the x-axis label to ``d" and remove the title} \label{fig:LS_problem_line}}
   \end{center}
 \end{figure}
 
+In \cref{fig:LS_problem_breakdown}, we see a breakdown of the running times for the normal equations and implicit QR methods as reported in \cref{fig:LS_problem_line}.
+Our first observation is that the time spent in applying the factor-wise orthonormal matrices to the right hand side and computing the right hand side of the normal equations, labeled $Q^TB/A^TB$, dominates the running time and is nearly identical between algorithms.
+This confirms the argument made in \cref{sec:LS} for unstructured least squares problems with many right hand sides.
+The second observation is that the time spent in factor-wise QR's is greater than that of computing Gram matrices, as they require twice the flops and are slightly less efficient.
+The pairwise QR and the application of the pairwise orthonormal factors is a unique cost to the implicit QR method, and that time is the main reason that the implicit QR method is slightly slower than the normal equations method.
+We also note that the linear system solve is noticeably slower for the normal equations method; we conjecture this is because Matlab is resorting to an SVD to solve a linear system it has detected is ill conditioned.
 
-For speed figure \cref{fig:LS_problem_line}, the time for doing QR Exp increases exponential respect to number of modes.
-Wheras the time for NE and QR Imp increase much slower and sometimes QR Imp is actually faster than NE.
-This is because the time for computing QR on $\mat{R}_N \odot \dots \odot \mat{R}_1$ is exponential to $d$.
-In some sense, QR Exp will not be a good choice to solve least square problem if the number of modes is to high.
-
-In the next breakdown figure \cref{fig:LS_problem_breakdown}, we will later see where the majority time goes.
 \begin{figure}[ht!]
   \begin{center}
     \includegraphics[scale = 0.8]{breakdown_p.pdf}
-    \caption[Figure]{Breakdown of runtime for NE and QR Imp\label{fig:LS_problem_breakdown}}
+    \caption[Figure]{Breakdown of run time when varying $d$ for NE and QR Imp ($n=2000$) \GB{Please change the y-axis label to ``Time (secs)" and the x-axis label to ``d" and remove the title}\label{fig:LS_problem_breakdown}}
   \end{center}
 \end{figure}
 
-In \cref{fig:LS_problem_breakdown} we can see that the time to apply gram matrices and factor Q matrices to RHS is about the same for each approach.
-In QR Imp, the computation for factor QR takes a little bit more time than computing the gram matrices and it has two extra steps for doing QR on Khatri-Rao R.
-So we don't really expect it will be faster than NE approach. 
-However, one thing to notice that the time for solving linear system on NE approach takes much longer than QR Imp approach.
-This is because MATLAB will perform SVD solve if the system condition number is too high.
-It will be slower then Cholesky solve performed in QR Imp.
+\subsection{CP-ALS Algorithm Comparisons}
 
-\subsection{CP-ALS}
+In the next set of experiments, we incorporate the implicit Pairwise QR method into CP-ALS and further compare the runtime and accuracy with CP-Round-ALS-NE and CP-Round-ALS-QR-Exp. 
+We use a discretized version of the $2^{d-1}$-term representation of the sine of sums tensor as input, and we initialize CP-ALS randomly.
 
-In the next step, we put QR Imp into CP-ALS which further compare the runtime and accuracy to CP-Round-ALS-NE and CP-Round-ALS-QR-Exp. 
-This is known that cost of QR Exp is exponential to $d$, which will take longer than the rest when solving a LS problem.
-This case is further amplified when doing CP-ALS with more computation needed.
+\Cref{fig:runtime} reports the per-iteration run time of each of the three methods, varying $d\in\{3,5,7,9\}$ and $n \in \{10000,15000,30000\}$.
+For 3-way tensors, the running times are comparable, though the normal equations is typically the fastest.
+For larger $d$, we see that the explicit QR method's running time increases drastically due to the exponential dependence on $d$, and we did not attempt to complete the experiment for $d=9$.
+While the normal equations and implicit QR methods have comparable time for $d=5$, we see the that implicit QR method outperforms NE for $d=7$ and $d=9$.
+This improvement is because we use the Tensor Toolbox's implementation of CP-ALS, which performs redundant computation in the MTTKRPs.
+We avoid this in our implementation of the QR-based methods, using memoization.
+We note that it is possible to apply memoization to the normal equations based method, and we would expect to see comparable performance to the implicit QR method with that optimization.
+
 \begin{figure}[ht!]
   \begin{center}
     \includegraphics[scale = 0.7]{Fig_kt.pdf}
-    \caption[Figure]{runtime for NE, QR Imp and QR Exp in different dimensions in each subinteration \label{fig:runtime}}
+    \caption[Figure]{Comparison of per-iteration run time when varying $d$ and $n$ for NE, QR Imp and QR Exp \GB{Please change the y-axis label to ``Time (secs)" and the x-axis label to n} \label{fig:runtime}}
   \end{center}
 \end{figure}
 
 
-As showed in \cref{fig:runtime}, we created 3-way, 5-way, 7-way and 9-way ktensors to show time distributions for each component.
-We also varied its dimensions $n$ to see how each approach cost changes.
-On the top, a 3-way and 5-way ktensor shows that the execution time for three approaches actually around the same.
-This is because computing QR is only about $dr^4$.
-Other computations which are respect to dimensions (n) are taking the lead for lower modes.
-For 5-way case, computing MTTKRP for NE is relatively large than TTM in QR approaches.
-We are using Tensor Toolbox standard CP-ALS algorithm for timing, which it does MTTKRP for each mode in every iteration.
-This redundant computation contributes to low efficiency.
-
-
-For 7-way tensor, cost for doing applying Q in QR Exp starts increasing exponentially.
-Once $d$ is large, both NE and QR Imp approaches are more efficient.
-Even in 9-way figure, we did not include the time for QR Exp because it takes to much time.
-We can still observe that NE is slower because of the redundant computation for MTTKRP.
-
-
-
-In order to further compare the accuracy for NE and Pairwise QR algorithm, we create a 5-way, a 7-way, and a 10-way ktensors with fixed dimension $n = 10$ to test the performance in \cref{fig:error}.
+To compare the accuracy of the NE-based and implicit Pairwise QR-based CP-ALS algorithms, we perform experiments with the sine of sums input with varying numbers of modes $d\in \{5,7,10\}$ and fixed $n=10$.
+\Cref{fig:error} shows the convergence behavior as measured by the relative backward/residual error over 40 iterations for two different random initializations.
+We observe that overall, the QR-based method is able to achieve lower error in each of the 6 experiments.
+In the case of $d=5$ and $d=7$, we observed little variability over initialization: the QR-based method converged to errors that were orders of magnitude smaller than the NE-based method, and that difference grows with $d$.
+In the case of $d=10$, we observed differing behavior for different initializations, confirming previously reported observations \cite{MVLB23}: the NE-based method failed about 80\% of the time (as shown in the 2nd trial) and achieved moderately large error about 20\% of the time (as shown in the 1st trial).
+The QR-based method, on the other hand, consistently converged to solutions with small residual error, illustrating its better numerical stability properties.
 
 \begin{figure}[ht!]
-  \begin{center}
-    
+  \begin{center}  
     \includegraphics*[scale = 1.1]{sinsums_acc2.pdf}
-    \caption[Figure]{Accuracy figure for Ne and QR Imp in different ds \label{fig:error}}
-  \end{center}
-  
+    \caption[Figure]{Comparison of convergence behavior of NE and QR Imp for varying $d$ and random initializations ($n=10$) \GB{Please change the y-axis label to ``Relative residual error"} \label{fig:error}}
+  \end{center}  
 \end{figure}
-
-In \cref{fig:error}, we tried to run the test twice with different random seeds. 
-We can see that in two trials, QR Imp approach has better accuracy than NE approach in three input tensors.
-For 5-way and 7-way input tensor, the relative error for QR Imp lies around $1e^{-14}$ to $1e^{13}$.
-The relative error for NE approach changes a lot from $1e^{-13}$ to $1e^{-10}$.
-In 2nd trial especially, we notice that the relative error for NE in 10-way case is leveling off.
-Whereas the relative error for QR Imp still holds around $1e^{-10}$.
-This is because as the number of modes increases, the condition number for each linear system will increase.
-QR Imp is more stable compared to normal equation approach.
-
-
-
 
 \section{Conclusion}
 \label{sec:conclusion}
 
-\GB{This is a reasonable summary of the paper, but you're right that it repeats the introduction.  I think it would help to break it into two paragraphs: the first is a quicker summary of the idea, maybe referencing the explicit difference in computational cost (as you already touch on) and the second focusing on the time and stability improvements in the experiments with harder numbers (we observe up to X orders of magnitude reduction in error for a problem of condition number 1eY; we see a Zx speedup for ALS compared to the existing normal equations approach in the tensor toolbox).  For future work, we can say that based on these results, we plan to implement the algorithm in existing libraries like Tensor Toolbox.  We can also say that efficient QR decomposition of Khatri-Rao products has other applications, including for computing leverage scores (we can cite this paper \cite{bharadwaj2023fast}).}
+In this work, we implement a new version of CP-ALS algorithm with QR decomposition that in the case of CP-format input reduces the exponential time complexity of a previously proposed solution \cite{MVLB23} to polynomial time without sacrificing numerical stability.
+The time complexity roughly matches that of the standard normal equations based CP-ALS algorithm as implemented in the Tensor Toolbox \cite{TensorToolbox}.
+As evidenced by our theoretical and experimental analysis, the algorithm simultaneously achieves numerical stability and computational efficiency.
 
+Our experiments with a single least squares problem show that for an ill-conditioned problem (condition number of \texttt{4e13}), our algorithm achieves an error that is 9 orders of magnitude smaller than the normal equations approach.
+Likewise, for an 8-way tensor, we observe a speedup of about $100\times$ over the previously proposed QR-based method.
+In experiments using CP-ALS to perform CP rounding, we observe a $14\times$ speedup over the previous QR-based method on a 7-way tensor and $4\times$ speedup over Tensor Toolbox's implementation of the NE-based method.
+Further, we also see convergence to more accurate solutions when using our method for $5$-way, $7$-way, and $10$-way tensors correspond to discovery of a sine of sums identity.
 
-We implemented a new version of CP-ALS algorithm with QR decomposition given the CP-format tensor to reduce the exponential time to polynomial time and keep its stability.
-The idea of algorithm is to avoid forming any full size Khatri-Rao product for doing CP decomposition. 
-We chose to take two $\mat{R}$s at a time, formed Khatri-Rao product, and computed QR decomposition.
-More detail is included in \cref{sec:QR-PW-k}.
-Our analysis inferred the dominant cost in this computation is applying orthogonal factor into the corresponding factor matrices and triangular solves, which is $O(d \bar n rs)$ for a full iteration.
-The cost for doing QR decomposition has complexity of $O(dr^4)$. Compared to the previous QR approach, its dominant cost comes from the MTTKRP which is $O(r^ds)$.
-The cost for doing that explicit QR decomposition is $O(dr^{d+1})$.
-We saw these improvements in both single least square problem and CP-ALS.
-
-In linear least squares problem, as we increased the condition number of the input factor matrices, the forward error for NE approach increased a lot.
-In the last case where the condition number is around $3e14$, we observed the error for NE is 9 order of magnitude greater than our QR method.
-The error for new QR method was even slightly better than explicit QR.
-For the speedup plot, we saw that the time for our QR is about 100 times faster when the number of modes is 8.
-It is also comparable to normal equation approach given extra QR decomposition computation.
-For optimizing CP problem, our revised QR method reached 14x speedup than previous QR method for 7-way tensor.
-This time, our QR approach even reached 4x speedup compared to Tensor Toolbox approach for 9-way tensor.
-We also got better relative errors and more stable results when input tensor is a 10-way ktensor.
-In some trials, standard Tensor Toolbox approach cannot achieve the optimal representation but our QR method could still control the error around $1e-10$.
-
-There are also some future steps to do. One thing is implementing this QR-based method to Tensor Toolbox, providing an another more accurate CP-ALS approach.
-It is also possible to implement dimension tree to reduce the factor of $d$ to constant when computing QR decompositions.
-This efficient pairwise QR decomposition for Khatri-Rao product can also improve the cost and probably accuracy for computing leverage scores mentioned in \cite{bharadwaj2023fast}.
-
-\section{Appendix}
-\subsection{Reflection}
-
-
-After doing this project in this summer, I really got a sense about how interesting doing research is.
-At the beginning of this research, I and professor Ballard first tried another coefficient matrices technique for a few weeks. 
-It didn't work well which made me kind of frustrated. 
-Luckily, Another professor from England used to think of one different method that after carefully expansion and examination, we found it worked. 
-We further tested this method and we were pretty decent about the result.
-Then I had to write the report which is less excite because I have to define variables, setup notation and explain how formula and algorithm work. 
-My mind in this researching process is just bouncing up and down which is interesting.
-
-For educational development, the main feeling when I was doing research is that I do not have really solid mathematical background. 
-Even though I have already took Numerical Linear Algebra and two linear algebra courses in math department, I sometimes still feel like I cannot understand lemmas and properties. 
-If I was better at math, I maybe more efficiency and can locate the problem quicker. 
-I'm thinking about getting a math minor in the future. 
-Besides from this part, I also had a chance to look deep into what I have learnt through this research.
-There are lots of mathematical reasons that support these computation methods which I found out really interesting.
-For personal development, I think in the future I may get a higher degree because doing research is interesting for now. 
-However this doesn't mean that I will always do research.
-Right now, I just feel kind of tired because sticking with one thing for 10 more weeks definitely will wipe some excitements from people.
-Right now I really want the new semester starts so that I can learn new stuff and take a break from research.
-Speaking of this, my future personal goal is try to find a balance between studying and relax, or researching and studying.
+Our future work includes implementing this QR-based method within Tensor Toolbox, providing a more accurate CP-ALS approach for CP-format input that does not sacrifice computational efficiency.
+We also note that there are more opportunities to exploit memoization in our pairwise QR algorithm.
+Finally, we believe that the pairwise QR approach can improve the cost and accuracy for computing leverage scores for randomized methods as described in \cite{bharadwaj2023fast}, which we would like to explore further.
 
 
 \bibliographystyle{plain}
-
-
 \bibliography{reference}
 
 \end{document}
