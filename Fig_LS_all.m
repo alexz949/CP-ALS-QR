@@ -84,10 +84,10 @@ q = semilogy(x,y3,'-.','linewidth',2)
 p.Marker = "o"
 o.Marker = "o"
 q.Marker = "o"
-title("Raw Runtime line plot by keeping n = 2000")
 
-ylabel("Total time")
-xlabel("Number of Modes")
+
+ylabel("Time (secs)")
+xlabel("d")
 set(gca, 'XTick', 3:8)
 l = legend("QR Imp", "NE","QR Exp")
 l.Location = 'northwest'

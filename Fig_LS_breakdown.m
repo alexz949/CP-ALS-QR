@@ -24,10 +24,9 @@ end
 figure,
 a=gca;
 bar([bd_mat(1:3,:); bd_mat(4:6,:); bd_mat(7:9,:);bd_mat(10:12,:);bd_mat(13:15,:);bd_mat(16:18,:)],'stacked');
-title('breakdown runtime when n=2000')
-ylabel('runtime (sec)')
+ylabel('Time (secs)')
 
-xlabel('Number of Modes')
+xlabel('d')
 xticks([0:18]);
 xticklabels({'','QR Imp','NE','','QR Imp','NE','','QR Imp','NE','','QR Imp','NE','','QR Imp','NE','','QR Imp','NE'});
 a.XRuler.TickLabelGapOffset = 15;   

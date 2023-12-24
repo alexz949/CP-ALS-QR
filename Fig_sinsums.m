@@ -22,7 +22,7 @@ set(gca,'fontsize',10)
 legend('5-way NE','5-way QR Imp','7-way NE','7-way QR Imp','10-way NE','10-way QR Imp','fontsize',6)
 %title('Relative Error for Different d (1st trial)') 
 xlabel('iteration number')
-ylabel('relative error')
+ylabel('Relative residual error')
 title('1st trial')
 
 
@@ -40,7 +40,7 @@ title('2nd trial')
 
 
 xlabel('iteration number')
-ylabel('relative error')
+ylabel('Relative residual error')
 set(gca,'fontsize',10)
 set(gcf,'Units','inches');
 screenposition = get(gcf,'Position');
