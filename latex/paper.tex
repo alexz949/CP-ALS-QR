@@ -126,15 +126,15 @@ Given a $d$-way tensor $\T{X} \in \mathbb{R}^{n_1\times n_2\times \dots \times n
 CP decomposition $\T{K}$ of rank $r \in \mathbb{N}$ can be represented as 
 \begin{equation}
 \label{eq:CP}
-\T{X}(i_1,i_2,\dots, i_d) \approx \T{K} = \sum^{r}_{j=1} \V{\lambda}(j) \mat{A_1}(i_1,j)\mat{A_2}(i_2,j) \dots \mat{A_d}(i_d,j)
+\T{X}(i_1,i_2,\dots, i_d) \approx \T{K}(i_1, i_2,\dots, i_d) = \sum^{r}_{j=1} \V{\lambda}(j) \mat{A}_1(i_1,j)\mat{A}_2(i_2,j) \dots \mat{A}_d(i_d,j)
 \end{equation}
-for all $(i_1,i_2,\dots, i_d) \in [n_1] \otimes [n_2] \otimes [n_3] \otimes \dots \otimes [n_d]$ where $\mat{A_k} \in \mathbb{R}^{n_k \times r}$ is a factor matrix for each $k \in [d]$ and $\bm{\lambda}\in\mathbb{R}^r$ is a vector of weights. 
+for all $(i_1,i_2,\dots, i_d) \in [n_1] \otimes [n_2] \otimes [n_3] \otimes \dots \otimes [n_d]$ where $\mat{A}_k \in \mathbb{R}^{n_k \times r}$ is a factor matrix for each $k \in [d]$ and $\bm{\lambda}\in\mathbb{R}^r$ is a vector of weights. 
 \Cref{fig:3d-cp-decomp} gives a visualization of a CP Decomposition for a 3-way tensor.
 
 \begin{figure}[ht!]
 \centering
 \input{tikz/cp.tex}
-\caption{CP decomposition of rank $R$ for a three-dimensional tensor $\T{X}$ \label{fig:3d-cp-decomp}}
+\caption{CP decomposition of rank $r$ for a three-dimensional tensor $\T{X}$ \label{fig:3d-cp-decomp}}
 \end{figure}
 We can represent $\T[]{K}$ in shorthand CP notation as $\T{K} = [\![\V{\lambda};\mat{A}_1,\mat{A}_2, \dots,\mat{A}_d ]\!]$. 
 There exists ambiguity in the weighting of the columns of the factor matrices and $\V{\lambda}$ vector.
@@ -227,7 +227,7 @@ Because of the numerical sensitivity introduced by using the NE approach, the QR
 
 When computing a rank-$r$ CP approximation $\T{K}$ for a $d$-way tensor $\T{X}$, we seek to minimize $\| \T{X} - \T{K} \|$, where the tensor norm generalizes the vector 2-norm or the matrix Frobenius norm.
 Expressed using \cref{eq:CP}, we have  
-$$\min_{\mat{A}_1,\mat{A}_2, \dots,\mat{A}_d} \| \T{X} - \T{K} \|^2 = \min_{\mat{A}_1,\mat{A}_2, \dots,\mat{A}_d} \sum_{i_1=1}^{n_1} \cdots \sum_{i_d=1}^{n_d} \left(\T{X}(i_1,i_2,\dots, i_d) - \sum^{r}_{j=1} \mat{A_1}(i_1,j)\mat{A_2}(i_2,j) \dots \mat{A_d}(i_d,j) \right)^2. $$
+$$\min_{\mat{A}_1,\mat{A}_2, \dots,\mat{A}_d} \| \T{X} - \T{K} \|^2 = \min_{\mat{A}_1,\mat{A}_2, \dots,\mat{A}_d} \sum_{i_1=1}^{n_1} \cdots \sum_{i_d=1}^{n_d} \left(\T{X}(i_1,i_2,\dots, i_d) - \sum^{r}_{j=1} \mat{A}_1(i_1,j)\mat{A}_2(i_2,j) \dots \mat{A}_d(i_d,j) \right)^2. $$
 However, this is a nonlinear, nonconvex optimization problem and no closed form solution exists. 
 We must resort to using iterative methods to approximate a solution \cite{kolda2009tensor}.
 
@@ -238,14 +238,14 @@ The algorithm works as a block coordinate descent method, where each block of va
 That is, it alternates over the factor matrices, holding all but one fixed and computing the optimal solution for the variable matrix.
 
 We can solve each subproblem directly because it is a linear least squares problem.
-In updating the $n$th factor matrix, we expose the linear least squares problem by unfolding $\T{X}$ and $\T{K}$ along the $k$th mode:
+In updating the $k$th factor matrix, we expose the linear least squares problem by unfolding $\T{X}$ and $\T{K}$ along the $k$th mode:
 \begin{align}
 \label{eq:cp-als-sub}
 \min_{\mat{A}_k}||\T{X} - \T{K}|| &= \min_{\mat{A}_k}||\mat{X}_{(k)} - \mat{K}_{(k)}||_F \notag \\ 
-&=  \min_{\mat{A}_k}||\mat{X}_{(k)} - \mat{A}_k(\mat{A}_N \odot \dots \odot \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \dots \odot \mat{A}_1)^\top||_F \notag \\ 
+&=  \min_{\mat{A}_k}||\mat{X}_{(k)} - \mat{A}_k(\mat{A}_d \odot \dots \odot \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \dots \odot \mat{A}_1)^\top||_F \notag \\ 
 &=  \min_{\mat{A}_k}\|\mat{X}_{(k)}-\mat{A}_k\mat{Z}_k^\top\|_F,
 \end{align}
-where $\mat{Z}_k=\mat{A}_N \odot \dots \odot \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \dots \odot \mat{A}_1$.
+where $\mat{Z}_k=\mat{A}_d \odot \dots \odot \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \dots \odot \mat{A}_1$.
 Note that the coefficient matrix $\mat{Z}_k^\top$ appears on the right of the variable matrix, matching the generic formulation in \cref{eq:LS}.
 All of the algorithms we consider in this report are based on CP-ALS, but they differ in how they solve the linear least squares subproblems specified in \cref{eq:cp-als-sub}.
 
@@ -256,7 +256,7 @@ In many applications, we wish to compute a CP decomposition of a tensor that is 
 That is, we wish to compute a lower-rank representation of the input tensor, sometimes referred to a CP-Rounding.
 If $\T{X} \in \mathbb{R}^{n_1 \times \dots \times n_d}$ is a CP-format tensor with rank $s$, it can be written as 
 $$\T{X}(i_1,i_2,\dots, i_d) = \sum^{s}_{j=1} \mat{B}_1(i_1,j)\mat{B}_2(i_2,j) \dots \mat{B}_d(i_d,j)$$
-with shorthand notation $\T{X} = [\![\mat{B}^{(1)}, \dots ,\mat{B}^{(d)}]\!]$.
+with shorthand notation {$\T{X} = [\![\mat{B}_{1}, \dots ,\mat{B}_{d}]\!]$}.
 
 In the case the input tensor is in CP format, we can then utilize its special mode-$k$ unfolding representation 
 $$\mat{X}_{(k)} = \mat{B}_k(\mat{B}_d \odot \dots \mat{B}_{k+1} \odot \mat{B}_{k-1} \odot \dots \odot \mat{B}_1)^\top$$
@@ -266,7 +266,7 @@ That is, the least squares subproblem is given by
 \label{eq:cp-als-sub-ktensor}
 \min_{\mat{A}_k}\|\mat{B}_{k}\mat{Y}_k^\top-\mat{A}_k\mat{Z}_k^\top\|_F,
 \end{equation}
-where $\mat{Y}_k = \mat{B}_N \odot \dots \odot \mat{B}_{k+1} \odot \mat{B}_{k-1} \odot \dots \odot \mat{B}_1$.
+where $\mat{Y}_k = \mat{B}_d \odot \dots \odot \mat{B}_{k+1} \odot \mat{B}_{k-1} \odot \dots \odot \mat{B}_1$.
 This structure can be exploited in different ways depending on how the least squares problem is solved.
 
 
@@ -327,7 +327,7 @@ We use CP-ALS-NE to refer to the standard CP-ALS algorithm that uses the normal 
 The normal equations for this problem are given by
 \begin{equation}
   \label{eq:CP-NE}
-  \mat{\hat{A}_k}\mat{Z}_k^\top\mat{Z}_k = \mat{X}_{(k)}\mat{Z}_k.
+ \mat{{A}}_k\mat{Z}_k^\top\mat{Z}_k = \mat{X}_{(k)}\mat{Z}_k.
 \end{equation}
 The coefficient matrix $\mat{Z}_k^\top\mat{Z}_k$ can be computed as a Hadamard product of Gram matrices of the Khatri-Rao factors:
 \begin{equation*}
@@ -355,7 +355,7 @@ We note that the leading order term can be reduced to $4\hat n^d r$ and the $O(d
 
 \subsubsection{CP Format Input}
 
-If the input tensor $\T{X}=[\![\mat{B}^{(1)}, \dots ,\mat{B}^{(d)}]\!]$ is already in CP format (see \cref{sec:cp-rounding}), we can compute the MTTKRP more efficiently using the following identity:
+If the input tensor {$\T{X}=[\![\mat{B}_{1}, \dots ,\mat{B}_{d}]\!]$} is already in CP format (see \cref{sec:cp-rounding}), we can compute the MTTKRP more efficiently using the following identity:
 \begin{align*}
   \mat{X}_{(k)}\mat{Z}_k &= \mat{B}_k(\mat{B}_d \odot \dots \odot \mat{B}_{k+1} \odot \mat{B}_{k-1} \odot \dots \odot \mat{B}_1)^\top(\mat{A}_d \odot \cdots \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \cdots \odot \mat{A}_1) \\
  &= \mat{B}_k((\mat{B}_d^\top\mat{A}_d) \hada \cdots \hada (\mat{B}_{k+1}^\top\mat{A}_{k+1}) \hada (\mat{B}_{k-1}^\top\mat{A}_{k-1}) \hada \cdots \hada (\mat{B}_1^\top\mat{A}_1)).  
@@ -399,7 +399,7 @@ Then it performs QR again on the Khatri-Rao product of triangular factors, obtai
 %\end{equation}
 To solve the least square problem, we first apply the Kronecker product of orthonormal factors $\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1$ to $\mat{X}_{(k)}$ from the right:
 $$\mat{Y}_{(k)} = \mat{X}_{(k)}(\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1),$$
-which is equivalent to $\T{Y}=\T{X} \times_1 \mat{Q}_1^{\top} \cdots \times_{k-1} \mat{Q}_{k-1}^{\top}\times_{k+1} \mat{Q}_{k+1}^{\top} \cdot \times_{d} \mat{Q}_{d}^{\top}$, a Multi-TTM computation.
+which is equivalent to $\T{Y}=\T{X} \times_1 \mat{Q}_1^{\top} \cdots \times_{k-1} \mat{Q}_{k-1}^{\top}\times_{k+1} \mat{Q}_{k+1}^{\top} \cdots \times_{d} \mat{Q}_{d}^{\top}$, a Multi-TTM computation.
 Then we apply the $\mat{Q}_0$ to $\mat{Y}_{(k)}$ from the right and solve the linear system via back substitution.
 
 \begin{algorithm}
