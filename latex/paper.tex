@@ -279,6 +279,8 @@ This structure can be exploited in different ways depending on how the least squ
 \section{Algorithms} 
 \label{sec:algo}
 
+\GB{need to make sure we say that we assume no memoization in Algs 1,3,5 (with dense input) and we always form an explicit Q with QRs in Algs 3,4,5,6 because it's cheaper to do it that way}
+
 We now present three versions of the CP-ALS algorithm and compare their complexities.
 \Cref{sec:alg:ne} presents the standard approach based on the normal equations, \cref{sec:alg:expqr} presents an existing approach that uses QR decomposition, and our proposed algorithm is detailed in \cref{sec:alg:pwqr}.
 We consider general $d$-way tensors with dimensions $n_1 \times \cdots \times n_d$, and we use $r$ to denote the rank of the CP approximation.
@@ -300,7 +302,7 @@ Summaries of the per-iteration complexity of each algorithm are given in \cref{t
     Compute Gram [Lines \ref{l:NE-Hada} and \ref{l:NE-Gram}]   & $d \bar{n} r^2 + d^2r^2 $ & QR on factor matrices [Line \ref{l:cp-als-q-exp:updateQR}] & $4d \bar n r^2$ & QR on factor matrices [Line \ref{l:pairwise-factorQR}]                 & $4d \bar n r^2$\\
                                                                                                      &                                         & Compute $\mat{Q}_0$ [Line \ref{l:EXP-QR-R}]                    & $4dr^{d+1}$      & Compute pairwise $\M[\hat]{Q}$ [Line \ref{l:pairwise-QR}] & $4d^2r^4$\\
                                                                                                      &                                         & Apply $\mat{Q}_0$  [Line \ref{l:apply}]                                  & $2d\bar n r^d$  & Apply pairwise $\M[\hat]{Q}$ [Line \ref{l:pair-R-TTM}]       & $2d\bar n r^d$\\
-     NE Solve [Line \ref{l:NE-solve}]                                              & $2d\bar{n}r^2 $                & Back Solve [Line \ref{l:cp-als-q-exp:solve}]                          & $d\bar{n} r^2$   & Back Solve [Line \ref{l:pairwise-solve}]& $d\bar{n} r^2$\\
+     NE Solve [Line \ref{l:NE-solve}]                                              & $2d\bar{n}r^2 +\frac13 dr^3$                & Back Solve [Line \ref{l:cp-als-q-exp:solve}]                          & $d\bar{n} r^2$   & Back Solve [Line \ref{l:pairwise-solve}]& $d\bar{n} r^2$\\
     \hline
     Leading term & $2d \hat{n}^d r$ & Leading term & $2d \hat{n}^d r$ & Leading term & $2d \hat{n}^d r$ \\
     \hline
@@ -325,11 +327,11 @@ Summaries of the per-iteration complexity of each algorithm are given in \cref{t
     MTTKRP [Lines \ref{l:round-ne-rhs} and  \ref{l:NE-K-cross}]              & $4d\bar n rs + d^2rs$ & Multi-TTM [Lines \ref{l:exp-finish-rhs} and \ref{l:EXP-K-update-cross}] & $4d\bar{n} rs$     & Multi-TTM [Lines \ref{l:Pair-K-matmul} and \ref{l:Pair-K-apply}]   & $4d\bar n rs$  \\
     Compute Gram [Lines \ref{l:round-ne-gram} and \ref{l:NE-K-Gram}] & $d\bar n r^2+d^2r^2$ &QR on factor matrices [Line \ref{l:cp-round-qr-updateqr}]                        &  $4d \bar n r^2$  & QR on factor matrices [Line \ref{l:Pair-K-update}]                         & $4d \bar n r^2$\\
                                                                                                                &                                    &Compute $\mat{Q}_0$ [Line \ref{l:cp-round-als-exp-qr}]                          &  $4dr^{d+1}$       & Compute pairwise $\M[\hat]{Q}$ [Line  \ref{l:pair-QR-R}]             & $4d^2r^4$\\
-                                                                                                               &                                    &Apply $\mat{Q}_0$ [Line \ref{l:EXP-mttkrp}]                                            &  $2dr^ds$           & Apply pairwise $\M[\hat]{Q}$  [Line \ref{l:pair-QR-Rapply}]           & $2dsr^3$\\
-   NE Solve [Line \ref{l:NE-K-solve}]                                                      & $2d\bar{n}r^2 $           & Back Solve [Line \ref{l:cp-round-qr-solve}]                                              &  $d\bar{n} r^2$   & Back Solve [Line \ref{l:Pair-K-solve}]                                            & $d\bar{n} r^2$\\
+                                                                                                               &                                    &Apply $\mat{Q}_0$ [Line \ref{l:EXP-mttkrp}]                                            &  $2dr^ds$           & Apply pairwise $\M[\hat]{Q}$  [Line \ref{l:pair-QR-Rapply}]           & $2d^2r^3s$\\
+   NE Solve [Line \ref{l:NE-K-solve}]                                                      & $2d\bar{n}r^2 +\frac13 dr^3$           & Back Solve [Line \ref{l:cp-round-qr-solve}]                                              &  $d\bar{n} r^2$   & Back Solve [Line \ref{l:Pair-K-solve}]                                            & $d\bar{n} r^2$\\
 
     \hline
-     Leading term & $4d\bar n rs$ & Leading term & $2dr^ds+4d\bar{n} rs$ & Leading term & $4d\bar n rs$ \\
+     Leading term & $4d\bar n rs$ & Leading term & $2dr^d(s{+}2r)+4d\bar{n} rs$ & Leading term & $4d\bar n rs$ \\
     \hline
   \end{tabular}
   }
