@@ -362,6 +362,7 @@ Pseudocode for CP-ALS-NE is given in \cref{alg:cp-als-ne}.
 \end{algorithm}
 
 \subsubsection{Dense Input}
+\AZ{complexity analysis in the text is for one inner loop and in table it is for one outer loop.}
 
 When we have a dense tensor input, the dominant cost of each subiteration comes from the MTTKRP computation of $\mat{M}_k = \mat{X}_{(k)}\mat{Z}_k$ in \cref{l:NE-mttkrp}, which has leading order arithmetic cost of $2\hat n^dr$.
 Computing $\mat{H}_k$ in \cref{l:NE-Hada} requires $O(dr^2)$ operations, solving the normal equations in \cref{l:NE-solve} costs $O(r^3+n_kr^2)$, and computing the Gram matrix in \cref{l:NE-Gram} costs $O(n_kr^2)$.
@@ -390,7 +391,7 @@ When the input is a CP-format tensor of rank $s>r$, the cost is dominated by the
 These costs, incurred in \cref{l:round-ne-rhs,l:NE-K-cross}, are $2n_krs+(d-2)rs$ and $2n_krs$ in mode $k$, respectively.
 Computing the coefficient matrix of the normal equations occurs in \cref{l:round-ne-gram,l:NE-K-Gram} and has costs $(d-2)r^2$ and $n_kr^2$ in mode $k$.
 Solving the normal equations in \cref{l:NE-K-solve} costs $2n_kr^2 + O(r^3)$.
-Thus, the sum of an entire CP-Round-ALS-NE iteration (updating all factor matrices once) is given by
+Thus, the sum of an entire CP-Round-ALS-NE iteration (updating all factor matrices once) is given by \AZ{Should be $4d\bar n rs$ and we don't need $3d\bar n r^2$?}
 \begin{equation*}
 {2d\bar{n}rs} + 3d\bar{n}r^2 + O(d^2rs + d^2r^2 + r^3).
 \end{equation*}
@@ -466,8 +467,8 @@ The algorithm is given in \cref{alg:cp-als-qr-k}.
 In the case of CP format input, the costs of \cref{l:cp-round-als-exp-qr,l:cp-round-qr-solve,l:cp-round-qr-updateqr} are identical to the corresponding lines in \cref{alg:cp-als-qr}, with combined cost of $4r^{d+1}+9n_kr^2+O(r^3)$ in mode $k$.
 The cost of \cref{l:EXP-mttkrp}, which we implement as an MTTKRP, is $2r^ds$.
 The cost of the matrix multiplications in \cref{l:exp-finish-rhs,l:EXP-K-update-cross} together is $4n_krs$.
-Thus, the overall cost of CP-Round-ALS-QR-Exp is
-$$ 2dr^ds + 4dr^{d+1} + O(d\bar{n}rs+d\bar{n}r^2 + r^3).$$
+Thus, the overall cost of CP-Round-ALS-QR-Exp is \AZ{Should be $2dr^d(s+2r) + 4d\bar n rs$, but $4dr^{d+1}$ seems like larger in our 7-way experiment? and I'm little confused on $9n_kr^2$}
+$$ 2dr^ds + 4dr^{d+1} + O(d\bar{n}rs+d\bar{n}r^2 + r^3) $$. 
 Again, it is possible to reduce the leading order costs by a factor of $O(d)$ via memoization.
 
 \subsection{CP-ALS using Pairwise QR}
