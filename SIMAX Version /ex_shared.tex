@@ -1,0 +1,63 @@
+% SIAM Shared Information Template
+% This is information that is shared between the main document and any
+% supplement. If no supplement is required, then this information can
+% be included directly in the main document.
+
+
+% Packages and macros go here
+\usepackage{lipsum}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+%\usepackage{algorithmic}
+\ifpdf
+  \DeclareGraphicsExtensions{.eps,.pdf,.png,.jpg}
+\else
+  \DeclareGraphicsExtensions{.eps}
+\fi
+
+% Add a serial/Oxford comma by default.
+\newcommand{\creflastconjunction}{, and~}
+
+% Used for creating new theorem and remark environments
+\newsiamremark{remark}{Remark}
+\newsiamremark{hypothesis}{Hypothesis}
+\crefname{hypothesis}{Hypothesis}{Hypotheses}
+\newsiamthm{claim}{Claim}
+
+% Sets running headers as well as PDF title and authors
+\headers{\small Efficient CP Rounding using Alternating Least Squares with QR Decomposition}{A. Zhang, B. D. Verma, J. V. Lent and G. Ballard}
+
+%Alex Zhang, Bhisham Dev Verma, Jan Van Lent, and Grey Ballard
+
+% Title. If the supplement option is on, then "Supplementary Material"
+% is automatically inserted before the title.
+\title{Efficient CP Rounding using Alternating Least Squares with QR Decomposition\thanks{Submitted to the editors DATE.
+\funding{This work was funded by the Fog Research Institute under contract no.~FRI-454.}}}
+
+%Authors: full names plus addresses.
+\author{Alex Zhang \thanks{Wake Forest University, Winston-Salem, NC 27109 USA 
+  (\email{zhanl21@wfu.edu}).}
+\and Bhisham Dev Verma \thanks{Wake Forest University, Winston-Salem, NC 27109 USA 
+  (\email{vermabd@wfu.edu}).}
+\and Jan Van Lent  \thanks{ Enter the affiliation of the author (\email{enter email id}).}
+\and Grey Ballard \thanks{Wake Forest University, Winston-Salem, NC 27109 USA 
+ (\email{ballard@wfu.edu}).}}
+
+
+%\author{
+  %Alex Zhang\thanks{Wake Forest University, Winston-Salem, NC 27109 USA (\email{zhanl21@wfu.edu}, \email{vermabd@wfu.edu}, \email{ballard@wfu.edu}).} 
+ % \and Bhisham Dev Verma\footnotemark[1] 
+  %\and Jan Van Lent\thanks{Enter the affiliation of the author (\email{enter email id}).}
+  %\and Grey Ballard\footnotemark[1]
+%}
+
+
+\usepackage{amsopn}
+\DeclareMathOperator{\diag}{diag}
+
+
+%%% Local Variables: 
+%%% mode:latex
+%%% TeX-master: "ex_article"
+%%% End: 

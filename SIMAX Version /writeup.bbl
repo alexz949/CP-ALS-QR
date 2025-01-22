@@ -1,0 +1,46 @@
+\begin{thebibliography}{1}
+
+\bibitem{TensorToolbox}
+{\sc B.~W. Bader, T.~G. Kolda, et~al.}, {\em Tensor toolbox for {MATLAB}},
+  2023, \url{www.tensortoolbox.org}.
+\newblock Version 3.6.
+
+\bibitem{BM02}
+{\sc G.~Beylkin and M.~J. Mohlenkamp}, {\em Numerical operator calculus in
+  higher dimensions}, Proceedings of the National Academy of Sciences, 99
+  (2002), pp.~10246--10251, \url{https://doi.org/10.1073/pnas.112329799},
+  \url{https://www.pnas.org/content/99/16/10246}.
+
+\bibitem{bharadwaj2023fast}
+{\sc V.~Bharadwaj, O.~A. Malik, R.~Murray, L.~Grigori, A.~Bulu\c{c}, and
+  J.~Demmel}, {\em Fast exact leverage score sampling from khatri-rao products
+  with applications to tensor decomposition}, in Thirty-seventh Conference on
+  Neural Information Processing Systems, Dec. 2023,
+  \url{https://openreview.net/forum?id=deaHiTb6Cu}.
+
+\bibitem{KR19}
+{\sc O.~Kaya and Y.~Robert}, {\em Computing dense tensor decompositions with
+  optimal dimension trees}, Algorithmica, 81 (2019), pp.~2092--2121,
+  \url{https://doi.org/10.1007/s00453-018-0525-3}.
+
+\bibitem{kolda2009tensor}
+{\sc T.~G. Kolda and B.~W. Bader}, {\em Tensor decompositions and
+  applications}, SIAM review, 51 (2009), pp.~455--500.
+
+\bibitem{MVLB23}
+{\sc R.~Minster, I.~Viviano, X.~Liu, and G.~Ballard}, {\em {CP} decomposition
+  for tensors via alternating least squares with {QR} decomposition}, Numerical
+  Linear Algebra with Applications,  (2023), p.~e2511,
+  \url{https://doi.org/10.1002/nla.2511},
+  \url{https://doi.org/10.1002/nla.2511}.
+
+\bibitem{phan2013fast}
+{\sc A.-H. Phan, P.~Tichavsk{\`y}, and A.~Cichocki}, {\em Fast alternating ls
+  algorithms for high order candecomp/parafac tensor factorizations}, IEEE
+  Transactions on Signal Processing, 61 (2013), pp.~4834--4846.
+
+\bibitem{trefethen1997numerical}
+{\sc L.~N. Trefethen and D.~Bau~III}, {\em Numerical Linear Algebra}, vol.~50,
+  SIAM, 1997.
+
+\end{thebibliography}
