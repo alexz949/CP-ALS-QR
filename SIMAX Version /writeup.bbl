@@ -8,15 +8,14 @@
 \bibitem{BM02}
 {\sc G.~Beylkin and M.~J. Mohlenkamp}, {\em Numerical operator calculus in
   higher dimensions}, Proceedings of the National Academy of Sciences, 99
-  (2002), pp.~10246--10251, \url{https://doi.org/10.1073/pnas.112329799},
-  \url{https://www.pnas.org/content/99/16/10246}.
+  (2002), pp.~10246--10251, \url{https://doi.org/10.1073/pnas.112329799}.
 
 \bibitem{bharadwaj2023fast}
-{\sc V.~Bharadwaj, O.~A. Malik, R.~Murray, L.~Grigori, A.~Bulu\c{c}, and
+{\sc V.~Bharadwaj, O.~A. Malik, R.~Murray, L.~Grigori, A.~Buluc, and
   J.~Demmel}, {\em Fast exact leverage score sampling from khatri-rao products
-  with applications to tensor decomposition}, in Thirty-seventh Conference on
-  Neural Information Processing Systems, Dec. 2023,
-  \url{https://openreview.net/forum?id=deaHiTb6Cu}.
+  with applications to tensor decomposition}, Advances in Neural Information
+  Processing Systems, 36 (2024),
+  \url{https://proceedings.neurips.cc/paper_files/paper/2023/file/959f70ee50044bed305e48e3484005a7-Paper-Conference.pdf}.
 
 \bibitem{KR19}
 {\sc O.~Kaya and Y.~Robert}, {\em Computing dense tensor decompositions with
@@ -25,19 +24,20 @@
 
 \bibitem{kolda2009tensor}
 {\sc T.~G. Kolda and B.~W. Bader}, {\em Tensor decompositions and
-  applications}, SIAM review, 51 (2009), pp.~455--500.
+  applications}, SIAM Review, 51 (2009), pp.~455--500,
+  \url{https://doi.org/10.1137/07070111X}.
 
 \bibitem{MVLB23}
 {\sc R.~Minster, I.~Viviano, X.~Liu, and G.~Ballard}, {\em {CP} decomposition
-  for tensors via alternating least squares with {QR} decomposition}, Numerical
-  Linear Algebra with Applications,  (2023), p.~e2511,
-  \url{https://doi.org/10.1002/nla.2511},
+  for tensors via alternating least squares with qr decomposition}, Numerical
+  Linear Algebra with Applications, 30 (2023), p.~e2511,
   \url{https://doi.org/10.1002/nla.2511}.
 
 \bibitem{phan2013fast}
-{\sc A.-H. Phan, P.~Tichavsk{\`y}, and A.~Cichocki}, {\em Fast alternating ls
+{\sc A.~H. Phan, P.~Tichavsk{\`y}, and A.~Cichocki}, {\em Fast alternating ls
   algorithms for high order candecomp/parafac tensor factorizations}, IEEE
-  Transactions on Signal Processing, 61 (2013), pp.~4834--4846.
+  Transactions on Signal Processing, 61 (2013), pp.~4834--4846,
+  \url{https://doi.org/10.1109/TSP.2013.2269903}.
 
 \bibitem{trefethen1997numerical}
 {\sc L.~N. Trefethen and D.~Bau~III}, {\em Numerical Linear Algebra}, vol.~50,

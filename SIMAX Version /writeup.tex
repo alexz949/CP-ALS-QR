@@ -105,14 +105,14 @@ The CANDECOMP/PARAFAC (CP) decomposition is widely used for analyzing multidimen
 
 
 % REQUIRED
-\begin{keywords}
-example, \LaTeX
-\end{keywords}
+%\begin{keywords}
+%example, \LaTeX
+%\end{keywords}
 
 % REQUIRED
-\begin{MSCcodes}
-68Q25, 68R10, 68U05
-\end{MSCcodes}
+%\begin{MSCcodes}
+%68Q25, 68R10, 68U05
+%\end{MSCcodes}
 
 \section{Introduction}
 The CANDECOMP/PARAFAC or canonical polyadic (CP) decomposition for tensors is a popular tool for analyzing and interpreting latent patterns that may be present in multidimensional data. 
@@ -265,9 +265,10 @@ Because of the numerical sensitivity introduced by using the NE approach, the QR
 
 \subsubsection{CP Optimization Problem}
 
-When computing a rank-$r$ CP approximation $\T{K}$ for a $d$-way tensor $\T{X}$, we seek to minimize $\| \T{X} - \T{K} \|$, where the tensor norm generalizes the vector 2-norm or the matrix Frobenius norm.
+When computing a rank-$r$ CP approximation $\T{K}$ for a $d$-way tensor $\T{X}$, we seek to minimize $\| \T{X} - \T{K} \|^2$, where the tensor norm generalizes the vector 2-norm or the matrix Frobenius norm.
 Expressed using \cref{eq:CP}, we have  
-$$\min_{\mat{A}_1,\mat{A}_2, \dots,\mat{A}_d} \| \T{X} - \T{K} \|^2 = \min_{\mat{A}_1,\mat{A}_2, \dots,\mat{A}_d} \sum_{i_1=1}^{n_1} \cdots \sum_{i_d=1}^{n_d} \left(\T{X}(i_1,i_2,\dots, i_d) - \sum^{r}_{j=1} \mat{A}_1(i_1,j)\mat{A}_2(i_2,j) \dots \mat{A}_d(i_d,j) \right)^2. $$
+%$$\min_{\mat{A}_1,\mat{A}_2, \dots,\mat{A}_d} \| \T{X} - \T{K} \|^2 = \min_{\mat{A}_1,\mat{A}_2, \dots,\mat{A}_d} \sum_{i_1=1}^{n_1} \cdots \sum_{i_d=1}^{n_d} \left(\T{X}(i_1,i_2,\dots, i_d) - \sum^{r}_{j=1} \mat{A}_1(i_1,j)\mat{A}_2(i_2,j) \dots \mat{A}_d(i_d,j) \right)^2. $$
+$$\min_{\mat{A}_1,\mat{A}_2, \dots,\mat{A}_d} \sum_{i_1=1}^{n_1} \cdots \sum_{i_d=1}^{n_d} \left(\T{X}(i_1,i_2,\dots, i_d) - \sum^{r}_{j=1} \mat{A}_1(i_1,j)\mat{A}_2(i_2,j) \dots \mat{A}_d(i_d,j) \right)^2. $$
 However, this is a nonlinear, nonconvex optimization problem and no closed form solution exists. 
 We must resort to using iterative methods to approximate a solution \cite{kolda2009tensor}.
 
@@ -281,9 +282,9 @@ We can solve each subproblem directly because it is a linear least squares probl
 In updating the $k$th factor matrix, we expose the linear least squares problem by unfolding $\T{X}$ and $\T{K}$ along the $k$th mode:
 \begin{align}
 \label{eq:cp-als-sub}
-\min_{\mat{A}_k}||\T{X} - \T{K}|| &= \min_{\mat{A}_k}||\mat{X}_{(k)} - \mat{K}_{(k)}||_F \notag \\ 
-&=  \min_{\mat{A}_k}||\mat{X}_{(k)} - \mat{A}_k(\mat{A}_d \odot \dots \odot \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \dots \odot \mat{A}_1)^\top||_F \notag \\ 
-&=  \min_{\mat{A}_k}\|\mat{X}_{(k)}-\mat{A}_k\mat{Z}_k^\top\|_F,
+\min_{\mat{A}_k}||\T{X} - \T{K}||^2&= \min_{\mat{A}_k}||\mat{X}_{(k)} - \mat{K}_{(k)}||_F^2 \notag \\ 
+&=  \min_{\mat{A}_k}||\mat{X}_{(k)} - \mat{A}_k(\mat{A}_d \odot \dots \odot \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \dots \odot \mat{A}_1)^\top||_F^2 \notag \\ 
+&=  \min_{\mat{A}_k}\|\mat{X}_{(k)}-\mat{A}_k\mat{Z}_k^\top\|_F^2,
 \end{align}
 where $\mat{Z}_k=\mat{A}_d \odot \dots \odot \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \dots \odot \mat{A}_1$.
 Note that the coefficient matrix $\mat{Z}_k^\top$ appears on the right of the variable matrix, matching the generic formulation in \cref{eq:LS}.
@@ -304,7 +305,7 @@ when solving the linear least squares problem given in \cref{eq:cp-als-sub}.
 That is, the least squares subproblem is given by 
 \begin{equation}
 \label{eq:cp-als-sub-ktensor}
-\min_{\mat{A}_k}\|\mat{B}_{k}\mat{Y}_k^\top-\mat{A}_k\mat{Z}_k^\top\|_F,
+\min_{\mat{A}_k}\|\mat{B}_{k}\mat{Y}_k^\top-\mat{A}_k\mat{Z}_k^\top\|_F^2,
 \end{equation}
 where $\mat{Y}_k = \mat{B}_d \odot \dots \odot \mat{B}_{k+1} \odot \mat{B}_{k-1} \odot \dots \odot \mat{B}_1$.
 This structure can be exploited in different ways depending on how the least squares problem is solved.
@@ -397,7 +398,7 @@ Pseudocode for CP-ALS-NE is given in \cref{alg:cp-als-ne}.
 \end{algorithm}
 
 \subsubsection{Dense Input}
-\AZ{complexity analysis in the text is for one inner loop and in table it is for one outer loop.}
+%\AZ{complexity analysis in the text is for one inner loop and in table it is for one outer loop.}
 
 When we have a dense tensor input, the dominant cost of each subiteration comes from the MTTKRP computation of $\mat{M}_k = \mat{X}_{(k)}\mat{Z}_k$ in \cref{l:NE-mttkrp}, which has leading order arithmetic cost of $2\hat n^dr$.
 Computing $\mat{H}_k$ in \cref{l:NE-Hada} requires $O(dr^2)$ operations, solving the normal equations in \cref{l:NE-solve} costs $O(r^3+n_kr^2)$, and computing the Gram matrix in \cref{l:NE-Gram} costs $O(n_kr^2)$.
@@ -410,10 +411,12 @@ We note that the leading order term can be reduced to $4\hat n^d r$ and the $O(d
 \subsubsection{CP Format Input}
 
 If the input tensor {$\T{X}=[\![\mat{B}_{1}, \dots ,\mat{B}_{d}]\!]$} is already in CP format (see \cref{sec:cp-rounding}), we can compute the MTTKRP more efficiently using the following identity:
+{\small
 \begin{align*}
-  \mat{X}_{(k)}\mat{Z}_k &= \mat{B}_k(\mat{B}_d \odot \dots \odot \mat{B}_{k+1} \odot \mat{B}_{k-1} \odot \dots \odot \mat{B}_1)^\top(\mat{A}_d \odot \cdots \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \cdots \odot \mat{A}_1) \\
+ \mat{X}_{(k)}\mat{Z}_k &= \mat{B}_k(\mat{B}_d \odot {\cdots} \odot \mat{B}_{k+1} \odot \mat{B}_{k-1} \odot {\cdots} \odot \mat{B}_1)^\top(\mat{A}_d \odot {\cdots} \odot\mat{A}_{k+1} \odot \mat{A}_{k-1} \odot {\cdots} \odot \mat{A}_1) \\
  &= \mat{B}_k((\mat{B}_d^\top\mat{A}_d) \hada \cdots \hada (\mat{B}_{k+1}^\top\mat{A}_{k+1}) \hada (\mat{B}_{k-1}^\top\mat{A}_{k-1}) \hada \cdots \hada (\mat{B}_1^\top\mat{A}_1)).  
 \end{align*}
+}
 
 \begin{algorithm}[!ht]
   \caption{CP-Round-ALS-NE}
@@ -426,7 +429,7 @@ When the input is a CP-format tensor of rank $s>r$, the cost is dominated by the
 These costs, incurred in \cref{l:round-ne-rhs,l:NE-K-cross}, are $2n_krs+(d-2)rs$ and $2n_krs$ in mode $k$, respectively.
 Computing the coefficient matrix of the normal equations occurs in \cref{l:round-ne-gram,l:NE-K-Gram} and has costs $(d-2)r^2$ and $n_kr^2$ in mode $k$.
 Solving the normal equations in \cref{l:NE-K-solve} costs $2n_kr^2 + O(r^3)$.
-Thus, the sum of an entire CP-Round-ALS-NE iteration (updating all factor matrices once) is given by \AZ{Should be $4d\bar n rs$ and we don't need $3d\bar n r^2$?}
+Thus, the sum of an entire CP-Round-ALS-NE iteration (updating all factor matrices once) is given by %\AZ{Should be $4d\bar n rs$ and we don't need $3d\bar n r^2$?}
 \begin{equation*}
 {2d\bar{n}rs} + 3d\bar{n}r^2 + O(d^2rs + d^2r^2 + r^3).
 \end{equation*}
@@ -484,10 +487,14 @@ Note that the leading order term (and several others) can be reduced by a factor
 \label{sec:expqr:cpinput}
 
 In the case of a CP format tensor input, the right hand side is computed more cheaply by applying \cref{prop:krnkrp} in reverse:
-\begin{equation*}
- \mat{X}_{(k)}(\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1) = 
- \mat{B}_k(\mat{Q}_d^\top\mat{B}_d \odot \cdots \odot \mat{Q}_{k+1}^\top\mat{B}_{k+1} \odot \mat{Q}_{k-1}^\top\mat{B}_{k-1} \odot \cdots \odot \mat{Q}_1^\top\mat{B}_1)^\top.
-\end{equation*}
+%\begin{equation*}
+% \mat{X}_{(k)}(\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1) = 
+ %\mat{B}_k(\mat{Q}_d^\top\mat{B}_d \odot \cdots \odot \mat{Q}_{k+1}^\top\mat{B}_{k+1} \odot \mat{Q}_{k-1}^\top\mat{B}_{k-1} \odot \cdots \odot \mat{Q}_1^\top\mat{B}_1)^\top.
+%\end{equation*}
+\begin{align*}
+& \mat{X}_{(k)}(\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1) =  \notag\\
+&\hspace{3.5cm} \mat{B}_k(\mat{Q}_d^\top\mat{B}_d \odot \cdots \odot \mat{Q}_{k+1}^\top\mat{B}_{k+1} \odot \mat{Q}_{k-1}^\top\mat{B}_{k-1} \odot \cdots \odot \mat{Q}_1^\top\mat{B}_1)^\top.
+\end{align*}
 The next step of applying $\mat{Q}_0$ to the Khatri-Rao product of cross-products $\{\mat{Q}_k^\top\mat{B}_k\}$ is performed using the MTTKRP computational kernel, where we treat the dense matrix $\mat{Q}_0$ as a matricized tensor, and the final computation to compute the right hand side is a small multiplication with $\mat{B}_k$.
 The algorithm is given in \cref{alg:cp-als-qr-k}.
 
@@ -502,8 +509,8 @@ The algorithm is given in \cref{alg:cp-als-qr-k}.
 In the case of CP format input, the costs of \cref{l:cp-round-als-exp-qr,l:cp-round-qr-solve,l:cp-round-qr-updateqr} are identical to the corresponding lines in \cref{alg:cp-als-qr}, with combined cost of $4r^{d+1}+9n_kr^2+O(r^3)$ in mode $k$.
 The cost of \cref{l:EXP-mttkrp}, which we implement as an MTTKRP, is $2r^ds$.
 The cost of the matrix multiplications in \cref{l:exp-finish-rhs,l:EXP-K-update-cross} together is $4n_krs$.
-Thus, the overall cost of CP-Round-ALS-QR-Exp is \AZ{Should be $2dr^d(s+2r) + 4d\bar n rs$, but $4dr^{d+1}$ seems like larger in our 7-way experiment? and I'm little confused on $9n_kr^2$}
-$$ 2dr^ds + 4dr^{d+1} + O(d\bar{n}rs+d\bar{n}r^2 + r^3) $$. 
+Thus, the overall cost of CP-Round-ALS-QR-Exp is % \AZ{Should be $2dr^d(s+2r) + 4d\bar n rs$, but $4dr^{d+1}$ seems like larger in our 7-way experiment? and I'm little confused on $9n_kr^2$}
+$$ 2dr^ds + 4dr^{d+1} + O(d\bar{n}rs+d\bar{n}r^2 + r^3) .$$
 Again, it is possible to reduce the leading order costs by a factor of $O(d)$ via memoization.
 
 \subsection{CP-ALS using Pairwise QR}
@@ -517,7 +524,11 @@ The first phase of the algorithm is the same: we perform QR decompositions on in
 $$\mat{Z}_k = (\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1)(\mat{R}_d \odot \dots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \dots \odot \mat{R}_1).$$
 To compute the QR decomposition of the Khatri-Rao product of triangular factors, we perform a sequence of pairwise reductions.
 While the order is arbitrary, for notational convenience we start from the right: we compute a QR decomposition of an explicit Khatri-Rao product of the last two triangular factors, $\mat{R}_2 \odot \mat{R}_1 = \M[\hat]{Q}_1\M[\hat]{R}_2$, yielding
-$$\M{R}_{d-1} \odot \dots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \dots \odot \M[\hat]{Q}_1\M[\hat]{R}_2 = (\M{I}_{r^{d-2}} \kron \M[\hat]{Q}_1)(\M{R}_{d-1} \odot \cdots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \dots \odot \M[\hat]{R}_2).$$
+%$$\small \M{R}_{d-1} \odot \dots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \dots \odot \M[\hat]{Q}_1\M[\hat]{R}_2 = (\M{I}_{r^{d-2}} \kron \M[\hat]{Q}_1)(\M{R}_{d-1} \odot \cdots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \dots \odot \M[\hat]{R}_2).$$
+\begin{align*}
+ &\M{R}_{d-1} \odot \dots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \dots \odot \M[\hat]{Q}_1\M[\hat]{R}_2 =\notag\\
+ &\hspace{4.51cm} (\M{I}_{r^{d-2}} \kron \M[\hat]{Q}_1)(\M{R}_{d-1} \odot \cdots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \dots \odot \M[\hat]{R}_2).
+\end{align*}
 We then repeat the pairwise QR decomposition on two rightmost remaining factors $\M{R}_{3} \odot \M[\hat]{R}_2$, and so on (skipping the $k$th factor), each time reducing the number of triangular factors by one.
 After $d-2$ pairwise QR decompositions, we obtain the QR decomposition of $\mat{Z}_k$ (with implicit orthogonal factor):
 $$\mat{Z}_k = (\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1) (\M{I}_{r^{d-2}} \kron \M[\hat]{Q}_1)(\M{I}_{r^{d-3}} \kron \M[\hat]{Q}_2) \cdots (\mat{I}_r \otimes \M[\hat]{Q}_{d-2}) \M[\hat]{Q}_{d-1}\M{R}.$$
@@ -560,9 +571,9 @@ As described in \cref{sec:expqr:cpinput}, this gives us
 For the pairwise updates, we continue to exploit the Khatri-Rao structure.
 To apply the first pairwise orthogonal factor, we use the identity
 \begin{align*}
-(\M{C}_d \odot \cdots \odot \M{C}_{k+1} \odot \M{C}_{k-1} \odot \cdots \odot \M{C}_3 \odot \M{C}_2 \odot \M{C}_1)^\top(\M{I}_{r^{d-2}} \otimes \M[\hat]{Q}_1) = \\
-(\M{C}_d \odot \cdots \odot \M{C}_{k+1} \odot \M{C}_{k-1} \odot \cdots \odot \M{C}_3 \odot \M[\hat]{Q}_1^\top(\M{C}_2 \odot \M{C}_1))^\top = \\
-\M{C}_d \odot \cdots \odot \M{C}_{k+1} \odot \M{C}_{k-1} \odot \cdots \odot \M{C}_3 \odot \M[\hat]{C}_2.
+&(\M{C}_d \odot \cdots \odot \M{C}_{k+1} \odot \M{C}_{k-1} \odot \cdots \odot \M{C}_3 \odot \M{C}_2 \odot \M{C}_1)^\top(\M{I}_{r^{d-2}} \otimes \M[\hat]{Q}_1) = \\
+&\hspace{3.5cm}(\M{C}_d \odot \cdots \odot \M{C}_{k+1} \odot \M{C}_{k-1} \odot \cdots \odot \M{C}_3 \odot \M[\hat]{Q}_1^\top(\M{C}_2 \odot \M{C}_1))^\top = \\
+&\hspace{6.2cm}\M{C}_d \odot \cdots \odot \M{C}_{k+1} \odot \M{C}_{k-1} \odot \cdots \odot \M{C}_3 \odot \M[\hat]{C}_2.
 \end{align*}
 That is, we form the explicit Khatri-Rao product of the last two factors (forming a dense matrix with dimensions $r^2 \times s$) and apply the pairwise orthogonal factor using matrix multiplication, which reduces the number of $r \times s$ Khatri-Rao factors by one.
 In the next step, we apply the next $r^2 \times r$ pairwise orthogonal factor to the last two remaining factors, and so on.
@@ -658,7 +669,7 @@ The normal equations method and the implicit QR method, with complexities that a
 
 \begin{figure}[ht!]
   \begin{center}
-    \includegraphics[scale = 0.6]{lineplot_p.pdf}
+    \includegraphics[scale = 0.55]{lineplot_p.pdf}
     \caption[Figure]{Comparison of run time when varying $d$ for NE, QR Imp, and QR Exp ($n=2000$) \label{fig:LS_problem_line}}
   \end{center}
 \end{figure}
@@ -712,8 +723,8 @@ The QR-based method, on the other hand, consistently converged to solutions with
   \end{center}  
 \end{figure}
 
-{\color{blue}
-\subsection{Accuracy and Running Time Tradeoff using Single and Double Precision }
+{\color{black}
+\subsection{Accuracy and Running Time Tradeoff using Single and Double Precision}
 In these experiments, we aim to evaluate the trade-off between accuracy and running time for NE-based and implicit Pairwise QR-based CP-ALS algorithms, using both single and double precision floating-point representations. 
 We perform experiments on synthetic tensors where the factor matrices (and their Khatri--Rao products) are ill-conditioned. 
 The synthetic tensor is generated using the method from~\cite{MVLB23}, with Gaussian noise added to factor matrices of specified condition numbers. 
@@ -723,17 +734,18 @@ This construction allows us to control the condition number \( \kappa \) of each
 %In our experiments, we construct a three-way $10000 \times 10000 \times 10000$ tensor with CP-rank $50$. The tensor is generated with a condition number  $\kappa = 10^{10}$ and a noise level of  $ \eta = 10^{-5}$. We set the maximum number of iterations to $20$ and use a convergence tolerance of   $10^{-15}$ for the relative error. We perform two independent trials. In each trial, a random guess is used for initialization, and all algorithms start with the same initial factor matrices. Figure~\ref{fig:single_precission} summaries our experimental results.
 
 
-In our experiments, we first generate a three-way CP tensor $\T{Y}$ of size $10000 \times 10000 \times 10000$ with CP-rank 450, using the procedure described above, and set the condition number $\kappa = 10^{10}$. 
-To this tensor, we add a noise tensor $\T{N}$ whose factor matrices are initialized with i.i.d. samples from the standard normal distribution with noise level $\eta = 10^{-5}$. 
+In our experiments, we first generate a three-way CP tensor $\T{Y}$ of size $10000 \times 10000 \times 10000$ with CP-rank 50, using the procedure described above, and set the condition number $\kappa = 10^{10}$. 
+To this tensor, we add a noise tensor $\T{N}$ whose factor matrices have $450$ columns and are initialized with i.i.d.~samples from the standard normal distribution with noise level $\eta = 10^{-5}$. 
 The formal rank of the resulting CP-tensor  ($\T{X} = \T{Y} + \eta \T{N}$) becomes 500, the sum of the ranks of $\T{Y}$ and $\T{N}$ due to the addition of noise, but it is accurately approximated by a rank-50 CP tensor.
 We apply the NE-based and implicit Pairwise QR-based CP-ALS algorithms using both single and double-precision floating-point representations to compress it to rank $50$. 
-We set the maximum number of iterations to $20$ and use a convergence tolerance of   $10^{-15}$ for the relative error. 
-We perform two independent trials. In each trial, a random guess is used for initialization, and all algorithms start with the same initial factor matrices. 
+We set the maximum number of iterations to $20$ and use a convergence tolerance of   $10^{-15}$ for the relative error.  
+We use a random guess for initialization, and all algorithms start with the same initial factor matrices.
+%We perform two independent trials. In each trial, a random guess is used for initialization, and all algorithms start with the same initial factor matrices. 
 Figure~\ref{fig:single_precission} summarizes our experimental results.
 \begin{figure}[ht!]
   \begin{center}  
  \includegraphics*[width=0.98\textwidth]{single_precission_10000_3_updated.pdf}
-    \caption[Figure]{Comparison of accuracy and running time of NE and QR Imp based CP-ALS algorithms in single and double precision. \label{fig:single_precission} \AZ{maybe add markers to differentiate 3 coinciding error curves} \GB{maybe run two more trials, and if they are consistent, let's just show one convergence plot and say that it is representative} }
+    \caption[Figure]{Comparison of accuracy and running time of NE and QR Imp based CP-ALS algorithms in single and double precision. \label{fig:single_precission} }%\AZ{maybe add markers to differentiate 3 coinciding error curves} \GB{maybe run two more trials, and if they are consistent, let's just show one convergence plot and say that it is representative} }
   \end{center}  
 \end{figure}
 
@@ -741,7 +753,7 @@ Figure~\ref{fig:single_precission} summarizes our experimental results.
 
 From Figure~\ref{fig:single_precission}, we observe that running time of NE-based and implicit QR-based CP-ALS algorithms in single precision are comparable and shortest. 
 Note that the leading-order costs of each algorithm (as given in \cref{tab:kruskal_its_part}), correspond to the MTTKRP/TTM computations (given in blue).
-While the complexity analysis suggests they should be comparable between NE-based and QR-based algorithm, the NE-based implementation we benchmark is that of the Tensor Toolbox, which does not use memoization of the cross products as shown in \cref{l:NE-K-cross} of \cref{alg:cp-als-ne-k}.
+While the complexity analysis suggests they should be comparable between NE-based and QR-based algorithm, the NE-based implementation we benchmark is that of the Tensor Toolbox, which does not use memoization of the cross products as shown in line \ref{l:NE-K-cross} of \cref{alg:cp-als-ne-k}.
 However, the NE-based CP-ALS algorithm in single precision exhibits numerical instability, leading to high relative residual errors and erratic convergence behavior. 
 In contrast, the implicit QR-based CP-ALS algorithm in single precision remains numerically stable, resulting in consistent accuracy and stable behavior, similar to its double-precision counterparts
 The single-precision QR-based algorithm is approximately $2 \times$ faster than either method in double precision. 
@@ -756,7 +768,7 @@ In this work, we implement a new version of CP-ALS algorithm with QR decompositi
 The time complexity roughly matches that of the standard normal equations based CP-ALS algorithm as implemented in the Tensor Toolbox \cite{TensorToolbox}.
 As evidenced by our theoretical and experimental analysis, the algorithm simultaneously achieves numerical stability and computational efficiency.
 
-Our experiments with a single least squares problem show that for an ill-conditioned problem (condition number of \texttt{4e13}), our algorithm achieves an error that is 9 orders of magnitude smaller than the normal equations approach.
+Our experiments with a single least squares problem show that if the problem is very ill conditioned (condition number of \texttt{4e13}), our algorithm achieves an error that is 9 orders of magnitude smaller than the normal equations approach.
 Likewise, for an 8-way tensor, we observe a speedup of about $100\times$ over the previously proposed QR-based method.
 In experiments using CP-ALS to perform CP rounding, we observe a $14\times$ speedup over the previous QR-based method on a 7-way tensor and $4\times$ speedup over Tensor Toolbox's implementation of the NE-based method.
 Further, we also see convergence to more accurate solutions when using our method for $5$-way, $7$-way, and $10$-way tensors correspond to discovery of a sine of sums identity.
@@ -768,9 +780,9 @@ We also note that there are more opportunities to exploit memoization in our pai
 Finally, we believe that the pairwise QR approach can improve the cost and accuracy for computing leverage scores for randomized methods as described in \cite{bharadwaj2023fast}, which we would like to explore further.
 
 
-\section*{Acknowledgments}
-We would like to acknowledge the assistance of volunteers in putting
-together this example manuscript and supplement.
+%\section*{Acknowledgments}
+%We would like to acknowledge the assistance of volunteers in putting
+%together this example manuscript and supplement.
 
 \bibliographystyle{siamplain}
 \bibliography{reference}

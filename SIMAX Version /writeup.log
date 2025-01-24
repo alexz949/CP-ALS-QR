@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.9.24)  22 JAN 2025 17:00
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.9.24)  24 JAN 2025 12:21
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1108,183 +1108,100 @@ tikz/cp.tex)
 Package hyperref Info: bookmark level for unknown property defaults to 0 on inp
 ut line 191.
 
-Overfull \hbox (61.15773pt too wide) has occurred while \output is active
-[] \OT1/cmr/m/n/9 EFFICIENT CP ROUNDING USING ALTERNATING LEAST SQUARES WITH QR
- DECOMPOSITION []|
- []
-
-[3] [4]
-Overfull \hbox (79.94536pt too wide) detected at line 270
-[] \OMS/cmsy/m/n/10 kX ^^@ Kk[] \OT1/cmr/m/n/10 = [] [] [] [] [][] \OML/cmm/m/i
-t/10 :|
- []
-
-
-Overfull \hbox (61.15773pt too wide) has occurred while \output is active
-[] \OT1/cmr/m/n/9 EFFICIENT CP ROUNDING USING ALTERNATING LEAST SQUARES WITH QR
- DECOMPOSITION []|
- []
-
-[5] [6]
+[3] [4] [5]
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
-put line 394.
- (./algo/cp_als_ne.tex)
-Overfull \hbox (14.70126pt too wide) detected at line 416
-[]|
- []
-
-(./algo/cp_als_ne_kruskal.tex)
-Overfull \hbox (61.15773pt too wide) has occurred while \output is active
-[] \OT1/cmr/m/n/9 EFFICIENT CP ROUNDING USING ALTERNATING LEAST SQUARES WITH QR
- DECOMPOSITION []|
- []
-
-[7] (./algo/cp_als_qr.tex) [8]
-Overfull \hbox (49.67798pt too wide) detected at line 490
-\OT1/cmr/bx/n/10 X[]\OT1/cmr/m/n/10 (\OT1/cmr/bx/n/10 Q[] \OMS/cmsy/m/n/10 
- [] 
- \OT1/cmr/bx/n/10 Q[] \OMS/cmsy/m/n/10 
- \OT1/cmr/bx/n/10 Q[] \OMS/cmsy/m/n/10 
- [] 
- \OT1/cmr/bx/n/10 Q[]\OT1/cmr/m/n/10 ) = \OT1/cmr/bx/n/10 B[]\OT1/cmr/m/n/10 (\
-OT1/cmr/bx/n/10 Q[]B[] \OMS/cmsy/m/n/10 ^^L [] ^^L \OT1/cmr/bx/n/10 Q[]B[] \OMS
-/cmsy/m/n/10 ^^L \OT1/cmr/bx/n/10 Q[]B[] \OMS/cmsy/m/n/10 ^^L [] ^^L \OT1/cmr/b
-x/n/10 Q[]B[]\OT1/cmr/m/n/10 )[]\OML/cmm/m/it/10 :|
- []
-
-(./algo/cp_als_qr_kruskal.tex)
-Overfull \hbox (61.15773pt too wide) has occurred while \output is active
-[] \OT1/cmr/m/n/9 EFFICIENT CP ROUNDING USING ALTERNATING LEAST SQUARES WITH QR
- DECOMPOSITION []|
- []
-
-[9]
-Overfull \hbox (9.73546pt too wide) detected at line 520
-[][] \OMS/cmsy/m/n/10 ^^L [] ^^L \OT1/cmr/bx/n/10 R[] \OMS/cmsy/m/n/10 ^^L \OT1
-/cmr/bx/n/10 R[] \OMS/cmsy/m/n/10 ^^L [] ^^L [][][][] \OT1/cmr/m/n/10 = ([][] \
-OMS/cmsy/m/n/10 
- [][]\OT1/cmr/m/n/10 )([][] \OMS/cmsy/m/n/10 ^^L [] ^^L \OT1/cmr/bx/n/10 R[] \O
-MS/cmsy/m/n/10 ^^L \OT1/cmr/bx/n/10 R[] \OMS/cmsy/m/n/10 ^^L [] ^^L [][]\OT1/cm
-r/m/n/10 )\OML/cmm/m/it/10 :|
- []
-
-[10] (./algo/cp_als_pairwise.tex)
-Overfull \hbox (61.15773pt too wide) has occurred while \output is active
-[] \OT1/cmr/m/n/9 EFFICIENT CP ROUNDING USING ALTERNATING LEAST SQUARES WITH QR
- DECOMPOSITION []|
- []
-
-[11] (./algo/cp_als_pairwise_kruskal.tex) [12]
-Overfull \hbox (61.15773pt too wide) has occurred while \output is active
-[] \OT1/cmr/m/n/9 EFFICIENT CP ROUNDING USING ALTERNATING LEAST SQUARES WITH QR
- DECOMPOSITION []|
- []
-
-[13]
-<fig/lineplot_p.pdf, id=270, 421.575pt x 316.18124pt>
+put line 395.
+ (./algo/cp_als_ne.tex) [6]
+LaTeX Font Info:    Font shape `U/lasy/b/n' in size <9> not available
+(Font)              Font shape `U/lasy/m/n' tried instead on input line 415.
+ (./algo/cp_als_ne_kruskal.tex) [7]
+(./algo/cp_als_qr.tex) [8] (./algo/cp_als_qr_kruskal.tex) [9]
+(./algo/cp_als_pairwise.tex) [10] [11] (./algo/cp_als_pairwise_kruskal.tex)
+[12] [13]
+<fig/lineplot_p.pdf, id=276, 421.575pt x 316.18124pt>
 File: fig/lineplot_p.pdf Graphic file (type pdf)
 <use fig/lineplot_p.pdf>
-Package pdftex.def Info: fig/lineplot_p.pdf  used on input line 661.
-(pdftex.def)             Requested size: 252.94695pt x 189.7102pt.
-<fig/breakdown_p.pdf, id=274, 421.575pt x 316.18124pt>
+Package pdftex.def Info: fig/lineplot_p.pdf  used on input line 672.
+(pdftex.def)             Requested size: 231.86696pt x 173.9002pt.
+ [14 <./fig/lineplot_p.pdf>]
+<fig/breakdown_p.pdf, id=288, 421.575pt x 316.18124pt>
 File: fig/breakdown_p.pdf Graphic file (type pdf)
 <use fig/breakdown_p.pdf>
-Package pdftex.def Info: fig/breakdown_p.pdf  used on input line 675.
+Package pdftex.def Info: fig/breakdown_p.pdf  used on input line 686.
 (pdftex.def)             Requested size: 274.0205pt x 205.51537pt.
- [14]
-Overfull \hbox (61.15773pt too wide) has occurred while \output is active
-[] \OT1/cmr/m/n/9 EFFICIENT CP ROUNDING USING ALTERNATING LEAST SQUARES WITH QR
- DECOMPOSITION []|
- []
-
-[15 <./fig/lineplot_p.pdf> <./fig/breakdown_p.pdf>]
-<fig/Fig_kt.pdf, id=293, 421.575pt x 316.18124pt>
+<fig/Fig_kt.pdf, id=290, 421.575pt x 316.18124pt>
 File: fig/Fig_kt.pdf Graphic file (type pdf)
 <use fig/Fig_kt.pdf>
-Package pdftex.def Info: fig/Fig_kt.pdf  used on input line 695.
+Package pdftex.def Info: fig/Fig_kt.pdf  used on input line 706.
 (pdftex.def)             Requested size: 370.38374pt x 277.79167pt.
-<fig/sinsums_acc2.pdf, id=296, 421.575pt x 316.18124pt>
+ [15 <./fig/breakdown_p.pdf>]
+<fig/sinsums_acc2.pdf, id=302, 421.575pt x 316.18124pt>
 File: fig/sinsums_acc2.pdf Graphic file (type pdf)
 <use fig/sinsums_acc2.pdf>
-Package pdftex.def Info: fig/sinsums_acc2.pdf  used on input line 710.
+Package pdftex.def Info: fig/sinsums_acc2.pdf  used on input line 721.
 (pdftex.def)             Requested size: 370.38374pt x 277.79167pt.
  [16 <./fig/Fig_kt.pdf>]
-<fig/single_precission_10000_3_updated.pdf, id=309, 1204.5pt x 697.60625pt>
-File: fig/single_precission_10000_3_updated.pdf Graphic file (type pdf)
-<use fig/single_precission_10000_3_updated.pdf>
-Package pdftex.def Info: fig/single_precission_10000_3_updated.pdf  used on inp
-ut line 735.
-(pdftex.def)             Requested size: 362.97447pt x 210.22021pt.
+<single_precission_10000_3_updated.pdf, id=314, 1204.5pt x 702.625pt>
+File: single_precission_10000_3_updated.pdf Graphic file (type pdf)
+<use single_precission_10000_3_updated.pdf>
+Package pdftex.def Info: single_precission_10000_3_updated.pdf  used on input l
+ine 747.
+(pdftex.def)             Requested size: 362.97447pt x 211.73259pt.
 
 Underfull \vbox (badness 2980) has occurred while \output is active []
 
-
-Overfull \hbox (61.15773pt too wide) has occurred while \output is active
-[] \OT1/cmr/m/n/9 EFFICIENT CP ROUNDING USING ALTERNATING LEAST SQUARES WITH QR
- DECOMPOSITION []|
- []
-
-[17 <./fig/sinsums_acc2.pdf>] [18 <./fig/single_precission_10000_3_updated.pdf>
-]
-Overfull \hbox (5.3788pt too wide) in paragraph at lines 759--765
-[]\OT1/cmr/m/n/10 Our ex-per-i-ments with a single least squares prob-lem show 
-that for an ill-conditioned|
- []
-
+ [17 <./fig/sinsums_acc2.pdf>] [18 <./single_precission_10000_3_updated.pdf>]
 (./writeup.bbl)
 \tf@thm=\write4
 \openout4 = `writeup.thm'.
 
-
-Overfull \hbox (61.15773pt too wide) has occurred while \output is active
-[] \OT1/cmr/m/n/9 EFFICIENT CP ROUNDING USING ALTERNATING LEAST SQUARES WITH QR
- DECOMPOSITION []|
- []
-
-[19] (./writeup.aux)
+ [19] (./writeup.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-02-20>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 31039 strings out of 474116
- 572516 string characters out of 5743682
- 1956187 words of memory out of 5000000
- 51203 multiletter control sequences out of 15000+600000
- 571169 words of font info for 87 fonts, out of 8000000 for 9000
+ 31049 strings out of 474116
+ 572448 string characters out of 5743682
+ 1962187 words of memory out of 5000000
+ 51207 multiletter control sequences out of 15000+600000
+ 573442 words of font info for 96 fonts, out of 8000000 for 9000
  2715 hyphenation exceptions out of 8191
  89i,22n,96p,1397b,767s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
 ></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb><
 /usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb></u
-sr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb></u
-sr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></us
-r/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr
-/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/l
-ocal/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/loc
-al/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local
-/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/t
-exlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/local/t
-exlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/tex
-live/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/texliv
-e/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2
-024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2024
-/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2024/te
-xmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2024/texmf
--dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2024/texmf-
-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/local/texlive/2024/texmf-di
-st/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2024/texmf-dist
-/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2024/texmf-dist/f
-onts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2024/texmf-dist/fon
-ts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2024/texmf-dist/font
-s/type1/public/amsfonts/cm/cmti8.pfb></usr/local/texlive/2024/texmf-dist/fonts/
-type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2024/texmf-dist/fonts/t
-ype1/public/amsfonts/symbols/msbm10.pfb>
-Output written on writeup.pdf (19 pages, 459776 bytes).
+sr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr
+/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb></usr
+/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/
+local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/l
+ocal/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/loc
+al/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local
+/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/t
+exlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/tex
+live/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local/texli
+ve/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/local/texli
+ve/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive
+/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/texlive/20
+24/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2024/
+texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2024/tex
+mf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2024/texmf-
+dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2024/texmf-dis
+t/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2024/texmf-dist
+/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/local/texlive/2024/texmf-dist/f
+onts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2024/texmf-dist/fon
+ts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2024/texmf-dist/fonts
+/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2024/texmf-dist/fonts/t
+ype1/public/amsfonts/cm/cmsy9.pfb></usr/local/texlive/2024/texmf-dist/fonts/typ
+e1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type
+1/public/amsfonts/cm/cmti8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/
+public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/p
+ublic/amsfonts/symbols/msbm10.pfb>
+Output written on writeup.pdf (19 pages, 475973 bytes).
 PDF statistics:
- 557 PDF objects out of 1000 (max. 8388607)
- 471 compressed objects within 5 object streams
- 83 named destinations out of 1000 (max. 500000)
+ 573 PDF objects out of 1000 (max. 8388607)
+ 481 compressed objects within 5 object streams
+ 82 named destinations out of 1000 (max. 500000)
  250 words of extra memory for PDF output out of 10000 (max. 10000000)
 

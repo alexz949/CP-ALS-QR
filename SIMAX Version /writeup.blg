@@ -5,34 +5,34 @@ The style file: siamplain.bst
 Database file #1: reference.bib
 You've used 8 entries,
             2244 wiz_defined-function locations,
-            606 strings with 5563 characters,
-and the built_in function-call counts, 3296 in all, are:
+            611 strings with 5668 characters,
+and the built_in function-call counts, 3271 in all, are:
 = -- 296
 > -- 144
 < -- 0
 + -- 56
 - -- 48
 * -- 254
-:= -- 466
+:= -- 465
 add.period$ -- 9
 call.type$ -- 8
 change.case$ -- 46
 chr.to.int$ -- 0
 cite$ -- 8
-duplicate$ -- 170
-empty$ -- 288
+duplicate$ -- 167
+empty$ -- 279
 format.name$ -- 48
-if$ -- 733
+if$ -- 724
 int.to.chr$ -- 0
 int.to.str$ -- 8
 missing$ -- 8
 newline$ -- 28
 num.names$ -- 16
-pop$ -- 72
+pop$ -- 67
 preamble$ -- 1
 purify$ -- 39
 quote$ -- 0
-skip$ -- 131
+skip$ -- 133
 stack$ -- 0
 substring$ -- 206
 swap$ -- 66
