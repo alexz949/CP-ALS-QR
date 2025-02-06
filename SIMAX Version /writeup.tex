@@ -35,13 +35,14 @@
 %</funding-group>
 
 
-\usepackage{lineno,hyperref}
-\usepackage{amsmath,amssymb,enumerate,graphicx,pifont,color,tikz,yfonts,scalerel,changepage,algorithm,algpseudocode}
+%\usepackage{lineno,hyperref}
+%\usepackage{amsmath,amssymb,enumerate,graphicx,pifont,color,tikz,yfonts,scalerel,changepage,algorithm,algpseudocode}
+\usepackage{algpseudocode}
 \usepackage{bookmark}
 \usepackage{diagbox}
-\usepackage{caption,subcaption}
+%\usepackage{caption,subcaption}
 
-
+\usepackage{tikz}
 \usetikzlibrary{positioning}
 \usetikzlibrary{cd}
 
@@ -49,8 +50,7 @@
 \usepackage{multirow}
 \usepackage{tabularx}
 \usepackage{array}
-\usepackage{tikz}
-\usepackage{cleveref}
+%\usepackage{cleveref}
 
 \graphicspath{{fig/}}
 
@@ -100,7 +100,7 @@
 
 
 \begin{abstract}
-The CANDECOMP/PARAFAC (CP) decomposition is widely used for analyzing multidimensional data, and the alternating least squares (CP-ALS) algorithm is a common method for its computation.  While the normal equations (NE) approach in CP-ALS is efficient, it becomes unstable in the presence of ill-conditioned matrices. To address this, a QR decomposition-based method was proposed by \cite{MVLB23} to improve stability, but it suffers from exponential time complexity that becomes a bottleneck for large-scale problems. This paper presents a new QR-based CP-ALS method that reduces this time complexity from exponential to linear for CP-format input, while preserving both numerical stability and computational efficiency. Our experiments show that the proposed method offers significant speedup over the previous QR-based approach by \cite{MVLB23} and the Tensor Toolbox's NE-based implementation, particularly in CP rounding tasks for higher-order tensors. Furthermore, our approach demonstrates a marked reduction in error for ill-conditioned problems, with error reductions several orders of magnitude smaller compared to the NE-based method, while achieving faster convergence and more accurate solutions.  By using a more numerically stable approach, we can solve more problems in reduced working precision, which enables further reduction in time to solution.
+The CANDECOMP/PARAFAC (CP) decomposition is widely used for analyzing multidimensional data, and the alternating least squares (CP-ALS) algorithm is a common method for its computation.  CP rounding is the problem of computing a lower-rank CP decomposition of an input already in a higher-rank CP format.  While the normal equations (NE) approach in CP-ALS is efficient for the CP rounding problem and frequently used, it becomes unstable in the presence of ill-conditioned subproblems. This paper presents a new QR-based CP-ALS method for CP rounding that preserves both numerical stability and computational efficiency. Our experiments show that the proposed method offers significant speedup over a previous QR-based approach and the Tensor Toolbox's NE-based implementation, particularly for higher-order tensors. Furthermore, our approach demonstrates a marked reduction in error for ill-conditioned problems, with error reductions several orders of magnitude smaller compared to the NE-based method, while achieving faster convergence and more accurate solutions.  By using a more numerically stable approach, we can solve more problems in reduced working precision, which enables further reduction in time to solution.
 \end{abstract}
 
 
@@ -121,22 +121,22 @@ One of the most popular methods used to compute a CP decomposition is the altern
 The normal equations are typically used to solve these linear least squares problems within CP-ALS because of the structure of the coefficient matrix \cite{kolda2009tensor}. 
 However, this approach is sensitive to roundoff error in the case of ill-conditioned coefficient matrices. 
 Minster et al. \cite{MVLB23} propose a more numerically stable approach using QR decomposition that also exploits the structure of the coefficient matrices within the linear least squares problems.
-One drawback of their more stable approach is that the computational cost is exponential in the number of modes of the tensor.
+One drawback of their more stable approach is that the computational cost is exponential in $d$, the number of modes of the tensor.
 This cost is often not the bottleneck when computing CP decompositions of input tensors in dense format.
 However, in the context of CP-Rounding, or computing a lower-rank CP decomposition of an input already in CP format, the exponential cost becomes the overwhelming bottleneck and renders the algorithm infeasible for large problems.
-In this paper, we propose a new method based on the QR decomposition that is just as numerically stable and reduces the costs from exponential to linear in the number of modes $d$.
+In this paper, we propose a new method based on the QR decomposition that is just as numerically stable and reduces the costs from exponential to linear in $d$.
 
 
 As we describe in \cref{sec:background}, in the context of CP-ALS, the coefficient matrix of each linear least squares problem is a Khatri-Rao product of matrices, which is a column-wise Kronecker product.
-The normal equations for this linear least squares problem can exploit this Khatri-Rao structure (see \cref{sec:alg:ne} for more details).
+\Cref{sec:algs} details the various methods for exploiting the structure of these coefficient matrices, including via the normal equations (see \cref{sec:alg:ne} for more details).
 In order to efficiently compute a QR decomposition of a matrix with this structure, we perform a sequence of QR decompositions of smaller matrices.
 We illustrate the key idea with an example.
-Considering a Khatri-Rao product of three matrices, we exploit the following identities, where each computed QR decomposition is denoted using underbraces:
+Considering a Khatri-Rao product of three matrices each with $r$ columns, we exploit the following identities, where each computed QR decomposition is denoted using underbraces:
 
 \begin{align}
 \M{A} &= \underbrace{\M{A}_1}_{{\M{Q}_1\M{R}_1}} \kr \underbrace{\M{A}_2}_{{\M{Q}_2\M{R}_2}} \kr \underbrace{\M{A}_3}_{{\M{Q}_3\M{R}_3}}   \label{eq:qr} \\ 
 &= (\M{Q}_1 \kron \M{Q}_2 \kron \M{Q}_3) (\underbrace{\M{R}_1 \kr \M{R}_2}_{\M[\hat]{Q}_{12} \M[\hat]{R}_{12}} \kr \M{R}_3)  \label{eq:re} \\
-&= (\M{Q}_1 \kron \M{Q}_2 \kron \M{Q}_3) (\M[\hat]{Q}_{12} \kron \M{I}) (\underbrace{\M[\hat]{R}_{12} \kr \M{R}_3}_{\M[\hat]{Q}_{123} \M{R}}).  \label{eq:pw} 
+&= (\M{Q}_1 \kron \M{Q}_2 \kron \M{Q}_3) (\M[\hat]{Q}_{12} \kron \M{I}_r) (\underbrace{\M[\hat]{R}_{12} \kr \M{R}_3}_{\M[\hat]{Q}_{123} \M{R}}).  \label{eq:pw} 
 \end{align}
 
 Following \cite{MVLB23}, we start with a (compact) QR decomposition of each individual factor in \cref{eq:qr}, as the Kronecker product of the orthonormal factors can be factored out of the Khatri-Rao product as shown in \cref{eq:re}.
@@ -144,18 +144,20 @@ Note that the Khatri-Rao product of triangular matrices is not triangular, so we
 As we detail in \cref{sec:alg:expqr}, the previous approach forms the explicit Khatri-Rao product of all triangular factors and performs a large QR decomposition with cost that is exponential in the number of factors.
 Instead, we propose using a pairwise approach.
 In \cref{eq:re} we form an explicit Khatri-Rao product of the first two triangular factors, compute a QR decomposition, and then factor out the orthonormal factor, leaving a Khatri-Rao product with one fewer factor matrix.
-In \cref{eq:qr}, we form an explicit Khatri-Rao product of the remaining two triangular factors and compute a final QR decomposition.
+In \cref{eq:pw}, $\M[\hat]{Q}_{12}$ is $r^2 \times r$ and $\M{I}_r$ is the $r\times r$ identity matrix.
+Finally, we form an explicit Khatri-Rao product of the remaining two triangular factors and compute the last QR decomposition.
 This achieves a QR decomposition of the matrix $\M{A}$ where the orthonormal factor is a product of implicitly represented orthonormal matrices.
-We exploit the implicit structure when applying its transpose to the target matrix of the least squares problem, as the target matrix has similar structure in the context of CP-Rounding. 
+We exploit the implicit structure when applying its transpose to the target matrix of the least squares problem, as the target matrix has similar structure in the case of CP-Rounding. 
 The cost of the pairwise approach is linear in the number of factors; full details are given in \cref{sec:alg:pwqr}.
  
 \Cref{sec:result} presents experimental results to validate the complexity analysis and numerical stability properties of our proposed algorithm.
 We compare our proposed algorithm with the normal equations method and with the previously proposed QR-based algorithm to show that it is as computationally efficient as the normal equations and as numerically stable as the QR-based algorithm.
 We use a sine-of-sums tensor \cite{BM02} to illustrate the differences among the algorithms, as the example yields ill-conditioned least squares problems that expose the numerical instability of the normal equations and can be scaled to large numbers of modes.
 Our results show a $14\times$ speedup over the previous QR-based algorithm on a single linear least squares solve for a problem with 7 Khatri-Rao factors.
-We also show that our implementation of CP-ALS using QR is actually faster than the implementation of CP-ALS in the MATLAB Tensor Toolbox \cite{TensorToolbox}, which is based on the normal equations, because our implementation uses memoization to avoid recomputation of temporary quantities.
+We also show that our implementation of CP-ALS using QR is faster than the implementation of CP-ALS in the MATLAB Tensor Toolbox \cite{TensorToolbox}, which is based on the normal equations, because our implementation uses memoization to avoid recomputation of temporary quantities.
 We observe up to a $4\times$ speedup over the normal equations based CP-ALS on a 9-way tensor.
-For the sine-of-sums tensors, we show that the normal equations approach breaks down completely in the presence of ill-conditioning, while our method maintains small relative errors.
+For the sine-of-sums tensors, we show that the normal equations approach can break down completely in the presence of ill-conditioning, while our method maintains small relative errors.
+We also illustrate for synthetic data the benefits of trading off accuracy and running time using reduced working precision: our proposed approach is able to run even faster using single precision while maintaining the same accuracy as the normal equations approach using double precision.
 We summarize our conclusions in \cref{sec:conclusion} and discuss future directions based on the proposed method.
 
 \section{Background} 
@@ -169,13 +171,14 @@ CP decomposition $\T{K}$ of rank $r \in \mathbb{N}$ can be represented as
 \T{X}(i_1,i_2,\dots, i_d) \approx \T{K}(i_1, i_2,\dots, i_d) = \sum^{r}_{j=1} \V{\lambda}(j) \mat{A}_1(i_1,j)\mat{A}_2(i_2,j) \dots \mat{A}_d(i_d,j)
 \end{equation}
 for all $(i_1,i_2,\dots, i_d) \in [n_1] \otimes [n_2] \otimes [n_3] \otimes \dots \otimes [n_d]$ where $\mat{A}_k \in \mathbb{R}^{n_k \times r}$ is a factor matrix for each $k \in [d]$ and $\bm{\lambda}\in\mathbb{R}^r$ is a vector of weights. 
-\Cref{fig:3d-cp-decomp} gives a visualization of a CP Decomposition for a 3-way tensor.
+%\Cref{fig:3d-cp-decomp} gives a visualization of a CP Decomposition for a 3-way tensor.
+%
+%\begin{figure}[ht!]
+%\centering
+%\input{tikz/cp.tex}
+%\caption{CP decomposition of rank $r$ for a three-dimensional tensor $\T{X}$ \label{fig:3d-cp-decomp}}
+%\end{figure}
 
-\begin{figure}[ht!]
-\centering
-\input{tikz/cp.tex}
-\caption{CP decomposition of rank $r$ for a three-dimensional tensor $\T{X}$ \label{fig:3d-cp-decomp}}
-\end{figure}
 We can represent $\T[]{K}$ in shorthand CP notation as $\T{K} = [\![\V{\lambda};\mat{A}_1,\mat{A}_2, \dots,\mat{A}_d ]\!]$. 
 There exists ambiguity in the weighting of the columns of the factor matrices and $\V{\lambda}$ vector.
 For simplicity of presentation, we drop the weight vector $\V{\lambda}$ throughout and use the representation
