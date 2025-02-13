@@ -157,7 +157,7 @@ The cost of the pairwise approach is linear in the number of factors; full detai
 We compare our proposed algorithm with the normal equations method and with the previously proposed QR-based algorithm to show that it is as computationally efficient as the normal equations and as numerically stable as the QR-based algorithm.
 We use a sine-of-sums tensor \cite{BM02} to illustrate the differences among the algorithms, as the example yields ill-conditioned least squares problems that expose the numerical instability of the normal equations and can be scaled to large numbers of modes.
 Our results show a $14\times$ speedup over the previous QR-based algorithm on a single linear least squares solve for a problem with 7 Khatri-Rao factors.
-We also show that our implementation of CP-ALS using QR is faster than the implementation of CP-ALS in the MATLAB Tensor Toolbox \cite{TensorToolbox}, which is based on the normal equations, because our implementation uses memoization to avoid recomputation of temporary quantities.
+We also show that our implementation of CP-ALS using QR is faster than the implementation of CP-ALS in the MATLAB Tensor Toolbox \cite{BK07,TensorToolbox}, which is based on the normal equations, because our implementation uses memoization to avoid recomputation of temporary quantities.
 We observe up to a $4\times$ speedup over the normal equations based CP-ALS on a 9-way tensor.
 For the sine-of-sums tensors, we show that the normal equations approach can break down completely in the presence of ill-conditioning, while our method maintains small relative errors.
 We also illustrate for synthetic data the benefits of trading off accuracy and running time using reduced working precision: our proposed approach is able to run even faster using single precision while maintaining the same accuracy as the normal equations approach using double precision.
@@ -407,7 +407,7 @@ We note that the leading order term can be reduced to $4\hat n^d r$ and the $O(d
 
 \subsubsection{CP Format Input}
 
-If the input tensor {$\T{X}=[\![\mat{B}_{1}, \dots ,\mat{B}_{d}]\!]$} is already in CP format (see \cref{sec:cp-rounding}), we can compute the MTTKRP more efficiently using the following identity:
+If the input tensor {$\T{X}=[\![\mat{B}_{1}, \dots ,\mat{B}_{d}]\!]$} is already in CP format (see \cref{sec:cp-rounding}), we can compute the MTTKRP more efficiently using the following identity \cite[Section 5.2.6]{BK07}:
 {\small
 \begin{align*}
  \mat{X}_{(k)}\mat{Z}_k &= \mat{B}_k(\mat{B}_d \odot {\cdots} \odot \mat{B}_{k+1} \odot \mat{B}_{k-1} \odot {\cdots} \odot \mat{B}_1)^\top(\mat{A}_d \odot {\cdots} \odot\mat{A}_{k+1} \odot \mat{A}_{k-1} \odot {\cdots} \odot \mat{A}_1) \\
