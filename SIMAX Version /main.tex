@@ -127,6 +127,7 @@ Minster et al. \cite{MVLB23} propose a more numerically stable approach using QR
 One drawback of their more stable approach is that the computational cost is exponential in $d$, the number of modes of the tensor.
 This cost is often not the bottleneck when computing CP decompositions of input tensors in dense format.
 However, in the context of CP-Rounding, or computing a lower-rank CP decomposition of an input already in CP format, the exponential cost becomes the overwhelming bottleneck and renders the algorithm infeasible for large problems.
+CP-Rounding arises in various applications, including high-dimensional, nonlinear partial differential equations (PDEs) \cite{BVT20}, simulation of quantum algorithms \cite{MY22}, and stochastic PDEs in uncertainty quantification \cite{RDB16}.
 In this paper, we propose a new method based on the QR decomposition that is just as numerically stable and reduces the costs from exponential to linear in $d$.
 
 
@@ -523,15 +524,16 @@ Assuming each factor matrix has more rows than columns, the first phase of the a
 $$\mat{Z}_k = (\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1)(\mat{R}_d \odot \dots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \dots \odot \mat{R}_1).$$
 If a factor matrix has more columns than rows, then its individual QR decomposition and associated computations should be skipped, though we do not consider this optimization here.
 To compute the QR decomposition of the Khatri-Rao product of triangular factors, we perform a sequence of pairwise reductions.
-While the order is arbitrary, for notational convenience we start from the right: we compute a QR decomposition of an explicit Khatri-Rao product of the last two triangular factors, $\mat{R}_2 \odot \mat{R}_1 = \M[\hat]{Q}_1\M[\hat]{R}_2$, yielding
+While the order can be optimized for efficiency, for notational convenience we start from the right: we compute a QR decomposition of an explicit Khatri-Rao product of the last two triangular factors, $\mat{R}_2 \odot \mat{R}_1 = \M[\hat]{Q}_1\M[\hat]{R}_2$, yielding
 %$$\small \M{R}_{d-1} \odot \dots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \dots \odot \M[\hat]{Q}_1\M[\hat]{R}_2 = (\M{I}_{r^{d-2}} \kron \M[\hat]{Q}_1)(\M{R}_{d-1} \odot \cdots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \dots \odot \M[\hat]{R}_2).$$
 \begin{align*}
  &\M{R}_{d-1} \odot \dots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \dots \odot \M[\hat]{Q}_1\M[\hat]{R}_2 =\notag\\
  &\hspace{4.51cm} (\M{I}_{r^{d-2}} \kron \M[\hat]{Q}_1)(\M{R}_{d-1} \odot \cdots \odot \mat{R}_{k+1} \odot \mat{R}_{k-1} \odot \dots \odot \M[\hat]{R}_2).
-\end{align*} \GB{come back here to address structure of KR of triangles}
+\end{align*} 
 We then repeat the pairwise QR decomposition on two rightmost remaining factors $\M{R}_{3} \odot \M[\hat]{R}_2$, and so on (skipping the $k$th factor), each time reducing the number of triangular factors by one.
 After $d-2$ pairwise QR decompositions, we obtain the QR decomposition of $\mat{Z}_k$ (with implicit orthogonal factor):
 $$\mat{Z}_k = (\mat{Q}_d \otimes \dots \otimes \mat{Q}_{k+1} \otimes \mat{Q}_{k-1} \otimes \dots \otimes \mat{Q}_1) (\M{I}_{r^{d-2}} \kron \M[\hat]{Q}_1)(\M{I}_{r^{d-3}} \kron \M[\hat]{Q}_2) \cdots (\mat{I}_r \otimes \M[\hat]{Q}_{d-2}) \M[\hat]{Q}_{d-1}\M{R}.$$
+We note that the Khatri-Rao product of triangular matrices has sparse structure that can be exploited to reduce computation in the QR decomposition by a constant factor (see \cite[Section 3.3.3]{MVLB23} for more details), but we do not consider the optimization here.
 
 As in the previous approach, applying the orthogonal factor to the unfolding of the tensor $\M{X}_{(k)}$ starts with a Multi-TTM operation:
 $$\T{Y} =  \T{X} \times_1 \mat{Q}_1^\top \dots \times_{k-1} \mat{Q}_{k-1}^\top \times_{k+1} \mat{Q}_{k+1}^\top \dots \times_d \mat{Q}_d^\top.$$
