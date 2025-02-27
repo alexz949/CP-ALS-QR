@@ -213,7 +213,7 @@ We use this form to relate to the corresponding least squares problem that arise
 
 Several different techniques can be used to solve this problem.
 The two we consider here are via the Normal Equations (NE) and by QR decomposition.
-The NE specify a (square) linear system of equations and are derived from setting the gradient of the objective function from \cref{eq:LS} to zero, and they involve the Gram of $\mat{A}$ as well as the product $\mat{B}\mat{A}$: $\mat{X}\mat{A}^\top\mat{A} = \mat{B}\mat{A}$.
+The NE specify a (square) linear system of equations and are derived from setting the gradient of the objective function from \cref{eq:LS} to zero, and they involve the Gram matrix of $\mat{A}$ as well as the product $\mat{B}\mat{A}$: $\mat{X}\mat{A}^\top\mat{A} = \mat{B}\mat{A}$.
 The NE can be solved via Cholesky factorization of $\mat{A}^\top\mat{A}$ and triangular solves.
 The cost of NE depends on the size of $\mat{A}$ and $\mat{B}$. 
 
@@ -253,7 +253,7 @@ If we use QR to solve a least squares problem with a single right hand side; i.e
   \frac{||\V[\tilde]{x} - \V{x}||}{||\V{x}||} = O \biggl(\biggl(\kappa + \frac{\kappa^2\tan\theta}{\eta}\biggr)\epsilon_{mach}\biggr),
 \end{equation}
 where $\V[\tilde]{x}$ is the computed solution, $\V{x}$ is the exact solution, $\theta$ is the angle between $\mat{A}\V{x}$ and $\V{b}$, and $\eta = \|\mat{A}\|\|\V{x}\|/\|\mat{A}\V{x}\|$.
-However, if we use the NE approach, then by \cite[Eq. (19.3)]{trefethen1997numerical} the forward error guarantee can be much looser: 
+However, if we use the NE approach, then by \cite[Eq. (19.3)]{trefethen1997numerical} the forward error guarantee is  much looser: 
 \begin{equation}\label{eq:qr-ferr}
   \frac{||\V[\tilde]{x} - \V{x}||}{||\V{x}||} = O \biggl(\kappa^2 \epsilon_{\text{mach}}\biggr).
 \end{equation}
@@ -634,7 +634,7 @@ We choose $\alpha_j$'s to be equally spaced within $[0,2\pi)$.
 Leaving one factor matrix $\M{A}_k$ out of the representation, our goal is to recompute it by solving the least squares problem.
 
 \Cref{tab:LS_err} reports the accuracy of the three methods as we vary the condition number as measured by the relative forward error $\|\M{A}_k-\M[\hat]{A}_k\|/\|\M{A}_k\|$, where $\M{A}_k$ is the true solution given by the discretization of \cref{eq:dtermrep} and $\M[\hat]{A}_k$ is the computed solution.
-We adjust the condition number of the coefficient matrix by varying $d$ and the distance between consecutive parameters $\alpha_j$ and $\alpha_j+1$, and we fix the discretization parameter $n=50$.
+We adjust the condition number of the coefficient matrix by varying $d$ and the distance between consecutive parameters $\alpha_j$ and $\alpha_{j+1}$, and we fix the discretization parameter $n=50$.
 We observe that as the distance between consecutive parameters decreases, the condition number of the coefficient matrix increases, and this effect is more pronounced for $d=5$ than $d=3$.
 As the condition number increases, we see that the forward error of all methods increases, as expected.
 However, this loss of accuracy is much worse for the normal equations method, and when the condition number is as large as the reciprocal of the square root of machine precision, it completely breaks down.

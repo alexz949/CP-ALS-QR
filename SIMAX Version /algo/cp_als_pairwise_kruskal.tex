@@ -7,7 +7,7 @@
         \State $[\mat{Q}_k,\mat{R}_k] = \Call{QR}{\mat{A}_k}$ \Comment{compute QR} 
         \State $\mat{C}_k = \mat{Q}_k^\top\mat{B}_k$ \Comment{compute cross product}  
       \EndFor
-      \While{not converge}
+      \While{not converged}
         \For{$k = 1, \dots, d$}
           \IfThenElse{$k \neq 1$}{$a=1$}{$a=2$} \Comment{set starting index}
           \State $\mat{R} = \mat{R}_a$, $\mat{D}_k = \mat{C}_a$ \Comment{initialize pairwise results}
