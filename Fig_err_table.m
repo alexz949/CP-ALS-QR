@@ -76,8 +76,6 @@ normal_err = norm(full(T) - full(X)) / norm(X);
 [D,tttc,tttp] = apply_kr_qr(Qp,Qhatp,Xy,X.U{d});
 
 
-
-
 XX = (Rp \ D)';
 T.U{d} = XX;
 
@@ -93,5 +91,5 @@ j = j+1;
 
 
 end
-save('edata.mat','edata');
+%save('edata.mat','edata');
 

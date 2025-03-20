@@ -1,5 +1,3 @@
-
-
 clear
 maxNumCompThreads(1);
 

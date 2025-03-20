@@ -1,4 +1,4 @@
- = function [P,Uinit,output] = cp_als_qr_new(X,R,varargin)
+function [P,Uinit,output] = cp_als_qr_new(X,R,varargin)
 %CP_ALS_QR Compute a CP decomposition of any type of tensor.
 %
 %   M = CP_ALS(X,R) computes an estimate of the best rank-R

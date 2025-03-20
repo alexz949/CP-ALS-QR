@@ -54,8 +54,6 @@ sum_mat = zeros(1,24);
 
 %%
 
-
-
 for i = 1:24
     sum_mat(i) = sum(per_data.res(i,:));
 end
@@ -97,7 +95,7 @@ screenposition = get(gcf,'Position');
 set(gcf,...
     'PaperPosition',[0 0 screenposition(3:4)],...
     'PaperSize',[screenposition(3:4)]);
-saveas(gcf,'lineplot_p.pdf')
+%saveas(gcf,'lineplot_p.pdf')
 
 
 
