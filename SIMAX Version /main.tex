@@ -95,6 +95,13 @@
 \algnewcommand{\IfThen}[2]{\State \algorithmicif\ #1\ \algorithmicthen\ #2} % single line: \IfThen{<if>}{<then>}
 
 
+\newcommand\blfootnote[1]{%
+  \begingroup
+  \renewcommand\thefootnote{}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
+
 \allowdisplaybreaks
 
 \begin{document}
@@ -603,7 +610,7 @@ The terms involving factors of $d^2$ can likely be reduced by a factor of $d$ vi
 \section{Experimental Results} 
 \label{sec:result}
 
-
+\blfootnote{The source code for the experimental results is available at: \url{https://github.com/alexz949/CP-Rounding.git}}
 \subsection{Sine of Sums Tensor}
 
 To test the accuracy and efficiency of the QR-based method, we use a discretization of the multivariate sine of sums function: $\sin(x_1+\dots+ x_d)$.
@@ -706,7 +713,7 @@ We note that it is possible to apply memoization to the normal equations based m
 
 \begin{figure}[ht!]
   \begin{center}
-    \includegraphics[width = \textwidth]{Fig_kt.pdf}
+    \includegraphics[width = \textwidth]{Fig_kt_new.pdf}
     \caption[Figure]{Comparison of per-iteration run time for CP-ALS on sine-of-sums CP Rounding problem when varying $d$ and $n$ for NE, QR Imp, and QR Exp ($r=d$, $s=2^{d-1}$). \label{fig:runtime}}
   \end{center}
 \end{figure}
