@@ -169,7 +169,7 @@ We also show that our implementation of CP-ALS using QR is faster than the imple
 We observe up to a $4\times$ speedup over the normal equations based CP-ALS on a 9-way tensor.
 For the sine-of-sums tensors, we show that the normal equations approach can break down completely in the presence of ill-conditioning, while our method maintains small relative errors.
 We also illustrate for synthetic data the benefits of trading off accuracy and running time using reduced working precision: our proposed approach is able to run even faster using single precision while maintaining the same accuracy as the normal equations approach using double precision.
-We summarize our conclusions in \cref{sec:conclusion} and discuss future directions based on the proposed method.
+We summarize our conclusions in \cref{sec:conclusion} and discuss future directions based on the proposed method. The source code for the reproducibility of our experiment results is available at: \url{https://github.com/alexz949/CP-Rounding.git}
 
 \section{Background} 
 \label{sec:background}
@@ -610,7 +610,6 @@ The terms involving factors of $d^2$ can likely be reduced by a factor of $d$ vi
 \section{Experimental Results} 
 \label{sec:result}
 
-\blfootnote{The source code for the experimental results is available at: \url{https://github.com/alexz949/CP-Rounding.git}}
 \subsection{Sine of Sums Tensor}
 
 To test the accuracy and efficiency of the QR-based method, we use a discretization of the multivariate sine of sums function: $\sin(x_1+\dots+ x_d)$.
@@ -650,25 +649,43 @@ We adjust the condition number of the coefficient matrix by varying $d$ and the 
 We observe that as the distance between consecutive parameters decreases, the condition number of the coefficient matrix increases, and this effect is more pronounced for $d=5$ than $d=3$.
 As the condition number increases, we see that the forward error of all methods increases, as expected.
 However, this loss of accuracy is much worse for the normal equations method, and when the condition number is as large as the reciprocal of the square root of machine precision, it completely breaks down.
-For the QR-based methods, the loss of accuracy is much more graceful, and both methods maintain forward error at or below the square root of machine precision even when the condition number is on the order of \texttt{1e13}.
+For the QR-based methods, the loss of accuracy is much more graceful, and both methods maintain forward error close to the square root of machine precision even when the condition number is on the order of \texttt{1e13}.
 This experiment confirms the difference in theoretical guarantees presented in \cref{eq:ne-ferr,eq:qr-ferr}.
 We note that the implicit Pairwise QR method yields slightly more accurate results than the explicit QR method, which we conjecture is due to the computations involving explicit vectors of dimension $n^{d-1}$, which the implicit method avoids.
 
+%\begin{table}[ht!] 
+  %\centering
+  %\begin{tabular}{|c|c|c|c|c|c|}
+  %  \hline
+   % $d$  & $|\alpha_j-\alpha_{j+1}|$ & $\kappa(\M{Z}_k)$ & NE Err & QR Exp Err & QR Imp Err \\
+   % \hline
+   % 3  & \texttt{1e00}  & \texttt{1.51e00}  & \texttt{3.64e-16} & \texttt{1.44e-15} & \texttt{5.07e-16} \\
+   % 3  & \texttt{1e-1} & \texttt{5.02e02}  & \texttt{6.12e-14} & \texttt{3.70e-15} & \texttt{5.74e-16} \\
+   % 5  & \texttt{1e-1} & \texttt{7.38e03}  & \texttt{9.80e-11} & \texttt{9.70e-15} & \texttt{1.85e-15}\\
+   % 3  & \texttt{1e-2} & \texttt{4.77e05}  & \texttt{1.32e-08} & \texttt{5.40e-13} & \texttt{8.99e-15} \\
+   % 5  & \texttt{1e-2} & \texttt{3.71e08}  & \texttt{3.51e-01} & \texttt{4.87e-12} & \texttt{1.27e-14}\\
+   % 3  & \texttt{1e-4} & \texttt{4.77e11} & \texttt{8.89e-01} & \texttt{8.43e-09} & \texttt{1.31e-12} \\
+   % 5  & \texttt{1e-3} & \texttt{3.64e13} & \texttt{1.00e00}  & \texttt{9.74e-07} & \texttt{1.94e-09}\\
+   % \hline
+  %\end{tabular}
+  %\caption{Comparison of relative forward error when varying $d$ and $|\alpha_j-\alpha_{j+1}|$ for single least squares problem given by sine of sums.}
+  %\label{tab:LS_err_old}
+%\end{table}
 \begin{table}[ht!] 
   \centering
   \begin{tabular}{|c|c|c|c|c|c|}
     \hline
     $d$  & $|\alpha_j-\alpha_{j+1}|$ & $\kappa(\M{Z}_k)$ & NE Err & QR Exp Err & QR Imp Err \\
     \hline
-    3  & \texttt{1e00}  & \texttt{1.51e00}  & \texttt{3.64e-16} & \texttt{1.44e-15} & \texttt{5.07e-16} \\
-    3  & \texttt{1e-1} & \texttt{5.02e02}  & \texttt{6.12e-14} & \texttt{3.70e-15} & \texttt{5.74e-16} \\
-    5  & \texttt{1e-1} & \texttt{7.38e03}  & \texttt{9.80e-11} & \texttt{9.70e-15} & \texttt{1.85e-15}\\
-    3  & \texttt{1e-2} & \texttt{4.77e05}  & \texttt{1.32e-08} & \texttt{5.40e-13} & \texttt{8.99e-15} \\
-    5  & \texttt{1e-2} & \texttt{3.71e08}  & \texttt{3.51e-01} & \texttt{4.87e-12} & \texttt{1.27e-14}\\
-    3  & \texttt{1e-4} & \texttt{4.77e11} & \texttt{8.89e-01} & \texttt{8.43e-09} & \texttt{1.31e-12} \\
-    5  & \texttt{1e-3} & \texttt{3.64e13} & \texttt{1.00e00}  & \texttt{9.74e-07} & \texttt{1.94e-09}\\
+    3  & \texttt{1e00}  & \texttt{1.54e00}  & \texttt{2.27e-16} & \texttt{3.43e-16} & \texttt{5.44e-16} \\
+    3  & \texttt{1e-1} & \texttt{5.61e02}  & \texttt{2.87e-12} & \texttt{8.91e-16} & \texttt{1.47e-15} \\
+    5  & \texttt{1e-1} & \texttt{9.02e03}  & \texttt{2.37e-09} & \texttt{5.76e-14} & \texttt{6.32e-16}\\
+    3  & \texttt{1e-2} & \texttt{5.37e05}  & \texttt{1.64e-08} & \texttt{2.05e-13} & \texttt{2.71e-14} \\
+    5  & \texttt{1e-2} & \texttt{4.66e08}  & \texttt{3.20e-02} & \texttt{8.31e-11} & \texttt{1.37e-14}\\
+    3  & \texttt{1e-4} & \texttt{5.37e11} & \texttt{1.43e00} & \texttt{6.00e-10} & \texttt{1.00e-12} \\
+    5  & \texttt{1e-3} & \texttt{4.59e13} & \texttt{1.00e00}  & \texttt{6.23e-06} & \texttt{1.99e-08}\\
     \hline
-  \end{tabular}
+   \end{tabular}
   \caption{Comparison of relative forward error when varying $d$ and $|\alpha_j-\alpha_{j+1}|$ for single least squares problem given by sine of sums.}
   \label{tab:LS_err}
 \end{table}
@@ -778,7 +795,7 @@ In this work, we implement a new version of CP-ALS algorithm with QR decompositi
 The time complexity roughly matches that of the standard normal equations based CP-ALS algorithm as implemented in the Tensor Toolbox \cite{TensorToolbox}.
 As evidenced by our theoretical and experimental analysis, the algorithm simultaneously achieves numerical stability and computational efficiency.
 
-Our experiments with a single least squares problem show that if the problem is very ill conditioned (condition number of \texttt{4e13}), our algorithm achieves an error that is 9 orders of magnitude smaller than the normal equations approach.
+Our experiments with a single least squares problem show that if the problem is very ill conditioned (condition number of \texttt{4.6e13}), our algorithm achieves an error that is 8 orders of magnitude smaller than the normal equations approach.
 Likewise, for an 8-way tensor, we observe a speedup of about $100\times$ over the previously proposed QR-based method.
 In experiments using CP-ALS to perform CP rounding, we observe a $14\times$ speedup over the previous QR-based method on a 7-way tensor and $4\times$ speedup over Tensor Toolbox's implementation of the NE-based method.
 Further, we also see convergence to more accurate solutions when using our method for $5$-way, $7$-way, and $10$-way tensors correspond to discovery of a sine of sums identity.
