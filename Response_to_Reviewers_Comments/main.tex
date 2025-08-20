@@ -1,0 +1,99 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{fullpage}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{soul}
+\usepackage{ulem}
+\usepackage{amsfonts}
+
+\newcommand{\mat}[1]{\mathbf{#1}}
+\newcommand{\ten}[1]{\mathcal{#1}}
+
+\newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
+\title{Response to Reviewer's Comments}
+% \author{bhishamdevverma }
+\date{}
+
+\begin{document}
+
+\maketitle
+% \vspace{-1.5cm}
+
+We thank the reviewers for dedicating their time and effort to reviewing the manuscript thoroughly and providing insightful comments. The manuscript has significantly benefited from these comments. We provide pointwise responses to the comments as follows:\\
+
+
+
+
+
+\noindent \underline{\textbf{Refree \#1:}}\\
+
+
+\noindent \ul{\textit{\textbf{Suggestion-1:}}}  In several places, when objects are multiplied/applied, they have compatible sizes but are of the wrong shapes.
+For example, in (1.3), the matrices $\mat{Q}_1$, $\mat{Q}_2$, and $\mat{Q}_3$ are $n \times r$, so the operator $(\mat{Q}_1 \otimes \mat{Q}_2 \otimes \mat{Q}_3)$ should act on a object with "column" shape $r \times r \times r$.
+The matrix $\hat{\mat{Q}}_{12}$ is $r^2 \times r$ and $\mat{I}_r$ is $r \times r$, so the object $(\hat{\mat{Q}}_{12} \otimes I_r)$ has "column" shape $r^2 \times r$.
+So, in principle, the product $(\mat{Q}_1 \otimes \mat{Q}_2 \otimes \mat{Q}_3)(\hat{\mat{Q}}_{12} \otimes \mat{I}_r)$ is incorrect.
+To make all the equations formally correct would require introducing explicit reshaping operators, which would then make all the equations much harder to read.
+I suggest to instead explain this size/shape issue and then say that objects implicitly reshape themselves as needed.\\
+\noindent \ul{\textbf{Response:}}\\
+
+\noindent \ul{\textit{\textbf{Suggestion-2:}}} p13 line 290 gives [4,10] as references for the sine of sums tensor identity (4.1). Add a citation to the paper with the proof http://dx.doi.org/10.1007/BF02985795\\
+\noindent \ul{\textbf{Response:}} \\
+
+
+\noindent \underline{\textbf{Refree \#2:}} \\
+
+\noindent\underline{General comments: (comments on improving the manuscript in general)}\\
+
+\noindent \ul{\textit{\textbf{GC-1:}}} The references could be filled out a bit more, e.g., adding references like Khatri and Rao's paper from 1968, etc.\\
+\noindent \ul{\textbf{Response:}} \\
+
+\noindent \ul{\textit{\textbf{GC-2:}}} I think the paper would be made stronger with an example of how the presented algorithms perform on an application (e.g., a selected problem from the list of applications presented in the introduction). This would not be a minor revision, and is not required, but I think the paper could benefit from having such an example.\\
+\noindent \ul{\textbf{Response:}} \\
+
+\noindent \ul{\textit{\textbf{GC-3:}}} Background or tutorial references on the complexity analysis of some of the operations more specific to tensor decompositions (e.g., MTTKRP, Multi-TTM, use of the arithmetic average and geometric mean) would be helpful, as they aren't obvious to non-experts in the field.\\
+\noindent \ul{\textbf{Response:}} \\
+
+\noindent \underline{Specific comments:}\\
+
+\noindent \ul{\textit{\textbf{SC-1:}}} I would state Property 1, with reference, before (1.1)-(1.3).\\
+\noindent \ul{\textbf{Response:}} \\
+
+\noindent \ul{\textit{\textbf{SC-2:}}} Memoization is mentioned on page two without reference, but later is referenced (with two different references).\\
+\noindent \ul{\textbf{Response:}}\\
+
+\noindent \ul{\textit{\textbf{SC-3:}}} There was a bit of a disconnect between complexities presented in Table 2 and subsection 3.1.1 for me that was resolved by understanding that the table presents per-iteration complexity whereas the discussion in 3.1.1 centers around sub-iterations. A more clear explanation of what is an iteration vs. sub-iteration would probably help some readers. This could be done in section 2.3.\\
+\noindent \ul{\textbf{Response:}}\\
+
+\noindent \ul{\textit{\textbf{SC-4:}}} Computing ``$\mat{H}_k$ in line 8" should specify that you're talking about line 8 of Algorithm 3.1.\\
+\noindent \ul{\textbf{Response:}}\\
+
+\noindent \ul{\textit{\textbf{SC-5:}}} The algorithms contain while loops with the condition ``not converged". This is vague; in what sense have the algorithms converged?\\
+\noindent \ul{\textbf{Response:}}\\
+
+\noindent \ul{\textit{\textbf{SC-6:}}} In algorithm 3.3, why is the expression for script $\mat{Y}$ used on line 8 when $\mat{Y}_{(k)}$ is used on line 10. To me, using the above expression for $\mat{Y}_{(k)}$ would be more clear. Is this because the notation is more convenient for later algorithms?\\
+\noindent \ul{\textbf{Response:}}\\
+
+\noindent \ul{\textit{\textbf{SC-7:}}} On page 9, reference [7] is used for memoization, whereas [11] was used in a few other places. Is this correct?\\
+\noindent \ul{\textbf{Response:}}\\
+
+
+\noindent \ul{\textit{\textbf{SC-8:}}} On page 13 could you say a bit more about the experimental outcomes and theoretical guarantees presented in (2.3) and (2.4) in terms of theta and eta?\\
+\noindent \ul{\textbf{Response:}}\\
+
+\noindent \ul{\textit{\textbf{SC-9:}}} For the computational experiments, it is nice that a GitHub repository is included for reproducibility. It would be helpful if the authors could share a bit of details about the code in the text as well (e.g., it is written in MATLAB) as well as the machine used for testing (just to ensure the reader that the tests were comparing apples-to-apples).\\
+\noindent \ul{\textbf{Response:}}\\
+
+\noindent \ul{\textit{\textbf{SC-10:}}} For the randomized example why was the convergence tolerance set to $10^-15$? Was this to ensure the experiments ran the maximum iteration number of 20?\\
+\noindent \ul{\textbf{Response:}}\\
+
+
+
+
+
+
+\bibliographystyle{plain}
+\bibliography{ref}
+\end{document}
