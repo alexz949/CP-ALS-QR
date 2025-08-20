@@ -8,13 +8,4 @@
 *.synctex.gz
 *.thm
 main.pdf
-	deleted:    writeup.aux
-	deleted:    writeup.bbl
-	deleted:    writeup.blg
-	deleted:    writeup.fdb_latexmk
-	deleted:    writeup.fls
-	deleted:    writeup.log
-	deleted:    writeup.out
-	deleted:    writeup.pdf
-	deleted:    writeup.synctex.gz
-	deleted:    writeup.thm
+response.pdf

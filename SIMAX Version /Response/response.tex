@@ -1,3 +1,4 @@
+
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
@@ -13,7 +14,7 @@
 \newcommand{\ten}[1]{\mathcal{#1}}
 
 \newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
-\title{Response to Reviewer's Comments}
+\title{Responses to Reviewer's Comments}
 % \author{bhishamdevverma }
 \date{}
 
@@ -22,13 +23,10 @@
 \maketitle
 % \vspace{-1.5cm}
 
-We thank the reviewers for dedicating their time and effort to reviewing the manuscript thoroughly and providing insightful comments. The manuscript has significantly benefited from these comments. We provide pointwise responses to the comments as follows:\\
+We thank the reviewers for dedicating their time and effort to reviewing the manuscript thoroughly and providing insightful comments. The manuscript has significantly benefited from them. All of the changes to the manuscript are colored in blue.  We provide responses to individual comments below.\\
 
 
-
-
-
-\noindent \underline{\textbf{Refree \#1:}}\\
+\noindent \underline{\textbf{Referee \#1:}}\\
 
 
 \noindent \ul{\textit{\textbf{Suggestion-1:}}}  In several places, when objects are multiplied/applied, they have compatible sizes but are of the wrong shapes.
@@ -37,13 +35,13 @@ The matrix $\hat{\mat{Q}}_{12}$ is $r^2 \times r$ and $\mat{I}_r$ is $r \times r
 So, in principle, the product $(\mat{Q}_1 \otimes \mat{Q}_2 \otimes \mat{Q}_3)(\hat{\mat{Q}}_{12} \otimes \mat{I}_r)$ is incorrect.
 To make all the equations formally correct would require introducing explicit reshaping operators, which would then make all the equations much harder to read.
 I suggest to instead explain this size/shape issue and then say that objects implicitly reshape themselves as needed.\\
-\noindent \ul{\textbf{Response:}}\\
+\noindent \ul{\textbf{Response:} We regret the confusion, we mean to use $\otimes$ to denote the matrix Kronecker product, so that all of these expressions are matrices, and their dimensions are consistent for matrix multiplication.  To clarify this in the paper, we make explicit that the notation is for matrix Kronecker products both in the introduction, where we give a teaser for the algebra, and in the Background section, where we define things formally.  We also replaced a separate use of $\otimes$ that did denote a tensor product to avoid confusion.}\\
 
 \noindent \ul{\textit{\textbf{Suggestion-2:}}} p13 line 290 gives [4,10] as references for the sine of sums tensor identity (4.1). Add a citation to the paper with the proof http://dx.doi.org/10.1007/BF02985795\\
 \noindent \ul{\textbf{Response:}} \\
 
 
-\noindent \underline{\textbf{Refree \#2:}} \\
+\noindent \underline{\textbf{Referee \#2:}} \\
 
 \noindent\underline{General comments: (comments on improving the manuscript in general)}\\
 

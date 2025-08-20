@@ -91,6 +91,7 @@
 
 \newcommand{\GB}[1]{\textcolor{red}{\textbf{GB}: #1}}
 \newcommand{\AZ}[1]{\textcolor{blue}{\textbf{AZ}: #1}}
+\newcommand{\response}[1]{\textcolor{blue}{#1}}
 \algnewcommand{\IfThenElse}[3]{\State \algorithmicif\ #1\ \algorithmicthen\ #2\ \algorithmicelse\ #3} % single line: \IfThenElse{<if>}{<then>}{<else>}
 \algnewcommand{\IfThen}[2]{\State \algorithmicif\ #1\ \algorithmicthen\ #2} % single line: \IfThen{<if>}{<then>}
 
@@ -142,7 +143,7 @@ As we describe in \cref{sec:background}, in the context of CP-ALS, the coefficie
 \Cref{sec:algo} details the various methods for exploiting the structure of these coefficient matrices, including via the normal equations (see \cref{sec:alg:ne} for more details).
 In order to efficiently compute a QR decomposition of a matrix with this structure, we perform a sequence of QR decompositions of smaller matrices.
 We illustrate the key idea with an example.
-Considering a Khatri-Rao product of three matrices each with $r$ columns and more than $r$ rows, we exploit the following identities, where each computed QR decomposition is denoted using underbraces:
+Considering a Khatri-Rao product of three matrices each with $r$ columns and more than $r$ rows, we exploit the following identities, where each computed QR decomposition is denoted using underbraces \response{and $\kron$ and $\kr$ denote matrix Kronecker and Khatri-Rao products, respectively}:
 
 \begin{align}
 \M{A} &= \underbrace{\M{A}_1}_{{\M{Q}_1\M{R}_1}} \kr \underbrace{\M{A}_2}_{{\M{Q}_2\M{R}_2}} \kr \underbrace{\M{A}_3}_{{\M{Q}_3\M{R}_3}}   \label{eq:qr} \\ 
@@ -181,7 +182,7 @@ CP decomposition $\T{K}$ of rank $r \in \mathbb{N}$ can be represented as
 \label{eq:CP}
 \T{X}(i_1,i_2,\dots, i_d) \approx \T{K}(i_1, i_2,\dots, i_d) = \sum^{r}_{j=1} \V{\lambda}(j) \mat{A}_1(i_1,j)\mat{A}_2(i_2,j) \dots \mat{A}_d(i_d,j)
 \end{equation}
-for all $(i_1,i_2,\dots, i_d) \in [n_1] \otimes [n_2] \otimes [n_3] \otimes \dots \otimes [n_d]$ where $\mat{A}_k \in \mathbb{R}^{n_k \times r}$ is a factor matrix for each $k \in [d]$ and $\bm{\lambda}\in\mathbb{R}^r$ is a vector of weights. 
+for all $(i_1,i_2,\dots, i_d) \in \response{[n_1] \times [n_2] \times \dots \times [n_d]}$ where $\mat{A}_k \in \mathbb{R}^{n_k \times r}$ is a factor matrix for each $k \in [d]$ and $\bm{\lambda}\in\mathbb{R}^r$ is a vector of weights. 
 %\Cref{fig:3d-cp-decomp} gives a visualization of a CP Decomposition for a 3-way tensor.
 %
 %\begin{figure}[ht!]
@@ -200,7 +201,7 @@ In the case of CP-format tensors like $\T{K}$, the $k$th mode-wise unfolding can
 $$\mat{K}_{(k)} = \mat{A}_k (\mat{A}_N \odot \dots \odot \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \dots \odot \mat{A}_1)^\top,$$
 where $\odot$ denotes the Khatri-Rao product \cite[Prop. 10.10]{BK25}.
 
-We use the following useful property of Khatri-Rao products:
+We use the following useful property of Khatri-Rao products \response{and their relation to Kronecker products, denoted by $\kron$}:
 \begin{property}[{\cite[Prop. A.22]{BK25}}]
 \label{prop:krnkrp}
 Given matrices $\mat{A},\mat{B},\mat{C},\mat{D}$ with compatible dimensions, 
