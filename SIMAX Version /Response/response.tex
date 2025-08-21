@@ -12,6 +12,7 @@
 
 \newcommand{\mat}[1]{\mathbf{#1}}
 \newcommand{\ten}[1]{\mathcal{#1}}
+\newcommand{\response}[1]{\textbf{Response:} \textit{#1}\\}
 
 \newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
 \title{Responses to Reviewer's Comments}
@@ -26,7 +27,7 @@
 We thank the reviewers for dedicating their time and effort to reviewing the manuscript thoroughly and providing insightful comments. The manuscript has significantly benefited from them. All of the changes to the manuscript are colored in blue.  We provide responses to individual comments below.\\
 
 
-\noindent \underline{\textbf{Referee \#1:}}\\
+\noindent \underline{\textbf{Referee \#1}}\\
 
 
 \noindent \ul{\textit{\textbf{Suggestion-1:}}}  In several places, when objects are multiplied/applied, they have compatible sizes but are of the wrong shapes.
@@ -35,10 +36,12 @@ The matrix $\hat{\mat{Q}}_{12}$ is $r^2 \times r$ and $\mat{I}_r$ is $r \times r
 So, in principle, the product $(\mat{Q}_1 \otimes \mat{Q}_2 \otimes \mat{Q}_3)(\hat{\mat{Q}}_{12} \otimes \mat{I}_r)$ is incorrect.
 To make all the equations formally correct would require introducing explicit reshaping operators, which would then make all the equations much harder to read.
 I suggest to instead explain this size/shape issue and then say that objects implicitly reshape themselves as needed.\\
-\noindent \ul{\textbf{Response:} We regret the confusion, we mean to use $\otimes$ to denote the matrix Kronecker product, so that all of these expressions are matrices, and their dimensions are consistent for matrix multiplication.  To clarify this in the paper, we make explicit that the notation is for matrix Kronecker products both in the introduction, where we give a teaser for the algebra, and in the Background section, where we define things formally.  We also replaced a separate use of $\otimes$ that did denote a tensor product to avoid confusion.}\\
+
+\response{We regret the confusion, we mean to use $\otimes$ to denote the matrix Kronecker product, so that all of these expressions are matrices, and their dimensions are consistent for matrix multiplication.  To clarify this in the paper, we make explicit that the notation is for matrix Kronecker products both in the introduction, where we give a teaser for the algebra, and in the Background section, where we define things formally.  We also replaced a separate use of $\otimes$ that did denote a tensor product to avoid confusion.}
 
 \noindent \ul{\textit{\textbf{Suggestion-2:}}} p13 line 290 gives [4,10] as references for the sine of sums tensor identity (4.1). Add a citation to the paper with the proof http://dx.doi.org/10.1007/BF02985795\\
-\noindent \ul{\textbf{Response:}} \\
+
+\response{Done.}
 
 
 \noindent \underline{\textbf{Referee \#2:}} \\
@@ -46,7 +49,8 @@ I suggest to instead explain this size/shape issue and then say that objects imp
 \noindent\underline{General comments: (comments on improving the manuscript in general)}\\
 
 \noindent \ul{\textit{\textbf{GC-1:}}} The references could be filled out a bit more, e.g., adding references like Khatri and Rao's paper from 1968, etc.\\
-\noindent \ul{\textbf{Response:}} \\
+
+\response{Added references to original Khatri-Rao paper and CP papers.}
 
 \noindent \ul{\textit{\textbf{GC-2:}}} I think the paper would be made stronger with an example of how the presented algorithms perform on an application (e.g., a selected problem from the list of applications presented in the introduction). This would not be a minor revision, and is not required, but I think the paper could benefit from having such an example.\\
 \noindent \ul{\textbf{Response:}} \\
@@ -57,7 +61,8 @@ I suggest to instead explain this size/shape issue and then say that objects imp
 \noindent \underline{Specific comments:}\\
 
 \noindent \ul{\textit{\textbf{SC-1:}}} I would state Property 1, with reference, before (1.1)-(1.3).\\
-\noindent \ul{\textbf{Response:}} \\
+
+\response{We have added a forward pointer to Property 1 in the introduction before (1.1)-(1.3).  We would like to avoid overloading the introduction with mathematical results, so we left Property 1 in the background section, but we did want to present the key mathematical idea as a teaser.}
 
 \noindent \ul{\textit{\textbf{SC-2:}}} Memoization is mentioned on page two without reference, but later is referenced (with two different references).\\
 \noindent \ul{\textbf{Response:}}\\
@@ -66,10 +71,12 @@ I suggest to instead explain this size/shape issue and then say that objects imp
 \noindent \ul{\textbf{Response:}}\\
 
 \noindent \ul{\textit{\textbf{SC-4:}}} Computing ``$\mat{H}_k$ in line 8" should specify that you're talking about line 8 of Algorithm 3.1.\\
-\noindent \ul{\textbf{Response:}}\\
+
+\response{Done.}
 
 \noindent \ul{\textit{\textbf{SC-5:}}} The algorithms contain while loops with the condition ``not converged". This is vague; in what sense have the algorithms converged?\\
-\noindent \ul{\textbf{Response:}}\\
+
+\response{We added a short discussion of convergence criteria in the beginning of Section 3. Basically, convergence criteria are orthogonal to the per-iteration complexities; changing the convergence criteria does not affect the qualitative comparisons among algorithms.  In our experiments we run to a maximum number of iterations for simplicity.}
 
 \noindent \ul{\textit{\textbf{SC-6:}}} In algorithm 3.3, why is the expression for script $\mat{Y}$ used on line 8 when $\mat{Y}_{(k)}$ is used on line 10. To me, using the above expression for $\mat{Y}_{(k)}$ would be more clear. Is this because the notation is more convenient for later algorithms?\\
 \noindent \ul{\textbf{Response:}}\\
@@ -93,5 +100,5 @@ I suggest to instead explain this size/shape issue and then say that objects imp
 
 
 \bibliographystyle{plain}
-\bibliography{ref}
+\bibliography{../reference}
 \end{document}
