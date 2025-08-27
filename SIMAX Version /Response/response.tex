@@ -11,8 +11,8 @@
 \usepackage{amsfonts}
 
 \newcommand{\mat}[1]{\mathbf{#1}}
-\newcommand{\ten}[1]{\mathcal{#1}}
-\newcommand{\response}[1]{\textbf{Response:} \textit{#1}\\}
+\newcommand{\ten}[1]{\mathbf{\mathcal{#1}}}
+\newcommand{\response}[1]{\textbf{Response:} \textcolor{blue}{\textit{#1}}\\}
 
 \newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
 \title{Responses to Reviewer's Comments}
@@ -65,10 +65,12 @@ I suggest to instead explain this size/shape issue and then say that objects imp
 \response{We have added a forward pointer to Property 1 in the introduction before (1.1)-(1.3).  We would like to avoid overloading the introduction with mathematical results, so we left Property 1 in the background section, but we did want to present the key mathematical idea as a teaser.}
 
 \noindent \ul{\textit{\textbf{SC-2:}}} Memoization is mentioned on page two without reference, but later is referenced (with two different references).\\
-\noindent \ul{\textbf{Response:}}\\
+
+\response{This is intentional, memoization is a generic technique.   We have rephrased the sentence in the introduction to try and clarify this.  The way we use it as described on page 2 is novel because it is in the context of our algorithm, so we don't think a reference is appropriate.  We use a reference in Section 3.1.1 because that paper applied memoization in exactly that context (CP-ALS of a dense tensor).  We use a different reference in Section 3.2.1 because that paper addressed how to use memoization in computing a sequence of Multi-TTM computations, though in a slightly different context.}
 
 \noindent \ul{\textit{\textbf{SC-3:}}} There was a bit of a disconnect between complexities presented in Table 2 and subsection 3.1.1 for me that was resolved by understanding that the table presents per-iteration complexity whereas the discussion in 3.1.1 centers around sub-iterations. A more clear explanation of what is an iteration vs. sub-iteration would probably help some readers. This could be done in section 2.3.\\
-\noindent \ul{\textbf{Response:}}\\
+
+\response{Done.}
 
 \noindent \ul{\textit{\textbf{SC-4:}}} Computing ``$\mat{H}_k$ in line 8" should specify that you're talking about line 8 of Algorithm 3.1.\\
 
@@ -78,11 +80,13 @@ I suggest to instead explain this size/shape issue and then say that objects imp
 
 \response{We added a short discussion of convergence criteria in the beginning of Section 3. Basically, convergence criteria are orthogonal to the per-iteration complexities; changing the convergence criteria does not affect the qualitative comparisons among algorithms.  In our experiments we run to a maximum number of iterations for simplicity.}
 
-\noindent \ul{\textit{\textbf{SC-6:}}} In algorithm 3.3, why is the expression for script $\mat{Y}$ used on line 8 when $\mat{Y}_{(k)}$ is used on line 10. To me, using the above expression for $\mat{Y}_{(k)}$ would be more clear. Is this because the notation is more convenient for later algorithms?\\
-\noindent \ul{\textbf{Response:}}\\
+\noindent \ul{\textit{\textbf{SC-6:}}} In algorithm 3.3, why is the expression for script $\ten{Y}$ used on line 8 when $\mat{Y}_{(k)}$ is used on line 10. To me, using the above expression for $\mat{Y}_{(k)}$ would be more clear. Is this because the notation is more convenient for later algorithms?\\
+
+\response{We switch between tensor notation and matrix notation in the algorithm to make the computation clear.  $\mat{Y}_{(k)}$ is just the $k$th modal unfolding of $\ten{Y}$.  We can write line 8 in matrix notation (it includes the Kronecker products of the $\mat{Q}$'s and appears on page 8), but we want to emphasize that the efficient computation is a Multi-TTM.  We have added a comment in the background section to clarify that $\mat{Y}_{(k)}$ is the notation for unfolding.}
 
 \noindent \ul{\textit{\textbf{SC-7:}}} On page 9, reference [7] is used for memoization, whereas [11] was used in a few other places. Is this correct?\\
-\noindent \ul{\textbf{Response:}}\\
+
+\response{See response to SC-2 above.}
 
 
 \noindent \ul{\textit{\textbf{SC-8:}}} On page 13 could you say a bit more about the experimental outcomes and theoretical guarantees presented in (2.3) and (2.4) in terms of theta and eta?\\

@@ -166,7 +166,7 @@ The cost of the pairwise approach is linear in the number of factors; full detai
 We compare our proposed algorithm with the normal equations method and with the previously proposed QR-based algorithm to show that it is as computationally efficient as the normal equations and as numerically stable as the QR-based algorithm.
 We use a sine-of-sums tensor \cite{BM02} to illustrate the differences among the algorithms, as the example yields ill-conditioned least squares problems that expose the numerical instability of the normal equations and can be scaled to large numbers of modes.
 Our results show a $14\times$ speedup over the previous QR-based algorithm on a single linear least squares solve for a problem with 7 Khatri-Rao factors.
-We also show that our implementation of CP-ALS using QR is faster than the implementation of CP-ALS in the MATLAB Tensor Toolbox \cite{BK07,TensorToolbox}, which is based on the normal equations, because our implementation uses memoization to avoid recomputation of temporary quantities.
+We also show that our implementation of CP-ALS using QR is faster than the implementation of CP-ALS in the MATLAB Tensor Toolbox \cite{BK07,TensorToolbox}, which is based on the normal equations, because our implementation uses memoization\response{, a technique of computing and storing temporary quantities to avoid recomputation}.
 We observe up to a $4\times$ speedup over the normal equations based CP-ALS on a 9-way tensor.
 For the sine-of-sums tensors, we show that the normal equations approach can break down completely in the presence of ill-conditioning, while our method maintains small relative errors.
 We also illustrate for synthetic data the benefits of trading off accuracy and running time using reduced working precision: our proposed approach is able to run even faster using single precision while maintaining the same accuracy as the normal equations approach using double precision.
@@ -199,7 +199,7 @@ For simplicity of presentation, we drop the weight vector $\V{\lambda}$ througho
 $$\T{K} = [\![\mat{A}_1,\mat{A}_2, \dots,\mat{A}_d ]\!].$$
 
 A tensor unfolding is a reshaping of the tensor elements into a matrix; mode-wise unfoldings map tensor fibers of a particular mode to columns of a matrix.
-In the case of CP-format tensors like $\T{K}$, the $k$th mode-wise unfolding can be expressed in terms of the factor matrices:
+In the case of CP-format tensors like $\T{K}$, the $k$th mode-wise unfolding \response{denoted by $\mat{K}_{(k)}$} can be expressed in terms of the factor matrices:
 $$\mat{K}_{(k)} = \mat{A}_k (\mat{A}_N \odot \dots \odot \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \dots \odot \mat{A}_1)^\top,$$
 where $\odot$ denotes the Khatri-Rao product \cite[Prop. 10.10]{BK25}.
 
@@ -290,8 +290,9 @@ We resort to using iterative methods to approximate a solution \cite{BK25,kolda2
 One of the most effective algorithms for computing a CP decomposition of a tensor is called Alternating Least Squares (CP-ALS).
 The algorithm works as a block coordinate descent method, where each block of variables is a factor matrix.
 That is, it alternates over the factor matrices, holding all but one fixed and computing the optimal solution for the variable matrix.
+\response{Each iteration of CP-ALS involves updating all factor matrices, and we call the update of a single factor matrix a subiteration.}
 
-We can solve each subproblem directly because it is a linear least squares problem.
+We can solve each \response{problem within a subiteration} directly because it is a linear least squares problem.
 In updating the $k$th factor matrix, we expose the linear least squares problem by unfolding $\T{X}$ and $\T{K}$ along the $k$th mode:
 \begin{align}
 \label{eq:cp-als-sub}
