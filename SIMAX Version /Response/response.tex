@@ -13,6 +13,7 @@
 \newcommand{\mat}[1]{\mathbf{#1}}
 \newcommand{\ten}[1]{\mathbf{\mathcal{#1}}}
 \newcommand{\response}[1]{\textbf{Response:} \textcolor{blue}{\textit{#1}}\\}
+\newcommand{\GB}[1]{\textcolor{red}{GB: #1}}
 
 \newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
 \title{Responses to Reviewer's Comments}
@@ -90,17 +91,15 @@ I suggest to instead explain this size/shape issue and then say that objects imp
 
 
 \noindent \ul{\textit{\textbf{SC-8:}}} On page 13 could you say a bit more about the experimental outcomes and theoretical guarantees presented in (2.3) and (2.4) in terms of theta and eta?\\
-\noindent \ul{\textbf{Response:}}\\
+
+\response{Thank you for the suggestion.  For this experiment, $\theta$ (the angle between $Ax$ and $b$) is zero in exact arithmetic, which means $\tan \theta \approx 0$ and the forward error of QR is governed by $\kappa \cdot \epsilon_{mach}$.  We have added a sentence to the discussion in Section 4.2 to make this point and better explain the numerical observations.  We also computed $\theta$ and $\eta$ for all the right hand sides of the experiment and observed ... \GB{need to fill in here}}
 
 \noindent \ul{\textit{\textbf{SC-9:}}} For the computational experiments, it is nice that a GitHub repository is included for reproducibility. It would be helpful if the authors could share a bit of details about the code in the text as well (e.g., it is written in MATLAB) as well as the machine used for testing (just to ensure the reader that the tests were comparing apples-to-apples).\\
 \noindent \ul{\textbf{Response:}}\\
 
-\noindent \ul{\textit{\textbf{SC-10:}}} For the randomized example why was the convergence tolerance set to $10^-15$? Was this to ensure the experiments ran the maximum iteration number of 20?\\
-\noindent \ul{\textbf{Response:}}\\
+\noindent \ul{\textit{\textbf{SC-10:}}} For the randomized example why was the convergence tolerance set to $10^{-15}$? Was this to ensure the experiments ran the maximum iteration number of 20?\\
 
-
-
-
+\response{That is correct, the convergence tolerance detail is superfluous.  We re-worded to avoid confusion.}
 
 
 \bibliographystyle{plain}

@@ -170,7 +170,7 @@ We also show that our implementation of CP-ALS using QR is faster than the imple
 We observe up to a $4\times$ speedup over the normal equations based CP-ALS on a 9-way tensor.
 For the sine-of-sums tensors, we show that the normal equations approach can break down completely in the presence of ill-conditioning, while our method maintains small relative errors.
 We also illustrate for synthetic data the benefits of trading off accuracy and running time using reduced working precision: our proposed approach is able to run even faster using single precision while maintaining the same accuracy as the normal equations approach using double precision.
-We summarize our conclusions in \cref{sec:conclusion} and discuss future directions based on the proposed method. The source code for the reproducibility of our experiment results is available at: \url{https://github.com/alexz949/CP-Rounding.git}.
+We summarize our conclusions in \cref{sec:conclusion} and discuss future directions based on the proposed method. The source code for the reproducibility of our experimental results is available at: \url{https://github.com/alexz949/CP-Rounding.git}.
 
 \section{Background} 
 \label{sec:background}
@@ -260,12 +260,12 @@ However, when $\mat{B}$ has many columns ($p\gg n$), the largest cost is computi
 Using QR is more numerically stable than NE. 
 Let $\kappa = \sigma_1(\mat{A})/\sigma_n(\mat{A})$ be the standard condition number of $\mat{A}$.
 If we use QR to solve a least squares problem with a single right hand side; i.e. $\min\|\mat{A}\V{x} - \V{b} \|$, then from \cite[Eq. (19.2)]{trefethen1997numerical} the relative forward error satisfies
-\begin{equation}\label{eq:ne-ferr}
+\begin{equation}\label{eq:qr-ferr}
   \frac{||\V[\tilde]{x} - \V{x}||}{||\V{x}||} = O \biggl(\biggl(\kappa + \frac{\kappa^2\tan\theta}{\eta}\biggr)\epsilon_{mach}\biggr),
 \end{equation}
 where $\V[\tilde]{x}$ is the computed solution, $\V{x}$ is the exact solution, $\theta$ is the angle between $\mat{A}\V{x}$ and $\V{b}$, and $\eta = \|\mat{A}\|\|\V{x}\|/\|\mat{A}\V{x}\|$.
 However, if we use the NE approach, then by \cite[Eq. (19.3)]{trefethen1997numerical} the forward error guarantee is  much looser: 
-\begin{equation}\label{eq:qr-ferr}
+\begin{equation}\label{eq:ne-ferr}
   \frac{||\V[\tilde]{x} - \V{x}||}{||\V{x}||} = O \biggl(\kappa^2 \epsilon_{\text{mach}}\biggr).
 \end{equation}
 Because of the numerical sensitivity introduced by using the NE approach, the QR approach is much more accurate when $\kappa$ is large (e.g., on the order of $\epsilon_{\text{mach}}^{-1/2}$ or larger) and $\theta$ is small.
@@ -662,6 +662,7 @@ As the condition number increases, we see that the forward error of all methods 
 However, this loss of accuracy is much worse for the normal equations method, and when the condition number is as large as the reciprocal of the square root of machine precision, it completely breaks down.
 For the QR-based methods, the loss of accuracy is much more graceful, and both methods maintain forward error close to the square root of machine precision even when the condition number is on the order of \texttt{1e13}.
 This experiment confirms the difference in theoretical guarantees presented in \cref{eq:ne-ferr,eq:qr-ferr}.
+\response{Note that the forward error of the QR-based is dominated by the first term of \cref{eq:qr-ferr}, $O(\kappa \cdot \epsilon_{mach})$, because the residual norm (and therefore $\tan \theta$) is zero in exact arithmetic for this experiment.}
 We note that the implicit Pairwise QR method yields slightly more accurate results than the explicit QR method, which we conjecture is due to the computations involving explicit vectors of dimension $n^{d-1}$, which the implicit method avoids.
 
 %\begin{table}[ht!] 
@@ -776,8 +777,9 @@ In our experiments, we first generate a three-way CP tensor $\T{Y}$ of size $100
 To this tensor, we add a noise tensor $\T{N}$ whose factor matrices have $450$ columns and are initialized with i.i.d.~samples from the standard normal distribution with noise level $\eta = 10^{-5}$. 
 The formal rank of the resulting CP-tensor  ($\T{X} = \T{Y} + \eta \T{N}$) becomes 500, the sum of the ranks of $\T{Y}$ and $\T{N}$, but it is accurately approximated by a rank-50 CP tensor.
 We apply the NE-based and implicit Pairwise QR-based CP-ALS algorithms using both single and double-precision floating-point representations to compress it to rank $50$. 
-We set the maximum number of iterations to $20$ and use a convergence tolerance of   $10^{-15}$ for the relative error.  
-We use a random guess for initialization, and all algorithms start with the same initial factor matrices.
+%We set the maximum number of iterations to $20$ and use a convergence tolerance of   $10^{-15}$ for the relative error. 
+ 
+We use a random guess for initialization, all algorithms start with the same initial factor matrices\response{, and we measure the time and error over 20 iterations}.
 %We perform two independent trials. In each trial, a random guess is used for initialization, and all algorithms start with the same initial factor matrices. 
 Figure~\ref{fig:single_precission} summarizes our experimental results.
 \begin{figure}[ht!]
