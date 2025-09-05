@@ -54,10 +54,12 @@ I suggest to instead explain this size/shape issue and then say that objects imp
 \response{Added references to original Khatri-Rao paper and CP papers.}
 
 \noindent \ul{\textit{\textbf{GC-2:}}} I think the paper would be made stronger with an example of how the presented algorithms perform on an application (e.g., a selected problem from the list of applications presented in the introduction). This would not be a minor revision, and is not required, but I think the paper could benefit from having such an example.\\
-\noindent \ul{\textbf{Response:}} \\
+
+\response{\GB{still need to address this...}}
 
 \noindent \ul{\textit{\textbf{GC-3:}}} Background or tutorial references on the complexity analysis of some of the operations more specific to tensor decompositions (e.g., MTTKRP, Multi-TTM, use of the arithmetic average and geometric mean) would be helpful, as they aren't obvious to non-experts in the field.\\
-\noindent \ul{\textbf{Response:}} \\
+
+\response{\GB{still need to address this...}}
 
 \noindent \underline{Specific comments:}\\
 
@@ -92,10 +94,11 @@ I suggest to instead explain this size/shape issue and then say that objects imp
 
 \noindent \ul{\textit{\textbf{SC-8:}}} On page 13 could you say a bit more about the experimental outcomes and theoretical guarantees presented in (2.3) and (2.4) in terms of theta and eta?\\
 
-\response{Thank you for the suggestion.  For this experiment, $\theta$ (the angle between $Ax$ and $b$) is zero in exact arithmetic, which means $\tan \theta \approx 0$ and the forward error of QR is governed by $\kappa \cdot \epsilon_{mach}$.  We have added a sentence to the discussion in Section 4.2 to make this point and better explain the numerical observations.  We also computed $\theta$ and $\eta$ for all the right hand sides of the experiment and observed ... \GB{need to fill in here}}
+\response{Thank you for the suggestion.  For this experiment, $\theta$ (the angle between $Ax$ and $b$) is zero in exact arithmetic, which means we expect $\tan \theta \approx 0$ and the forward error of QR is governed by $\kappa \cdot \epsilon_{mach}$.  We have added a sentence to the discussion in Section 4.2 to make this point and better explain the numerical observations.  We also computed $\theta$ and $\eta$ for all the right hand sides of the experiment and observed that on average, $\theta$ values are around the square root of machine precision and $\eta$ values get quite large, up to $10^{14}$ for the most ill-conditioned problem.  Both of those drive down the magnitude of the second term in the error bound.}
 
 \noindent \ul{\textit{\textbf{SC-9:}}} For the computational experiments, it is nice that a GitHub repository is included for reproducibility. It would be helpful if the authors could share a bit of details about the code in the text as well (e.g., it is written in MATLAB) as well as the machine used for testing (just to ensure the reader that the tests were comparing apples-to-apples).\\
-\noindent \ul{\textbf{Response:}}\\
+
+\response{We added a description of the computational setup to the beginning of Section 4.}
 
 \noindent \ul{\textit{\textbf{SC-10:}}} For the randomized example why was the convergence tolerance set to $10^{-15}$? Was this to ensure the experiments ran the maximum iteration number of 20?\\
 
