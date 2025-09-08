@@ -303,6 +303,7 @@ In updating the $k$th factor matrix, we expose the linear least squares problem 
 where $\mat{Z}_k=\mat{A}_d \odot \dots \odot \mat{A}_{k+1} \odot \mat{A}_{k-1} \odot \dots \odot \mat{A}_1$.
 Note that the coefficient matrix $\mat{Z}_k^\top$ appears on the right of the variable matrix, matching the generic formulation in \cref{eq:LS}.
 All of the algorithms we consider here are based on CP-ALS, but they differ in how they solve the linear least squares subproblems specified in \cref{eq:cp-als-sub}.
+\response{More details on CP-ALS can be found in \cite[Chapter 11]{BK25}, and details on the underlying computations and their complexity analysis can be found in \cite[Chapter 3]{BK25}.}
 
 \subsubsection{CP-Rounding}
 \label{sec:cp-rounding}
@@ -336,7 +337,7 @@ We note that computing the objective function value at each iteration can be don
 \Cref{sec:alg:ne} presents the standard approach based on the normal equations, \cref{sec:alg:expqr} presents an existing approach that uses QR decomposition, and our proposed algorithm is detailed in \cref{sec:alg:pwqr}.
 We consider general $d$-way tensors with dimensions $n_1 \times \cdots \times n_d$, and we use $r$ to denote the rank of the CP approximation, which is assumed to be smaller than the tensor dimensions unless otherwise noted.
 In the case of CP-format input, we use $s$ to denote the input rank.
-For complexity analysis, we use notation for arithmetic average ($\bar n$) as well as geometric mean ($\hat n$) of the tensor dimensions, which means the number of dense input tensor entries is $\hat n^d$ and the number of entries in the CP decomposition is $d\bar n r$.
+\response{To simplify the notation of the} complexity analysis, we use notation for arithmetic average ($\bar n$) as well as geometric mean ($\hat n$) of the tensor dimensions, which means the number of dense input tensor entries is $\hat n^d$ and the number of entries in the CP decomposition is $d\bar n r$.
 Summaries of the per-iteration complexity of each algorithm are given in \cref{tab:dense_its_part} (for dense input) and \cref{tab:kruskal_its_part} (for CP format input).
 
 \begin{table}[!ht] 
@@ -416,7 +417,7 @@ Pseudocode for CP-ALS-NE is given in \cref{alg:cp-als-ne}.
 \subsubsection{Dense Input}
 %\AZ{complexity analysis in the text is for one inner loop and in table it is for one outer loop.}
 
-When we have a dense tensor input, the dominant cost of each subiteration comes from the MTTKRP computation of $\mat{M}_k = \mat{X}_{(k)}\mat{Z}_k$ in line \ref{l:NE-mttkrp}, which has leading order arithmetic cost of $2\hat n^dr$.
+When we have a dense tensor input, the dominant cost of each subiteration comes from the MTTKRP computation of $\mat{M}_k = \mat{X}_{(k)}\mat{Z}_k$ in line \ref{l:NE-mttkrp}, which has leading order arithmetic cost of $2\hat n^dr$ \response{\cite[Section 3.5]{BK25}}.
 Computing $\mat{H}_k$ in line \ref{l:NE-Hada} \response{of \cref{alg:cp-als-ne}} requires $O(dr^2)$ operations, solving the normal equations in line \ref{l:NE-solve} costs $O(r^3+n_kr^2)$, and computing the Gram matrix in line \ref{l:NE-Gram} costs $O(n_kr^2)$.
 Thus, the sum of an entire CP-ALS-NE iteration (updating all factor matrices once) is given by
 \begin{equation*}
@@ -486,7 +487,7 @@ Then we apply the $\mat{Q}_0$ to $\mat{Y}_{(k)}$ from the right and solve the li
 
 Pseudocode for CP-ALS-QR for dense input is shown in \cref{alg:cp-als-qr}.
 For dense input, the computation of each subiteration is dominated by line \ref{l:EXP-TTM}, which is a multiple tensor-times-matrix (Multi-TTM) computation to form $\T{Y}$ with cost
-$2\hat{n}^dr+O(\hat{n}^{d-1}r^2 + \cdots + \hat{n}r^d)$, where we assume the Multi-TTM is performed in order of largest mode to smallest (the largest mode is at least the geometric mean).
+$2\hat{n}^dr+O(\hat{n}^{d-1}r^2 + \cdots + \hat{n}r^d)$ \response{\cite[Section 3.4]{BK25}}, where we assume the Multi-TTM is performed in order of largest mode to smallest (the largest mode is at least the geometric mean).
 The cost of the QR of the Khatri-Rao product of triangular factors in line \ref{l:EXP-QR-R} is $4r^{d+1}+O(r^3)$, where we assume $\mat{Q}_0$ is formed explicitly.
 The cost of multiplying $\mat{Q}_0$ by $\mat{Y}_{(k)}$ in line \ref{l:apply} is $2n_kr^d$.
 Solving the triangular system in line \ref{l:cp-als-q-exp:solve} costs $n_kr^2$, and computing the QR of the factor matrix in line \ref{l:cp-als-q-exp:updateQR} is $4n_kr^2+O(r^3)$, where again we form the orthogonal factor explicitly.
@@ -571,7 +572,7 @@ To simplify the presentation of the approach in \cref{alg:cp-als-pairwise-qr}, w
 
 The cost of the Multi-TTM in line \ref{l:pairwise-TTM} is the same as in \cref{alg:cp-als-qr}: $2\hat{n}^dr+O(\hat{n}^{d-1}r^2 + \cdots + \hat{n}r^d)$.
 The permutation in line \ref{l:pairwise-permute} has no arithmetic cost, though in practice it may take significant time due to the high relative cost of memory movement.
-The pairwise QR decompositions (line \ref{l:pairwise-QR}) together cost $4(d-2)r^4 + O(dr^3)$ for mode $k$, and applying the pairwise orthogonal factors via TTM (line \ref{l:pair-R-TTM}) costs a total of $2n_kr^d+2n_kr^{d-1}+\cdots+2n_kr^3$.
+The pairwise QR decompositions (line \ref{l:pairwise-QR}) together cost $4(d-2)r^4 + O(dr^3)$ for mode $k$, and applying the pairwise orthogonal factors via TTM (line \ref{l:pair-R-TTM}) costs a total of $2n_kr^d+2n_kr^{d-1}+\cdots+2n_kr^3$ \response{\cite[Section 3.3]{BK25}}.
 The triangular solve in line \ref{l:pairwise-solve} costs $n_kr^2$.
 The cost of the QR decomposition in line \ref{l:pairwise-factorQR} is $4n_kr^2+O(r^3)$ in mode $k$ (we form the orthonormal factor explicitly).
 Thus, the total cost of a full iteration (updating each factor matrix once) of CP-ALS-QR-Imp is

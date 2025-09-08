@@ -55,11 +55,11 @@ I suggest to instead explain this size/shape issue and then say that objects imp
 
 \noindent \ul{\textit{\textbf{GC-2:}}} I think the paper would be made stronger with an example of how the presented algorithms perform on an application (e.g., a selected problem from the list of applications presented in the introduction). This would not be a minor revision, and is not required, but I think the paper could benefit from having such an example.\\
 
-\response{\GB{still need to address this...}}
+\response{We agree that demonstration of the presented algorithms on another application would make the paper stronger.  We have elected not to pursue another example because we expect the performance behavior to be qualitatively similar to what is observed in the existing examples.  The accuracy behavior is harder to predict, as it depends on the condition numbers coming from the problem.  We assume for most applications, the conditioning of the problem will be okay for the NE-based approach, at least in double precision.  But because the QR-based approach is likely to be just as fast or faster, we still recommend its use in general.}
 
 \noindent \ul{\textit{\textbf{GC-3:}}} Background or tutorial references on the complexity analysis of some of the operations more specific to tensor decompositions (e.g., MTTKRP, Multi-TTM, use of the arithmetic average and geometric mean) would be helpful, as they aren't obvious to non-experts in the field.\\
 
-\response{\GB{still need to address this...}}
+\response{Using arithmetic average and geometric mean is strictly for notational convenience and presentation.  The complexity of these computations typically depends on either the product of the dimensions or the sum, so using the average and geometric mean avoids the cumbersome sum and product notation.  It also makes the simplification of the expressions for cubical tensors ($n_1=\cdots=n_d$) obvious.  We have added references to justify the costs of TTM, MTTKRP, and Multi-TTM throughout Section 3 and point readers to tutorials on those computations.}
 
 \noindent \underline{Specific comments:}\\
 
