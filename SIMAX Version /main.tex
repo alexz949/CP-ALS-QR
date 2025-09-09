@@ -332,7 +332,7 @@ This structure can be exploited in different ways depending on how the least squ
 We now present three versions of the CP-ALS algorithm and compare their complexities.
 \response{In all algorithms, we leave the convergence criteria unspecified because it is independent of the per-iteration comparisons among the algorithms.
 Typical criteria include a maximum number of iterations and/or (change in) the objective function value (given by \cref{eq:objfcnval}).
-We note that computing the objective function value at each iteration can be done cheaply with both NE and QR methods \cite[Section 3.3.1]{MVLB23}.}
+We note that computing the objective function value at each iteration can be done cheaply with both NE and QR methods \cite[Section 3.3.1]{MVLB23}, though at some sacrifice to numerical accuracy.}
 
 \Cref{sec:alg:ne} presents the standard approach based on the normal equations, \cref{sec:alg:expqr} presents an existing approach that uses QR decomposition, and our proposed algorithm is detailed in \cref{sec:alg:pwqr}.
 We consider general $d$-way tensors with dimensions $n_1 \times \cdots \times n_d$, and we use $r$ to denote the rank of the CP approximation, which is assumed to be smaller than the tensor dimensions unless otherwise noted.
@@ -443,7 +443,7 @@ If the input tensor {$\T{X}=[\![\mat{B}_{1}, \dots ,\mat{B}_{d}]\!]$} is already
 
 
 When the input is a CP-format tensor of rank $s>r$, the cost is dominated by the computation of the right hand side of the normal equations.
-These costs, incurred in lines \ref{l:round-ne-rhs} and \ref{l:NE-K-cross}, are $2n_krs+(d-2)rs$ and $2n_krs$ in mode $k$, respectively.
+These costs, incurred in lines \ref{l:round-ne-rhs} and \ref{l:NE-K-cross} \response{of \cref{alg:cp-als-ne-k}}, are $2n_krs+(d-2)rs$ and $2n_krs$ in mode $k$, respectively.
 Computing the coefficient matrix of the normal equations occurs in lines \ref{l:round-ne-gram} and \ref{l:NE-K-Gram} and has costs $(d-2)r^2$ and $n_kr^2$ in mode $k$.
 Solving the normal equations in line \ref{l:NE-K-solve} costs $2n_kr^2 + O(r^3)$.
 Thus, the sum of an entire CP-Round-ALS-NE iteration (updating all factor matrices once) is given by %\AZ{Should be $4d\bar n rs$ and we don't need $3d\bar n r^2$?}
